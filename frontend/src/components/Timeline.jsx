@@ -311,6 +311,14 @@ function fallbackCopy(text) {
   document.body.removeChild(textArea);
   alert('Link copied to clipboard!');
 }
+
+/**
+ * Format duration in seconds to readable string
+ */
+function formatDuration(seconds) {
+  if (!seconds) return '0s';
+
+  const hours = Math.floor(seconds / 3600);
   const minutes = Math.floor((seconds % 3600) / 60);
   const secs = Math.floor(seconds % 60);
 
@@ -325,9 +333,6 @@ function fallbackCopy(text) {
 
 /**
  * Get previous date
- */
-/**
- * Format duration in seconds to readable string
  */
 function formatDuration(seconds) {
   if (!seconds) return '0s';
