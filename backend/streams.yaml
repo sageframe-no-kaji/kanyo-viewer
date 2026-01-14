@@ -16,7 +16,7 @@ streams:
 
   nsw:
     name: "NSW Falcon Cam"
-    youtube_id: "TBD"
+    youtube_id: "1SQqMT-kPpw"
     data_path: "/data/nsw"
     timezone: "Australia/Sydney"
     display:

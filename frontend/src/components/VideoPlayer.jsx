@@ -7,10 +7,10 @@ export default function VideoPlayer({ stream, selectedEvent, selectedDate, isLiv
         <div className="relative" style={{ paddingBottom: '56.25%' }}>
           <iframe
             className="absolute top-0 left-0 w-full h-full"
-            src={`https://www.youtube.com/embed/${stream.youtube_id}?autoplay=1&mute=0`}
+            src={`https://www.youtube.com/embed/${stream.youtube_id}?autoplay=1&mute=0&rel=0`}
             title="Live Stream"
             frameBorder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
             allowFullScreen
           />
         </div>

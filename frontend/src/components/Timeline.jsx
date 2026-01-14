@@ -147,23 +147,35 @@ export default function Timeline({
 }
 
 /**
- * Calculate event position and width on 24-hour timeline
+ * Calculate event position and width on 12-hour timeline (12 AM - 12 PM)
  */
 function calculateEventPosition(event) {
   if (!event.timestamp || !event.duration) return { left: 0, width: 0 };
 
   const date = new Date(event.timestamp);
-  const startMinutes = date.getHours() * 60 + date.getMinutes() + date.getSeconds() / 60;
-  const durationMinutes = event.duration / 60;
+  const hour = date.getHours();
+  const minutes = date.getMinutes();
+  const seconds = date.getSeconds();
 
-  // Position as percentage of 24 hours (1440 minutes)
-  const left = (startMinutes / 1440) * 100;
-  const width = (durationMinutes / 1440) * 100;
+  // Only show events from 12 AM to 12 PM (0-11 hours)
+  if (hour >= 12) return { left: 0, width: 0 };
 
-  // Minimum width for visibility (0.5% = ~7 minutes)
+  const startMinutes = hour * 60 + minutes + seconds / 60;
+  let durationMinutes = event.duration / 60;
+
+  // Scale clips shorter than 15 minutes to appear as 15 minutes
+  if (durationMinutes < 15) {
+    durationMinutes = 15;
+  }
+
+  // Position as percentage of 12 hours (720 minutes)
+  const left = (startMinutes / 720) * 100;
+  const width = (durationMinutes / 720) * 100;
+
+  // Ensure clips don't overflow timeline
   return {
     left,
-    width: Math.max(width, 0.5)
+    width: Math.min(width, 100 - left)
   };
 }
 

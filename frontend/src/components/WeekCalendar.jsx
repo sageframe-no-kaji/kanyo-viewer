@@ -8,9 +8,9 @@ export default function WeekCalendar({ streamId, streamTimezone, selectedDate, o
   const [weekStartDate, setWeekStartDate] = useState(null);
 
   useEffect(() => {
-    if (selectedDate) {
+    if (selectedDate && !weekStartDate) {
+      // Only set initial week start, don't recenter on date change
       const selected = new Date(selectedDate + 'T12:00:00');
-      // Calculate week start (3 days before selected)
       const weekStart = new Date(selected);
       weekStart.setDate(weekStart.getDate() - 3);
       setWeekStartDate(weekStart);
@@ -105,9 +105,9 @@ export default function WeekCalendar({ streamId, streamTimezone, selectedDate, o
               >
                 <div className="text-xs uppercase opacity-70">{item.dayOfWeek}</div>
                 <div className="text-lg mt-1">{item.dayOfMonth}</div>
-                {hasEvents && !isSelected && (
-                  <div className="w-1 h-1 bg-kanyo-orange rounded-full mx-auto mt-1"></div>
-                )}
+                <div className={`w-1 h-1 rounded-full mx-auto mt-1 ${
+                  hasEvents && !isSelected ? 'bg-kanyo-orange' : 'bg-transparent'
+                }`}></div>
               </button>
             );
           })}
