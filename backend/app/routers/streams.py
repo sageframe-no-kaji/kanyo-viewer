@@ -1,7 +1,7 @@
 """Stream information endpoints."""
 from fastapi import APIRouter, HTTPException
 from pathlib import Path
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, tzinfo
 from typing import List, Dict, Any, Optional
 import json
 import pytz
@@ -11,7 +11,7 @@ from app.config import settings
 router = APIRouter()
 
 
-def get_stream_timezone(stream_id: str) -> pytz.timezone:
+def get_stream_timezone(stream_id: str) -> tzinfo:
     """Get timezone for a stream."""
     stream_config = settings.streams.get(stream_id)
     if not stream_config:
@@ -38,7 +38,9 @@ def get_clips_dir(stream_id: str) -> Path:
     return clips_dir
 
 
-def find_most_recent_date_with_events(clips_dir: Path, start_date: datetime, tz: pytz.timezone) -> Optional[str]:
+def find_most_recent_date_with_events(
+    clips_dir: Path, start_date: datetime, tz: tzinfo
+) -> Optional[str]:
     """Find the most recent date with events, searching backwards from start_date."""
     current_date = start_date
 
@@ -52,10 +54,15 @@ def find_most_recent_date_with_events(clips_dir: Path, start_date: datetime, tz:
             if events_file.exists():
                 # Check if it has any arrival/departure events
                 try:
-                    with open(events_file, 'r') as f:
+                    with open(events_file, "r") as f:
                         events = json.load(f)
                         # Filter for arrivals/departures
-                        filtered = [e for e in events if '_arrival' in e.get('thumbnail_path', '') or '_departure' in e.get('departure_clip_path', '')]
+                        filtered = [
+                            e
+                            for e in events
+                            if "_arrival" in e.get("thumbnail_path", "")
+                            or "_departure" in e.get("departure_clip_path", "")
+                        ]
                         if filtered:
                             return date_str
                 except Exception:
@@ -77,36 +84,40 @@ def load_events_for_date(stream_id: str, date_str: str) -> List[Dict[str, Any]]:
         return []
 
     try:
-        with open(events_file, 'r') as f:
+        with open(events_file, "r") as f:
             events = json.load(f)
 
         # Filter to only include arrivals and departures
         # Events with arrival_clip_path or departure_clip_path
         filtered_events = []
         for event in events:
-            arrival_clip = event.get('arrival_clip_path', '')
-            departure_clip = event.get('departure_clip_path', '')
+            arrival_clip = event.get("arrival_clip_path", "")
+            departure_clip = event.get("departure_clip_path", "")
 
-            if arrival_clip and '_arrival' in arrival_clip:
-                filtered_events.append({
-                    'type': 'arrival',
-                    'timestamp': event.get('start_time'),
-                    'thumbnail': event.get('thumbnail_path'),
-                    'clip': arrival_clip,
-                    'confidence': event.get('peak_confidence', 0),
-                    'event_id': event.get('id')
-                })
+            if arrival_clip and "_arrival" in arrival_clip:
+                filtered_events.append(
+                    {
+                        "type": "arrival",
+                        "timestamp": event.get("start_time"),
+                        "thumbnail": event.get("thumbnail_path"),
+                        "clip": arrival_clip,
+                        "confidence": event.get("peak_confidence", 0),
+                        "event_id": event.get("id"),
+                    }
+                )
 
-            if departure_clip and '_departure' in departure_clip:
+            if departure_clip and "_departure" in departure_clip:
                 # Extract departure time from clip filename or use end_time
-                filtered_events.append({
-                    'type': 'departure',
-                    'timestamp': event.get('end_time'),
-                    'thumbnail': departure_clip.replace('.mp4', '.jpg'),
-                    'clip': departure_clip,
-                    'confidence': event.get('peak_confidence', 0),
-                    'event_id': event.get('id')
-                })
+                filtered_events.append(
+                    {
+                        "type": "departure",
+                        "timestamp": event.get("end_time"),
+                        "thumbnail": departure_clip.replace(".mp4", ".jpg"),
+                        "clip": departure_clip,
+                        "confidence": event.get("peak_confidence", 0),
+                        "event_id": event.get("id"),
+                    }
+                )
 
         return filtered_events
     except Exception as e:
@@ -116,7 +127,8 @@ def load_events_for_date(stream_id: str, date_str: str) -> List[Dict[str, Any]]:
 def get_stats_for_range(stream_id: str, range_str: str) -> Dict[str, Any]:
     """Get stats for a time range (24h, 2d, 3d, etc)."""
     tz = get_stream_timezone(stream_id)
-    clips_dir = get_clips_dir(stream_id)
+    # Ensure clips directory exists
+    get_clips_dir(stream_id)
 
     # Parse range
     if range_str == "24h":
@@ -128,7 +140,6 @@ def get_stats_for_range(stream_id: str, range_str: str) -> Dict[str, Any]:
 
     # Get date range
     now = datetime.now(tz)
-    start_date = now - timedelta(days=days)
 
     # Collect stats
     total_arrivals = 0
@@ -142,13 +153,13 @@ def get_stats_for_range(stream_id: str, range_str: str) -> Dict[str, Any]:
         events = load_events_for_date(stream_id, date_str)
 
         for event in events:
-            if event['type'] == 'arrival':
+            if event["type"] == "arrival":
                 total_arrivals += 1
-            elif event['type'] == 'departure':
+            elif event["type"] == "departure":
                 total_departures += 1
 
             # Track most recent event
-            if last_event is None or event['timestamp'] > last_event.get('timestamp', ''):
+            if last_event is None or event["timestamp"] > last_event.get("timestamp", ""):
                 last_event = event
 
         current_date = current_date - timedelta(days=1)
@@ -161,7 +172,7 @@ def get_stats_for_range(stream_id: str, range_str: str) -> Dict[str, Any]:
         "departures": total_departures,
         "visits": total_visits,
         "last_event": last_event,
-        "range": range_str
+        "range": range_str,
     }
 
 
@@ -182,31 +193,31 @@ async def list_streams():
             if not events:
                 # Auto-select most recent date with events
                 recent_date = find_most_recent_date_with_events(
-                    get_clips_dir(stream_id),
-                    datetime.now(tz),
-                    tz
+                    get_clips_dir(stream_id), datetime.now(tz), tz
                 )
                 if recent_date:
                     events = load_events_for_date(stream_id, recent_date)
                     date_str = recent_date
 
-            arrivals = len([e for e in events if e['type'] == 'arrival'])
-            departures = len([e for e in events if e['type'] == 'departure'])
+            arrivals = len([e for e in events if e["type"] == "arrival"])
+            departures = len([e for e in events if e["type"] == "departure"])
 
-            streams_list.append({
-                "id": stream_id,
-                "name": stream_config.get("name"),
-                "display": stream_config.get("display", {}),
-                "youtube_id": stream_config.get("youtube_id"),
-                "timezone": stream_config.get("timezone"),
-                "stats": {
-                    "date": date_str,
-                    "arrivals": arrivals,
-                    "departures": departures,
-                    "visits": min(arrivals, departures),
-                    "last_event": events[-1] if events else None
+            streams_list.append(
+                {
+                    "id": stream_id,
+                    "name": stream_config.get("name"),
+                    "display": stream_config.get("display", {}),
+                    "youtube_id": stream_config.get("youtube_id"),
+                    "timezone": stream_config.get("timezone"),
+                    "stats": {
+                        "date": date_str,
+                        "arrivals": arrivals,
+                        "departures": departures,
+                        "visits": min(arrivals, departures),
+                        "last_event": events[-1] if events else None,
+                    },
                 }
-            })
+            )
         except Exception:
             # Skip streams that error out
             continue
@@ -230,7 +241,7 @@ async def get_stream_detail(stream_id: str):
         "display": stream_config.get("display", {}),
         "youtube_id": stream_config.get("youtube_id"),
         "timezone": stream_config.get("timezone"),
-        "stats": stats
+        "stats": stats,
     }
 
 
@@ -247,36 +258,21 @@ async def get_stream_events(stream_id: str, date: Optional[str] = None):
         # Try requested date first
         events = load_events_for_date(stream_id, date)
         if events:
-            return {
-                "stream_id": stream_id,
-                "date": date,
-                "events": events
-            }
+            return {"stream_id": stream_id, "date": date, "events": events}
 
     # Auto-select most recent date with events
     today = datetime.now(tz)
     recent_date = find_most_recent_date_with_events(clips_dir, today, tz)
 
     if not recent_date:
-        return {
-            "stream_id": stream_id,
-            "date": None,
-            "events": []
-        }
+        return {"stream_id": stream_id, "date": None, "events": []}
 
     events = load_events_for_date(stream_id, recent_date)
-    return {
-        "stream_id": stream_id,
-        "date": recent_date,
-        "events": events
-    }
+    return {"stream_id": stream_id, "date": recent_date, "events": events}
 
 
 @router.get("/{stream_id}/stats")
 async def get_stream_stats(stream_id: str, range: str = "24h"):
     """Get stats for a time range (24h, 2d, 3d, 4d, 5d)."""
     stats = get_stats_for_range(stream_id, range)
-    return {
-        "stream_id": stream_id,
-        **stats
-    }
+    return {"stream_id": stream_id, **stats}

@@ -37,11 +37,11 @@ async def serve_clip(stream_id: str, date: str, filename: str):
         raise HTTPException(status_code=500, detail=f"No data_path configured for {stream_id}")
 
     # Validate date format (YYYY-MM-DD)
-    if not re.match(r'^\d{4}-\d{2}-\d{2}$', date):
+    if not re.match(r"^\d{4}-\d{2}-\d{2}$", date):
         raise HTTPException(status_code=400, detail="Invalid date format")
 
     # Validate filename (only allow falcon_HHMMSS_type.ext)
-    if not re.match(r'^falcon_\d{6}_(arrival|departure|visit)\.(mp4|jpg)$', filename):
+    if not re.match(r"^falcon_\d{6}_(arrival|departure|visit)\.(mp4|jpg)$", filename):
         raise HTTPException(status_code=400, detail="Invalid filename")
 
     # Construct file path
@@ -58,8 +58,4 @@ async def serve_clip(stream_id: str, date: str, filename: str):
 
     # Serve file
     media_type = "video/mp4" if filename.endswith(".mp4") else "image/jpeg"
-    return FileResponse(
-        path=file_path,
-        media_type=media_type,
-        filename=filename
-    )
+    return FileResponse(path=file_path, media_type=media_type, filename=filename)

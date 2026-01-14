@@ -10,11 +10,7 @@ from app.routers import streams, clips, visitor
 
 
 # Create FastAPI app
-app = FastAPI(
-    title=settings.APP_NAME,
-    version=settings.VERSION,
-    debug=settings.DEBUG
-)
+app = FastAPI(title=settings.APP_NAME, version=settings.VERSION, debug=settings.DEBUG)
 
 # CORS middleware
 app.add_middleware(
@@ -57,5 +53,5 @@ async def health_check():
         "status": "ok",
         "app": settings.APP_NAME,
         "version": settings.VERSION,
-        "env": settings.ENV
+        "env": settings.ENV,
     }

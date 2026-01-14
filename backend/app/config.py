@@ -39,9 +39,9 @@ class Settings:
     def streams(self) -> Dict[str, Any]:
         """Load and cache streams configuration."""
         if self._streams_config is None:
-            with open(self.STREAMS_CONFIG, 'r') as f:
+            with open(self.STREAMS_CONFIG, "r") as f:
                 config = yaml.safe_load(f)
-                self._streams_config = config.get('streams', {})
+                self._streams_config = config.get("streams", {})
         return self._streams_config
 
 

@@ -26,7 +26,12 @@ def get_client_ip(request: Request) -> str:
 
 def detect_timezone_from_ip(ip: str) -> Optional[str]:
     """Detect timezone from IP address using external API."""
-    if ip == "unknown" or ip.startswith("127.") or ip.startswith("192.168.") or ip.startswith("10."):
+    if (
+        ip == "unknown"
+        or ip.startswith("127.")
+        or ip.startswith("192.168.")
+        or ip.startswith("10.")
+    ):
         # Local/private IP - can't geolocate
         return None
 
@@ -65,8 +70,4 @@ async def get_visitor_timezone(request: Request):
     ip = get_client_ip(request)
     timezone = detect_timezone_from_ip(ip)
 
-    return {
-        "ip": ip,
-        "timezone": timezone,
-        "detected": timezone is not None
-    }
+    return {"ip": ip, "timezone": timezone, "detected": timezone is not None}

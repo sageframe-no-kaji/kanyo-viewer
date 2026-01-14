@@ -1,0 +1,10 @@
+# Development dependencies for testing and linting
+pytest==7.4.3
+pytest-asyncio==0.21.1
+pytest-cov==4.1.0
+httpx==0.25.2
+black==23.12.1
+flake8==7.0.0
+mypy==1.8.0
+types-pyyaml==6.0.12.12
+types-requests==2.31.0.10
