@@ -85,39 +85,50 @@ def load_events_for_date(stream_id: str, date_str: str) -> List[Dict[str, Any]]:
 
     try:
         with open(events_file, "r") as f:
-            events = json.load(f)
+            data = json.load(f)
+            # Handle both array format and object format with "events" key
+            events = data if isinstance(data, list) else data.get("events", [])
+
+        # Get all clip files in the directory to match with events
+        clip_files = {f.stem: f.name for f in date_dir.glob("*.mp4")}
+        thumbnail_files = {f.stem: f.name for f in date_dir.glob("*.jpg")}
 
         # Filter to only include arrivals and departures
-        # Events with arrival_clip_path or departure_clip_path
+        # Match events to clip files by timestamp
         filtered_events = []
         for event in events:
-            arrival_clip = event.get("arrival_clip_path", "")
-            departure_clip = event.get("departure_clip_path", "")
+            event_id = event.get("id", "")
+            # Extract timestamp from event ID (format: 20260114_082329)
+            if "_" in event_id:
+                time_part = event_id.split("_")[1]  # e.g., "082329"
+                
+                # Check for arrival clip
+                arrival_clip_name = f"falcon_{time_part}_arrival"
+                if arrival_clip_name in clip_files:
+                    filtered_events.append(
+                        {
+                            "type": "arrival",
+                            "timestamp": event.get("start_time"),
+                            "thumbnail": thumbnail_files.get(arrival_clip_name, ""),
+                            "clip": clip_files[arrival_clip_name],
+                            "confidence": event.get("peak_confidence", 0),
+                            "event_id": event_id,
+                        }
+                    )
 
-            if arrival_clip and "_arrival" in arrival_clip:
-                filtered_events.append(
-                    {
-                        "type": "arrival",
-                        "timestamp": event.get("start_time"),
-                        "thumbnail": event.get("thumbnail_path"),
-                        "clip": arrival_clip,
-                        "confidence": event.get("peak_confidence", 0),
-                        "event_id": event.get("id"),
-                    }
-                )
-
-            if departure_clip and "_departure" in departure_clip:
-                # Extract departure time from clip filename or use end_time
-                filtered_events.append(
-                    {
-                        "type": "departure",
-                        "timestamp": event.get("end_time"),
-                        "thumbnail": departure_clip.replace(".mp4", ".jpg"),
-                        "clip": departure_clip,
-                        "confidence": event.get("peak_confidence", 0),
-                        "event_id": event.get("id"),
-                    }
-                )
+                # Check for departure clip
+                departure_clip_name = f"falcon_{time_part}_departure"
+                if departure_clip_name in clip_files:
+                    filtered_events.append(
+                        {
+                            "type": "departure",
+                            "timestamp": event.get("end_time"),
+                            "thumbnail": thumbnail_files.get(departure_clip_name, ""),
+                            "clip": clip_files[departure_clip_name],
+                            "confidence": event.get("peak_confidence", 0),
+                            "event_id": event_id,
+                        }
+                    )
 
         return filtered_events
     except Exception as e:
