@@ -75,61 +75,67 @@ def find_most_recent_date_with_events(
 
 
 def load_events_for_date(stream_id: str, date_str: str) -> List[Dict[str, Any]]:
-    """Load events from events_{date}.json file."""
+    """Load events by scanning clip files directly (like admin backend)."""
     clips_dir = get_clips_dir(stream_id)
     date_dir = clips_dir / date_str
-    events_file = date_dir / f"events_{date_str}.json"
 
-    if not events_file.exists():
+    if not date_dir.exists():
         return []
 
     try:
-        with open(events_file, "r") as f:
-            data = json.load(f)
-            # Handle both array format and object format with "events" key
-            events = data if isinstance(data, list) else data.get("events", [])
-
-        # Get all clip files in the directory to match with events
-        clip_files = {f.stem: f.name for f in date_dir.glob("*.mp4")}
-        thumbnail_files = {f.stem: f.name for f in date_dir.glob("*.jpg")}
-
-        # Filter to only include arrivals and departures
-        # Match events to clip files by timestamp
+        import re
+        
+        # Pattern: falcon_HHMMSS_type.mp4 (only video files, exclude .tmp)
+        pattern = re.compile(r"falcon_(\d{6})_(arrival|departure|visit)\.(mp4|avi|mov|mkv)$")
+        
         filtered_events = []
-        for event in events:
-            event_id = event.get("id", "")
-            # Extract timestamp from event ID (format: 20260114_082329)
-            if "_" in event_id:
-                time_part = event_id.split("_")[1]  # e.g., "082329"
+        
+        # Scan all video files in the directory
+        for clip_file in sorted(date_dir.iterdir()):
+            if not clip_file.is_file():
+                continue
                 
-                # Check for arrival clip
-                arrival_clip_name = f"falcon_{time_part}_arrival"
-                if arrival_clip_name in clip_files:
-                    filtered_events.append(
-                        {
-                            "type": "arrival",
-                            "timestamp": event.get("start_time"),
-                            "thumbnail": thumbnail_files.get(arrival_clip_name, ""),
-                            "clip": clip_files[arrival_clip_name],
-                            "confidence": event.get("peak_confidence", 0),
-                            "event_id": event_id,
-                        }
-                    )
-
-                # Check for departure clip
-                departure_clip_name = f"falcon_{time_part}_departure"
-                if departure_clip_name in clip_files:
-                    filtered_events.append(
-                        {
-                            "type": "departure",
-                            "timestamp": event.get("end_time"),
-                            "thumbnail": thumbnail_files.get(departure_clip_name, ""),
-                            "clip": clip_files[departure_clip_name],
-                            "confidence": event.get("peak_confidence", 0),
-                            "event_id": event_id,
-                        }
-                    )
-
+            match = pattern.match(clip_file.name)
+            if not match:
+                continue
+            
+            time_str, clip_type, ext = match.groups()
+            
+            # Skip visit clips (only show arrivals and departures)
+            if clip_type == "visit":
+                continue
+            
+            # Parse time to create timestamp
+            hour = time_str[:2]
+            minute = time_str[2:4]
+            second = time_str[4:6]
+            time_formatted = f"{hour}:{minute}:{second}"
+            
+            # Get stream timezone for proper timestamp
+            tz = get_stream_timezone(stream_id)
+            from datetime import datetime
+            date_obj = datetime.strptime(date_str, "%Y-%m-%d")
+            timestamp_dt = tz.localize(
+                date_obj.replace(hour=int(hour), minute=int(minute), second=int(second))
+            ) if hasattr(tz, "localize") else date_obj.replace(
+                hour=int(hour), minute=int(minute), second=int(second), tzinfo=tz
+            )
+            
+            # Check for thumbnail
+            thumb_file = clip_file.with_suffix(".jpg")
+            thumbnail = thumb_file.name if thumb_file.exists() else ""
+            
+            filtered_events.append(
+                {
+                    "type": clip_type,
+                    "timestamp": timestamp_dt.isoformat(),
+                    "thumbnail": thumbnail,
+                    "clip": clip_file.name,
+                    "confidence": 0.0,  # Not available from filesystem scan
+                    "event_id": f"{date_str.replace('-', '')}_{time_str}",
+                }
+            )
+        
         return filtered_events
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error loading events: {str(e)}")
