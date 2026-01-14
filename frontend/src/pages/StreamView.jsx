@@ -7,7 +7,6 @@ import WeekCalendar from '../components/WeekCalendar';
 import Timeline from '../components/Timeline';
 import CameraInfo from '../components/CameraInfo';
 import StatsPanel from '../components/StatsPanel';
-import EventDetails from '../components/EventDetails';
 
 export default function StreamView() {
   const { streamId } = useParams();
@@ -201,15 +200,6 @@ export default function StreamView() {
               selectedDate={selectedDate}
               onDateChange={handleDateChange}
             />
-
-            {/* Event Details (below timeline when event selected) */}
-            {selectedEvent && (
-              <EventDetails
-                event={selectedEvent}
-                streamId={streamId}
-                selectedDate={selectedDate}
-              />
-            )}
           </div>
 
           {/* Sidebar (1 column on desktop) */}

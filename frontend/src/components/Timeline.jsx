@@ -43,6 +43,49 @@ export default function Timeline({
 
   return (
     <div className="bg-kanyo-card rounded-lg px-4 pt-3 pb-2">
+      {/* Visit Info Bar (when event selected) */}
+      {selectedEvent && (
+        <div className="flex items-center justify-between mb-3 pb-3 border-b border-kanyo-gray-500">
+          {/* Left: Visit indicator and timing */}
+          <div className="flex items-center gap-4">
+            <span className="flex items-center gap-1.5 text-kanyo-red font-semibold text-sm">
+              <span className="w-2 h-2 bg-kanyo-red rounded-full"></span>
+              Visit
+            </span>
+            <div className="flex items-center gap-3 text-xs text-kanyo-gray-100">
+              <span>Arrived: {formatTime(selectedEvent.timestamp)}</span>
+              <span>•</span>
+              <span>Departed: {formatDepartureTime(selectedEvent)}</span>
+              <span>•</span>
+              <span>Duration: {formatDuration(selectedEvent.duration)}</span>
+            </div>
+          </div>
+          
+          {/* Right: Action icons */}
+          <div className="flex items-center gap-2">
+            <a
+              href={api.getClipUrl(streamId, selectedDate, selectedEvent.clip)}
+              download
+              className="p-2 hover:bg-kanyo-gray-600 rounded transition-all"
+              title="Download clip"
+            >
+              <svg className="w-5 h-5 text-kanyo-gray-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+            </a>
+            <button
+              onClick={() => handleShare(selectedEvent)}
+              className="p-2 hover:bg-kanyo-gray-600 rounded transition-all"
+              title="Share clip"
+            >
+              <svg className="w-5 h-5 text-kanyo-gray-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      )}
+      
       {/* 12-hour timeline - no header, LIVE button inline */}
       <div className="relative h-24">
         {/* Left scroll arrow */}
@@ -218,12 +261,56 @@ function calculateEventPosition(event) {
 }
 
 /**
- * Format duration in seconds to readable string
+ * Format timestamp to time only
  */
-function formatDuration(seconds) {
-  if (!seconds) return '0s';
+function formatTime(timestamp) {
+  if (!timestamp) return '';
+  const date = new Date(timestamp);
+  return date.toLocaleTimeString('en-US', { 
+    hour: 'numeric', 
+    minute: '2-digit',
+    hour12: true 
+  });
+}
 
-  const hours = Math.floor(seconds / 3600);
+/**
+ * Format departure time (arrival + duration)
+ */
+function formatDepartureTime(event) {
+  if (!event.timestamp || !event.duration) return '';
+  const arrival = new Date(event.timestamp);
+  const departure = new Date(arrival.getTime() + event.duration * 1000);
+  return departure.toLocaleTimeString('en-US', { 
+    hour: 'numeric', 
+    minute: '2-digit',
+    hour12: true 
+  });
+}
+
+/**
+ * Handle share functionality
+ */
+function handleShare(event) {
+  const shareUrl = `${window.location.origin}${window.location.pathname}?date=${event.timestamp.split('T')[0]}&event=${event.event_id}`;
+  
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(shareUrl)
+      .then(() => alert('Link copied to clipboard!'))
+      .catch(() => fallbackCopy(shareUrl));
+  } else {
+    fallbackCopy(shareUrl);
+  }
+}
+
+function fallbackCopy(text) {
+  const textArea = document.createElement('textarea');
+  textArea.value = text;
+  document.body.appendChild(textArea);
+  textArea.select();
+  document.execCommand('copy');
+  document.body.removeChild(textArea);
+  alert('Link copied to clipboard!');
+}
   const minutes = Math.floor((seconds % 3600) / 60);
   const secs = Math.floor(seconds % 60);
 
@@ -239,7 +326,13 @@ function formatDuration(seconds) {
 /**
  * Get previous date
  */
-function getPreviousDate(dateStr) {
+/**
+ * Format duration in seconds to readable string
+ */
+function formatDuration(seconds) {
+  if (!seconds) return '0s';
+
+  const hours = Math.floor(seconds / 3600);
   const date = new Date(dateStr + 'T12:00:00');
   date.setDate(date.getDate() - 1);
   return date.toISOString().split('T')[0];
