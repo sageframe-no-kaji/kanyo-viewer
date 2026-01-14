@@ -334,10 +334,7 @@ function formatDuration(seconds) {
 /**
  * Get previous date
  */
-function formatDuration(seconds) {
-  if (!seconds) return '0s';
-
-  const hours = Math.floor(seconds / 3600);
+function getPreviousDate(dateStr) {
   const date = new Date(dateStr + 'T12:00:00');
   date.setDate(date.getDate() - 1);
   return date.toISOString().split('T')[0];
