@@ -18,7 +18,7 @@ export default function StreamView() {
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [statsRange, setStatsRange] = useState('24h');
-  const [isLive, setIsLive] = useState(false);
+  const [isLive, setIsLive] = useState(true);
   const [visitorTimezone, setVisitorTimezone] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);

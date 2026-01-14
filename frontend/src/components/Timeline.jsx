@@ -91,10 +91,10 @@ export default function Timeline({
         {/* Left scroll arrow */}
         <button
           onClick={() => scrollContainerRef.current?.scrollBy({ left: -200, behavior: 'smooth' })}
-          className="absolute left-0 top-0 bottom-0 z-30 w-8 bg-gradient-to-r from-kanyo-card to-transparent hover:from-kanyo-gray-700/80 transition-all flex items-center justify-start pl-1"
+          className="absolute left-0 top-0 bottom-0 z-50 w-10 bg-gradient-to-r from-kanyo-card to-transparent hover:from-kanyo-gray-700/80 transition-all flex items-center justify-start pl-2"
           title="Scroll left"
         >
-          <svg className="w-4 h-4 text-white opacity-70 hover:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-5 h-5 text-white opacity-70 hover:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
         </button>
@@ -102,10 +102,10 @@ export default function Timeline({
         {/* Right scroll arrow */}
         <button
           onClick={() => scrollContainerRef.current?.scrollBy({ left: 200, behavior: 'smooth' })}
-          className="absolute right-0 top-0 bottom-0 z-30 w-8 bg-gradient-to-l from-kanyo-card to-transparent hover:from-kanyo-gray-700/80 transition-all flex items-center justify-end pr-1"
+          className="absolute right-0 top-0 bottom-0 z-50 w-10 bg-gradient-to-l from-kanyo-card to-transparent hover:from-kanyo-gray-700/80 transition-all flex items-center justify-end pr-2"
           title="Scroll right"
         >
-          <svg className="w-4 h-4 text-white opacity-70 hover:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-5 h-5 text-white opacity-70 hover:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
           </svg>
         </button>
