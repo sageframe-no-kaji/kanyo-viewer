@@ -14,7 +14,7 @@ echo "Updating Kanyo Viewer on ${REMOTE_HOST}..."
 
 # Pull latest code
 echo "📥 Pulling latest code..."
-ssh "${REMOTE_HOST}" "cd ${CODE_DIR} && git pull"
+ssh -A "${REMOTE_HOST}" "cd ${CODE_DIR} && git pull"
 
 # Rebuild viewer container with new code
 echo "🔨 Rebuilding viewer container..."

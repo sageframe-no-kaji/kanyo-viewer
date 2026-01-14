@@ -27,7 +27,7 @@ app.include_router(clips.router, prefix=f"{settings.API_PREFIX}/clips", tags=["c
 app.include_router(visitor.router, prefix=f"{settings.API_PREFIX}/visitor", tags=["visitor"])
 
 # Serve frontend static files (built by Vite)
-static_dir = Path(__file__).parent.parent.parent / "frontend" / "dist"
+static_dir = Path(__file__).parent.parent / "frontend" / "dist"
 if static_dir.exists():
     app.mount("/assets", StaticFiles(directory=static_dir / "assets"), name="assets")
 

@@ -15,7 +15,7 @@ echo ""
 
 # Step 1: Pull latest code
 echo "→ Pulling latest code..."
-ssh "${PROD_HOST}" "cd ${CODE_DIR} && git pull"
+ssh -A "${PROD_HOST}" "cd ${CODE_DIR} && git pull"
 echo ""
 
 # Step 2: Stop containers
