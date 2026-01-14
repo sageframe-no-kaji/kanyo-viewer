@@ -61,6 +61,12 @@ def mock_stream_config(test_data_dir):
                 clip_file = harvard_date_dir / event[key]
                 clip_file.write_text("dummy content")
 
+    # Create visit clips for dates-with-events endpoint testing
+    visit_clip1 = harvard_date_dir / "falcon_072315_visit.mp4"
+    visit_clip1.write_text("dummy video")
+    visit_clip2 = harvard_date_dir / "falcon_093000_visit.mp4"
+    visit_clip2.write_text("dummy video")
+
     # Create streams.yaml config
     streams_config = {
         "streams": {
