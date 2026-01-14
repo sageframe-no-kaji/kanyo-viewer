@@ -160,7 +160,7 @@ export default function StreamView() {
               ← Streams
             </Link>
             <h1 className="text-xl font-semibold text-white">
-              {stream.display?.short_name || stream.name}
+              {stream.name}
             </h1>
             <Link to="/about" className="text-kanyo-gray-100 hover:text-white transition-colors text-sm">
               About

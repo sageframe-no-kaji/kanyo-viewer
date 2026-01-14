@@ -1,5 +1,5 @@
 streams:
-  harvard:
+  kanyo-harvard:
     name: "Harvard Falcon Cam"
     youtube_id: "glczTFRRAK4"
     data_path: "/data/harvard"
@@ -14,9 +14,9 @@ streams:
       description: "Active nest since 1999. Watch these magnificent birds of prey raise their young."
       telegram_channel: "@kanyo_fas_falcon_cam"
 
-  nsw:
+  kanyo-nsw:
     name: "NSW Falcon Cam"
-    youtube_id: "1SQqMT-kPpw"
+    youtube_id: "VuZaWzhXSAI"
     data_path: "/data/nsw"
     timezone: "Australia/Sydney"
     display:
