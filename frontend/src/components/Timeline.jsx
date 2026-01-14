@@ -88,22 +88,32 @@ export default function Timeline({
 
       {/* 12-hour timeline - no header, LIVE button inline */}
       <div className="relative h-24">
-        {/* Left scroll arrow */}
+        {/* Left scroll arrow - go to previous day */}
         <button
-          onClick={() => scrollContainerRef.current?.scrollBy({ left: -200, behavior: 'smooth' })}
+          onClick={() => {
+            const prevDate = getPreviousDate(selectedDate);
+            if (prevDate && onDateChange) {
+              onDateChange(prevDate);
+            }
+          }}
           className="absolute left-0 top-0 bottom-0 z-50 w-10 bg-gradient-to-r from-kanyo-card to-transparent hover:from-kanyo-gray-700/80 transition-all flex items-center justify-start pl-2"
-          title="Scroll left"
+          title="Previous day"
         >
           <svg className="w-5 h-5 text-white opacity-70 hover:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
         </button>
 
-        {/* Right scroll arrow */}
+        {/* Right scroll arrow - go to next day */}
         <button
-          onClick={() => scrollContainerRef.current?.scrollBy({ left: 200, behavior: 'smooth' })}
+          onClick={() => {
+            const nextDate = getNextDate(selectedDate);
+            if (nextDate && onDateChange) {
+              onDateChange(nextDate);
+            }
+          }}
           className="absolute right-0 top-0 bottom-0 z-50 w-10 bg-gradient-to-l from-kanyo-card to-transparent hover:from-kanyo-gray-700/80 transition-all flex items-center justify-end pr-2"
-          title="Scroll right"
+          title="Next day"
         >
           <svg className="w-5 h-5 text-white opacity-70 hover:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -131,7 +141,7 @@ export default function Timeline({
           className="absolute inset-0 overflow-x-auto scrollbar-thin"
           onScroll={handleScroll}
         >
-          <div className="relative h-full" style={{ minWidth: '200%' }}>
+          <div className="relative h-full" style={{ minWidth: '100%' }}>
             {events.length === 0 && (
               <div className="absolute inset-0 flex items-center justify-center">
                 <svg viewBox="0 0 83.5 98.3" className="w-12 h-12 opacity-20" style={{filter: 'invert(60%) sepia(80%) saturate(600%) hue-rotate(350deg)'}}>
@@ -203,25 +213,25 @@ export default function Timeline({
                 </button>
               );
             })}
-
-            {/* LIVE button inline at end */}
-            <button
-              onClick={onLiveClick}
-              className={`
-                absolute top-1 right-2 px-3 py-1.5 rounded font-semibold text-xs transition-all z-20
-                ${isLive
-                  ? 'bg-kanyo-red text-white'
-                  : 'bg-kanyo-gray-600/90 text-white hover:bg-kanyo-gray-500'
-                }
-              `}
-            >
-              <span className="flex items-center gap-1">
-                {isLive && <span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></span>}
-                LIVE
-              </span>
-            </button>
           </div>
         </div>
+
+        {/* LIVE button - fixed position, doesn't scroll */}
+        <button
+          onClick={onLiveClick}
+          className={`
+            absolute top-1 right-12 px-3 py-1.5 rounded font-semibold text-xs transition-all z-50
+            ${isLive
+              ? 'bg-kanyo-red text-white'
+              : 'bg-kanyo-gray-600/90 text-white hover:bg-kanyo-gray-500'
+            }
+          `}
+        >
+          <span className="flex items-center gap-1">
+            {isLive && <span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></span>}
+            LIVE
+          </span>
+        </button>
       </div>
     </div>
   );
@@ -337,5 +347,14 @@ function formatDuration(seconds) {
 function getPreviousDate(dateStr) {
   const date = new Date(dateStr + 'T12:00:00');
   date.setDate(date.getDate() - 1);
+  return date.toISOString().split('T')[0];
+}
+
+/**
+ * Get next date
+ */
+function getNextDate(dateStr) {
+  const date = new Date(dateStr + 'T12:00:00');
+  date.setDate(date.getDate() + 1);
   return date.toISOString().split('T')[0];
 }
