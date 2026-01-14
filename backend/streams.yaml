@@ -12,7 +12,7 @@ streams:
       maintainer: "Harvard Faculty of Arts & Sciences"
       maintainer_url: "https://www.fas.harvard.edu/"
       description: "Active nest since 1999. Watch these magnificent birds of prey raise their young."
-      telegram_channel: "kanyo_harvard_falcon"
+      telegram_channel: "@kanyo_fas_falcon_cam"
 
   nsw:
     name: "NSW Falcon Cam"
@@ -27,4 +27,4 @@ streams:
       maintainer: "NSW Wildlife Trust"
       maintainer_url: "https://example.com"
       description: "Monitoring peregrine falcons in Australia."
-      telegram_channel: "kanyo_nsw_falcon"
+      telegram_channel: "@kanyo_nsw_falcon"

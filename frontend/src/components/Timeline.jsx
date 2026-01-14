@@ -133,9 +133,9 @@ export default function Timeline({
                       }}
                     />
                   ) : null}
-                  
+
                   {/* Fallback placeholder when thumbnail missing */}
-                  <div 
+                  <div
                     className="w-full h-full bg-kanyo-orange/20 items-center justify-center"
                     style={{ display: event.thumbnail ? 'none' : 'flex' }}
                   >
