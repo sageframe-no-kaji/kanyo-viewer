@@ -1,6 +1,23 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@theme {
+  /* HKSV-inspired dark theme colors */
+  --color-kanyo-bg: #000000;
+  --color-kanyo-card: #1c1c1e;
+  --color-kanyo-orange: #ff9500;
+  --color-kanyo-blue: #0a84ff;
+  --color-kanyo-red: #ff453a;
+  --color-kanyo-green: #30d158;
+  --color-kanyo-gray-100: #8e8e93;
+  --color-kanyo-gray-200: #636366;
+  --color-kanyo-gray-300: #48484a;
+  --color-kanyo-gray-400: #3a3a3c;
+  --color-kanyo-gray-500: #2c2c2e;
+  --color-kanyo-gray-600: #1c1c1e;
+
+  /* Font family */
+  --font-family-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif;
+}
 
 * {
   box-sizing: border-box;
@@ -8,7 +25,7 @@
 
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif;
+  font-family: var(--font-family-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background-color: #000000;
