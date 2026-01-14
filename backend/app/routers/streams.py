@@ -75,7 +75,7 @@ def find_most_recent_date_with_events(
 
 
 def load_events_for_date(stream_id: str, date_str: str) -> List[Dict[str, Any]]:
-    """Load events by scanning clip files directly (like admin backend)."""
+    """Load visit clips with duration for HKSV-style timeline."""
     clips_dir = get_clips_dir(stream_id)
     date_dir = clips_dir / date_str
 
@@ -84,33 +84,29 @@ def load_events_for_date(stream_id: str, date_str: str) -> List[Dict[str, Any]]:
 
     try:
         import re
-        
-        # Pattern: falcon_HHMMSS_type.mp4 (only video files, exclude .tmp)
-        pattern = re.compile(r"falcon_(\d{6})_(arrival|departure|visit)\.(mp4|avi|mov|mkv)$")
-        
+        import subprocess
+
+        # Pattern: falcon_HHMMSS_visit.mp4 (only visit clips)
+        pattern = re.compile(r"falcon_(\d{6})_visit\.(mp4|avi|mov|mkv)$")
+
         filtered_events = []
-        
-        # Scan all video files in the directory
+
+        # Scan all visit video files in the directory
         for clip_file in sorted(date_dir.iterdir()):
             if not clip_file.is_file():
                 continue
-                
+
             match = pattern.match(clip_file.name)
             if not match:
                 continue
-            
-            time_str, clip_type, ext = match.groups()
-            
-            # Skip visit clips (only show arrivals and departures)
-            if clip_type == "visit":
-                continue
-            
+
+            time_str, ext = match.groups()
+
             # Parse time to create timestamp
             hour = time_str[:2]
             minute = time_str[2:4]
             second = time_str[4:6]
-            time_formatted = f"{hour}:{minute}:{second}"
-            
+
             # Get stream timezone for proper timestamp
             tz = get_stream_timezone(stream_id)
             from datetime import datetime
@@ -120,22 +116,39 @@ def load_events_for_date(stream_id: str, date_str: str) -> List[Dict[str, Any]]:
             ) if hasattr(tz, "localize") else date_obj.replace(
                 hour=int(hour), minute=int(minute), second=int(second), tzinfo=tz
             )
-            
+
+            # Get video duration using ffprobe
+            duration = 0.0
+            try:
+                result = subprocess.run(
+                    ["ffprobe", "-v", "error", "-show_entries", "format=duration",
+                     "-of", "default=noprint_wrappers=1:nokey=1", str(clip_file)],
+                    capture_output=True,
+                    text=True,
+                    timeout=5
+                )
+                if result.returncode == 0:
+                    duration = float(result.stdout.strip())
+            except Exception:
+                # Fallback: estimate from file size (very rough)
+                file_size_mb = clip_file.stat().st_size / (1024 * 1024)
+                duration = file_size_mb * 10  # Rough estimate: ~10s per MB
+
             # Check for thumbnail
             thumb_file = clip_file.with_suffix(".jpg")
             thumbnail = thumb_file.name if thumb_file.exists() else ""
-            
+
             filtered_events.append(
                 {
-                    "type": clip_type,
+                    "type": "visit",
                     "timestamp": timestamp_dt.isoformat(),
                     "thumbnail": thumbnail,
                     "clip": clip_file.name,
-                    "confidence": 0.0,  # Not available from filesystem scan
+                    "duration": duration,
                     "event_id": f"{date_str.replace('-', '')}_{time_str}",
                 }
             )
-        
+
         return filtered_events
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error loading events: {str(e)}")
@@ -159,8 +172,6 @@ def get_stats_for_range(stream_id: str, range_str: str) -> Dict[str, Any]:
     now = datetime.now(tz)
 
     # Collect stats
-    total_arrivals = 0
-    total_departures = 0
     total_visits = 0
     last_event = None
 
@@ -169,24 +180,16 @@ def get_stats_for_range(stream_id: str, range_str: str) -> Dict[str, Any]:
         date_str = current_date.strftime("%Y-%m-%d")
         events = load_events_for_date(stream_id, date_str)
 
-        for event in events:
-            if event["type"] == "arrival":
-                total_arrivals += 1
-            elif event["type"] == "departure":
-                total_departures += 1
+        total_visits += len(events)  # All returned events are visits
 
-            # Track most recent event
+        # Track most recent event
+        for event in events:
             if last_event is None or event["timestamp"] > last_event.get("timestamp", ""):
                 last_event = event
 
         current_date = current_date - timedelta(days=1)
 
-    # Visits are pairs of arrivals/departures
-    total_visits = min(total_arrivals, total_departures)
-
     return {
-        "arrivals": total_arrivals,
-        "departures": total_departures,
         "visits": total_visits,
         "last_event": last_event,
         "range": range_str,
@@ -216,8 +219,7 @@ async def list_streams():
                     events = load_events_for_date(stream_id, recent_date)
                     date_str = recent_date
 
-            arrivals = len([e for e in events if e["type"] == "arrival"])
-            departures = len([e for e in events if e["type"] == "departure"])
+            visits = len(events)  # All returned events are visits
 
             streams_list.append(
                 {
@@ -228,9 +230,7 @@ async def list_streams():
                     "timezone": stream_config.get("timezone"),
                     "stats": {
                         "date": date_str,
-                        "arrivals": arrivals,
-                        "departures": departures,
-                        "visits": min(arrivals, departures),
+                        "visits": visits,
                         "last_event": events[-1] if events else None,
                     },
                 }
@@ -260,6 +260,34 @@ async def get_stream_detail(stream_id: str):
         "timezone": stream_config.get("timezone"),
         "stats": stats,
     }
+
+
+@router.get("/{stream_id}/dates-with-events")
+async def get_dates_with_events(stream_id: str, start_date: str, end_date: str):
+    """Get list of dates that have visit clips in a date range."""
+    import re
+    clips_dir = get_clips_dir(stream_id)
+
+    dates_with_events = []
+    start = datetime.strptime(start_date, "%Y-%m-%d")
+    end = datetime.strptime(end_date, "%Y-%m-%d")
+
+    current = start
+    pattern = re.compile(r"falcon_(\d{6})_visit\.(mp4|avi|mov|mkv)$")
+
+    while current <= end:
+        date_str = current.strftime("%Y-%m-%d")
+        date_dir = clips_dir / date_str
+
+        if date_dir.exists():
+            # Check if any visit clips exist
+            has_events = any(pattern.match(f.name) for f in date_dir.iterdir() if f.is_file())
+            if has_events:
+                dates_with_events.append(date_str)
+
+        current += timedelta(days=1)
+
+    return {"dates": dates_with_events}
 
 
 @router.get("/{stream_id}/events")

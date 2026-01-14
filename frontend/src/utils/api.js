@@ -45,6 +45,15 @@ export const api = {
   },
 
   /**
+   * Get dates with events in a range
+   */
+  async getDatesWithEvents(streamId, startDate, endDate) {
+    const response = await fetch(`${API_BASE}/streams/${streamId}/dates-with-events?start_date=${startDate}&end_date=${endDate}`);
+    if (!response.ok) throw new Error('Failed to fetch dates with events');
+    return response.json();
+  },
+
+  /**
    * Detect visitor timezone from IP
    */
   async getVisitorTimezone() {

@@ -1,6 +1,5 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import { api } from '../utils/api';
-import { isTouchDevice } from '../utils/timezone';
 
 export default function Timeline({
   events,
@@ -9,123 +8,138 @@ export default function Timeline({
   onLiveClick,
   isLive,
   streamId,
-  selectedDate
+  selectedDate,
+  onDateChange
 }) {
   const scrollContainerRef = useRef(null);
+  const [scrollPosition, setScrollPosition] = useState(0);
 
   // Auto-scroll to selected event
   useEffect(() => {
     if (selectedEvent && scrollContainerRef.current) {
-      const thumbnail = scrollContainerRef.current.querySelector(`[data-event-id="${selectedEvent.event_id}"]`);
-      if (thumbnail) {
-        thumbnail.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+      const eventEl = scrollContainerRef.current.querySelector(`[data-event-id="${selectedEvent.event_id}"]`);
+      if (eventEl) {
+        eventEl.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
       }
     }
   }, [selectedEvent]);
 
-  const touchDevice = isTouchDevice();
+  // Handle scroll for continuous timeline
+  const handleScroll = (e) => {
+    const container = e.target;
+    const scrollLeft = container.scrollLeft;
+    const scrollWidth = container.scrollWidth;
+    const clientWidth = container.clientWidth;
+
+    // If scrolled near the left edge, load previous day
+    if (scrollLeft < 100) {
+      // TODO: Load previous day's events and prepend
+      const prevDate = getPreviousDate(selectedDate);
+      if (prevDate && onDateChange) {
+        onDateChange(prevDate);
+      }
+    }
+  };
 
   return (
-    <div className="bg-kanyo-card rounded-lg p-4">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-white font-semibold">Timeline</h3>
+    <div className="bg-kanyo-card rounded-t-lg px-4 pt-4 pb-2">
+      <div className="flex items-center justify-between mb-3">
+        <h3 className="text-white font-semibold text-sm">Timeline</h3>
         <button
           onClick={onLiveClick}
           className={`
-            px-4 py-2 rounded-lg font-semibold transition-all
+            px-3 py-1.5 rounded-lg font-semibold text-xs transition-all
             ${isLive
-              ? 'bg-kanyo-green text-white'
+              ? 'bg-kanyo-red text-white'
               : 'bg-kanyo-gray-600 text-white hover:bg-kanyo-gray-500'
             }
           `}
         >
           <span className="flex items-center">
-            {isLive && <span className="w-2 h-2 bg-white rounded-full mr-2 animate-pulse"></span>}
+            {isLive && <span className="w-1.5 h-1.5 bg-white rounded-full mr-1.5 animate-pulse"></span>}
             LIVE
           </span>
         </button>
       </div>
 
-      {/* 24-hour timeline bar */}
-      <div className="relative h-2 bg-kanyo-gray-600 rounded-full mb-6">
-        <div className="absolute top-0 left-0 w-full h-full">
-          {/* Hour markers */}
-          {[0, 6, 12, 18, 24].map(hour => (
+      {/* Compact 24-hour timeline with hour markers */}
+      <div className="relative h-20">
+        {/* Hour grid lines */}
+        <div className="absolute inset-0 flex">
+          {Array.from({ length: 25 }).map((_, hour) => (
             <div
               key={hour}
-              className="absolute top-0 bottom-0 w-px bg-kanyo-gray-400"
-              style={{ left: `${(hour / 24) * 100}%` }}
-            />
+              className="flex-1 border-l border-kanyo-gray-600 first:border-l-0"
+            >
+              {hour % 6 === 0 && hour < 24 && (
+                <div className="text-xs text-kanyo-gray-100 -translate-x-1/2 mt-16">
+                  {hour === 0 ? '12 AM' : hour < 12 ? `${hour} AM` : hour === 12 ? '12 PM' : `${hour - 12} PM`}
+                </div>
+              )}
+            </div>
           ))}
         </div>
-      </div>
 
-      {/* Hour labels */}
-      <div className="relative h-6 mb-4">
-        {[0, 6, 12, 18].map(hour => (
-          <div
-            key={hour}
-            className="absolute text-xs text-kanyo-gray-100"
-            style={{ left: `${(hour / 24) * 100}%`, transform: 'translateX(-50%)' }}
-          >
-            {hour === 0 ? '12 AM' : hour < 12 ? `${hour} AM` : hour === 12 ? '12 PM' : `${hour - 12} PM`}
-          </div>
-        ))}
-      </div>
-
-      {/* Thumbnail scroll container */}
-      <div
-        ref={scrollContainerRef}
-        className={`
-          relative overflow-x-auto pb-4 timeline-scroll
-          ${touchDevice ? 'snap-x snap-mandatory' : ''}
-        `}
-        style={{ scrollbarWidth: 'thin' }}
-      >
-        <div className="relative h-24" style={{ minWidth: '100%', width: 'max-content' }}>
-          {events.length === 0 && (
-            <div className="absolute inset-0 flex items-center justify-center text-kanyo-gray-100">
-              No events for this date
-            </div>
-          )}
-
-          {events.map((event) => {
-            const position = calculateTimelinePosition(event.timestamp);
-            const isSelected = selectedEvent?.event_id === event.event_id;
-
-            return (
-              <button
-                key={event.event_id}
-                data-event-id={event.event_id}
-                onClick={() => onEventSelect(event)}
-                className={`
-                  absolute top-0 w-16 md:w-20 lg:w-24 h-full rounded-lg overflow-hidden
-                  transition-all timeline-thumbnail
-                  ${isSelected
-                    ? 'ring-2 ring-kanyo-orange scale-110'
-                    : 'hover:scale-105 ring-1 ring-kanyo-gray-500'
-                  }
-                `}
-                style={{
-                  left: `${position}%`,
-                  transform: `translateX(-50%) ${isSelected ? 'scale(1.1)' : ''}`,
-                }}
-              >
+        {/* Event clips with proportional widths */}
+        <div
+          ref={scrollContainerRef}
+          className="absolute inset-0 overflow-x-auto scrollbar-thin"
+          onScroll={handleScroll}
+        >
+          <div className="relative h-full" style={{ minWidth: '100%' }}>
+            {events.length === 0 && (
+              <div className="absolute inset-0 flex items-center justify-center">
                 <img
-                  src={api.getClipUrl(streamId, selectedDate, event.thumbnail)}
-                  alt={`${event.type} event`}
-                  className="w-full h-full object-cover"
+                  src="/falcon-silhouette.svg"
+                  alt=""
+                  className="w-12 h-12 opacity-20"
+                  onError={(e) => e.target.style.display = 'none'}
                 />
-                {/* Event type indicator */}
-                <div className={`
-                  absolute bottom-0 left-0 right-0 px-1 py-0.5 text-xs font-medium text-center
-                  ${event.type === 'arrival' ? 'bg-kanyo-blue' : 'bg-kanyo-red'}
-                `}>
-                  {event.type === 'arrival' ? 'Arrival' : 'Departure'}
-                </div>
-              </button>
-            );
-          })}
+              </div>
+            )}
+
+            {events.map((event) => {
+              const { left, width } = calculateEventPosition(event);
+              const isSelected = selectedEvent?.event_id === event.event_id;
+
+              return (
+                <button
+                  key={event.event_id}
+                  data-event-id={event.event_id}
+                  onClick={() => onEventSelect(event)}
+                  className={`
+                    absolute top-0 h-14 rounded overflow-hidden
+                    transition-all group
+                    ${isSelected
+                      ? 'ring-2 ring-kanyo-orange z-10 scale-y-110'
+                      : 'hover:scale-y-105 ring-1 ring-kanyo-gray-500'
+                    }
+                  `}
+                  style={{
+                    left: `${left}%`,
+                    width: `${width}%`,
+                  }}
+                >
+                  {/* Thumbnail */}
+                  <img
+                    src={api.getClipUrl(streamId, selectedDate, event.thumbnail)}
+                    alt=""
+                    className="w-full h-full object-cover"
+                  />
+                  
+                  {/* Falcon icon at start */}
+                  <div className="absolute top-0.5 left-0.5 w-3 h-3 bg-kanyo-orange rounded-full flex items-center justify-center">
+                    <div className="w-2 h-2 text-white text-[8px] font-bold">▶</div>
+                  </div>
+
+                  {/* Duration on hover */}
+                  <div className="absolute bottom-0 left-0 right-0 bg-black/70 text-white text-[10px] px-1 py-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                    {formatDuration(event.duration)}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
     </div>
@@ -133,15 +147,50 @@ export default function Timeline({
 }
 
 /**
- * Calculate position on 24-hour timeline (0-100%)
+ * Calculate event position and width on 24-hour timeline
  */
-function calculateTimelinePosition(isoTimestamp) {
-  if (!isoTimestamp) return 0;
+function calculateEventPosition(event) {
+  if (!event.timestamp || !event.duration) return { left: 0, width: 0 };
 
-  const date = new Date(isoTimestamp);
-  const hours = date.getHours();
-  const minutes = date.getMinutes();
-  const totalMinutes = hours * 60 + minutes;
+  const date = new Date(event.timestamp);
+  const startMinutes = date.getHours() * 60 + date.getMinutes() + date.getSeconds() / 60;
+  const durationMinutes = event.duration / 60;
 
-  return (totalMinutes / 1440) * 100; // 1440 minutes in a day
+  // Position as percentage of 24 hours (1440 minutes)
+  const left = (startMinutes / 1440) * 100;
+  const width = (durationMinutes / 1440) * 100;
+
+  // Minimum width for visibility (0.5% = ~7 minutes)
+  return {
+    left,
+    width: Math.max(width, 0.5)
+  };
+}
+
+/**
+ * Format duration in seconds to readable string
+ */
+function formatDuration(seconds) {
+  if (!seconds) return '0s';
+  
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const secs = Math.floor(seconds % 60);
+
+  if (hours > 0) {
+    return `${hours}h ${minutes}m`;
+  } else if (minutes > 0) {
+    return `${minutes}m ${secs}s`;
+  } else {
+    return `${secs}s`;
+  }
+}
+
+/**
+ * Get previous date
+ */
+function getPreviousDate(dateStr) {
+  const date = new Date(dateStr + 'T12:00:00');
+  date.setDate(date.getDate() - 1);
+  return date.toISOString().split('T')[0];
 }

@@ -176,6 +176,7 @@ export default function StreamView() {
           <div className="lg:col-span-3 space-y-6">
             {/* Week Calendar */}
             <WeekCalendar
+              streamId={streamId}
               streamTimezone={stream.timezone}
               selectedDate={selectedDate}
               onDateChange={handleDateChange}
@@ -198,6 +199,7 @@ export default function StreamView() {
               isLive={isLive}
               streamId={streamId}
               selectedDate={selectedDate}
+              onDateChange={handleDateChange}
             />
 
             {/* Event Details (below timeline when event selected) */}
