@@ -131,7 +131,7 @@ export default function Timeline({
           className="absolute inset-0 overflow-x-auto scrollbar-thin"
           onScroll={handleScroll}
         >
-          <div className="relative h-full" style={{ minWidth: '100%' }}>
+          <div className="relative h-full" style={{ minWidth: '200%' }}>
             {events.length === 0 && (
               <div className="absolute inset-0 flex items-center justify-center">
                 <svg viewBox="0 0 83.5 98.3" className="w-12 h-12 opacity-20" style={{filter: 'invert(60%) sepia(80%) saturate(600%) hue-rotate(350deg)'}}>
