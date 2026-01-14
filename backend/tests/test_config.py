@@ -1,5 +1,4 @@
 """Tests for config module."""
-import pytest
 from app.config import Settings
 
 

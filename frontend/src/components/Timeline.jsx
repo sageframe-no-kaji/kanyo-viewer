@@ -60,7 +60,7 @@ export default function Timeline({
               <span>Duration: {formatDuration(selectedEvent.duration)}</span>
             </div>
           </div>
-          
+
           {/* Right: Action icons */}
           <div className="flex items-center gap-2">
             <a
@@ -85,7 +85,7 @@ export default function Timeline({
           </div>
         </div>
       )}
-      
+
       {/* 12-hour timeline - no header, LIVE button inline */}
       <div className="relative h-24">
         {/* Left scroll arrow */}
@@ -266,10 +266,10 @@ function calculateEventPosition(event) {
 function formatTime(timestamp) {
   if (!timestamp) return '';
   const date = new Date(timestamp);
-  return date.toLocaleTimeString('en-US', { 
-    hour: 'numeric', 
+  return date.toLocaleTimeString('en-US', {
+    hour: 'numeric',
     minute: '2-digit',
-    hour12: true 
+    hour12: true
   });
 }
 
@@ -280,10 +280,10 @@ function formatDepartureTime(event) {
   if (!event.timestamp || !event.duration) return '';
   const arrival = new Date(event.timestamp);
   const departure = new Date(arrival.getTime() + event.duration * 1000);
-  return departure.toLocaleTimeString('en-US', { 
-    hour: 'numeric', 
+  return departure.toLocaleTimeString('en-US', {
+    hour: 'numeric',
     minute: '2-digit',
-    hour12: true 
+    hour12: true
   });
 }
 
@@ -292,7 +292,7 @@ function formatDepartureTime(event) {
  */
 function handleShare(event) {
   const shareUrl = `${window.location.origin}${window.location.pathname}?date=${event.timestamp.split('T')[0]}&event=${event.event_id}`;
-  
+
   if (navigator.clipboard) {
     navigator.clipboard.writeText(shareUrl)
       .then(() => alert('Link copied to clipboard!'))

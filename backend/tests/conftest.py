@@ -1,11 +1,8 @@
 """Test configuration and fixtures."""
-import pytest
-import os
 import tempfile
 import json
 from pathlib import Path
-from datetime import datetime
-import yaml
+import pytest
 
 
 @pytest.fixture
@@ -67,7 +64,7 @@ def mock_stream_config(test_data_dir):
     # Create streams.yaml config
     streams_config = {
         "streams": {
-            "harvard": {
+            "kanyo-harvard": {
                 "name": "Harvard Falcon Cam",
                 "youtube_id": "glczTFRRAK4",
                 "data_path": str(test_data_dir / "harvard"),
@@ -80,9 +77,9 @@ def mock_stream_config(test_data_dir):
                     "telegram_channel": "kanyo_harvard_falcon",
                 },
             },
-            "nsw": {
+            "kanyo-nsw": {
                 "name": "NSW Falcon Cam",
-                "youtube_id": "test123",
+                "youtube_id": "VuZaWzhXSAI",
                 "data_path": str(test_data_dir / "nsw"),
                 "timezone": "Australia/Sydney",
                 "display": {
