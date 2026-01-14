@@ -1,0 +1,30 @@
+streams:
+  harvard:
+    name: "Harvard Falcon Cam"
+    youtube_id: "glczTFRRAK4"
+    data_path: "/data/harvard"
+    timezone: "America/New_York"
+    display:
+      short_name: "Harvard"
+      location: "Memorial Hall, Harvard University, Cambridge MA"
+      coordinates: [42.3762, -71.1158]
+      species: "Peregrine Falcon (Falco peregrinus)"
+      maintainer: "Harvard Faculty of Arts & Sciences"
+      maintainer_url: "https://www.fas.harvard.edu/"
+      description: "Active nest since 1999. Watch these magnificent birds of prey raise their young."
+      telegram_channel: "kanyo_harvard_falcon"
+
+  nsw:
+    name: "NSW Falcon Cam"
+    youtube_id: "TBD"
+    data_path: "/data/nsw"
+    timezone: "Australia/Sydney"
+    display:
+      short_name: "NSW"
+      location: "New South Wales, Australia"
+      coordinates: [-33.8688, 151.2093]
+      species: "Peregrine Falcon (Falco peregrinus)"
+      maintainer: "NSW Wildlife Trust"
+      maintainer_url: "https://example.com"
+      description: "Monitoring peregrine falcons in Australia."
+      telegram_channel: "kanyo_nsw_falcon"
