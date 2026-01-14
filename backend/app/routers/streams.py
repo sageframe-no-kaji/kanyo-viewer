@@ -109,23 +109,34 @@ def load_events_for_date(stream_id: str, date_str: str) -> List[Dict[str, Any]]:
 
             # Get stream timezone for proper timestamp
             tz = get_stream_timezone(stream_id)
-            from datetime import datetime
             date_obj = datetime.strptime(date_str, "%Y-%m-%d")
-            timestamp_dt = tz.localize(
-                date_obj.replace(hour=int(hour), minute=int(minute), second=int(second))
-            ) if hasattr(tz, "localize") else date_obj.replace(
-                hour=int(hour), minute=int(minute), second=int(second), tzinfo=tz
+            timestamp_dt = (
+                tz.localize(
+                    date_obj.replace(hour=int(hour), minute=int(minute), second=int(second))
+                )
+                if hasattr(tz, "localize")
+                else date_obj.replace(
+                    hour=int(hour), minute=int(minute), second=int(second), tzinfo=tz
+                )
             )
 
             # Get video duration using ffprobe
             duration = 0.0
             try:
                 result = subprocess.run(
-                    ["ffprobe", "-v", "error", "-show_entries", "format=duration",
-                     "-of", "default=noprint_wrappers=1:nokey=1", str(clip_file)],
+                    [
+                        "ffprobe",
+                        "-v",
+                        "error",
+                        "-show_entries",
+                        "format=duration",
+                        "-of",
+                        "default=noprint_wrappers=1:nokey=1",
+                        str(clip_file),
+                    ],
                     capture_output=True,
                     text=True,
-                    timeout=5
+                    timeout=5,
                 )
                 if result.returncode == 0:
                     duration = float(result.stdout.strip())
@@ -266,6 +277,7 @@ async def get_stream_detail(stream_id: str):
 async def get_dates_with_events(stream_id: str, start_date: str, end_date: str):
     """Get list of dates that have visit clips in a date range."""
     import re
+
     clips_dir = get_clips_dir(stream_id)
 
     dates_with_events = []

@@ -45,7 +45,7 @@ export default function WeekCalendar({ streamId, streamTimezone, selectedDate, o
         new Date(weekStartDate.getTime() + 6 * 24 * 60 * 60 * 1000),
         streamTimezone
       );
-      
+
       const response = await api.getDatesWithEvents(streamId, startDate, endDate);
       setDatesWithEvents(new Set(response.dates || []));
     } catch (error) {
@@ -57,7 +57,7 @@ export default function WeekCalendar({ streamId, streamTimezone, selectedDate, o
     const newStart = new Date(weekStartDate);
     newStart.setDate(newStart.getDate() + (direction * 7));
     setWeekStartDate(newStart);
-    
+
     // Auto-select middle date of new week
     const middleDate = new Date(newStart);
     middleDate.setDate(middleDate.getDate() + 3);

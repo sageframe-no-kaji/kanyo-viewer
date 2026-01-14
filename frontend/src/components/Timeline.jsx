@@ -126,7 +126,7 @@ export default function Timeline({
                     alt=""
                     className="w-full h-full object-cover"
                   />
-                  
+
                   {/* Falcon icon at start */}
                   <div className="absolute top-0.5 left-0.5 w-3 h-3 bg-kanyo-orange rounded-full flex items-center justify-center">
                     <div className="w-2 h-2 text-white text-[8px] font-bold">▶</div>
@@ -172,7 +172,7 @@ function calculateEventPosition(event) {
  */
 function formatDuration(seconds) {
   if (!seconds) return '0s';
-  
+
   const hours = Math.floor(seconds / 3600);
   const minutes = Math.floor((seconds % 3600) / 60);
   const secs = Math.floor(seconds % 60);

@@ -10,10 +10,7 @@ client = TestClient(app)
 def test_visitor_timezone_detection():
     """Test timezone detection from IP."""
     # Mock a real IP (not localhost)
-    response = client.get(
-        "/api/visitor/timezone",
-        headers={"X-Forwarded-For": "8.8.8.8"}
-    )
+    response = client.get("/api/visitor/timezone", headers={"X-Forwarded-For": "8.8.8.8"})
     assert response.status_code == 200
 
     data = response.json()
