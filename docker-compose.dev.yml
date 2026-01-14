@@ -1,0 +1,19 @@
+# Development docker-compose with local volumes
+services:
+  viewer:
+    build: .
+    container_name: kanyo-viewer-dev
+    ports:
+      - "3000:3000"
+    volumes:
+      # For development, mount local backend code
+      - ./backend:/app:ro
+      # Mount test data if available
+      - ./test-data:/data:ro
+    environment:
+      - KANYO_ENV=development
+    restart: unless-stopped
+
+# For local testing without real data, create test-data directory:
+# mkdir -p test-data/harvard/clips/2026-01-14
+# Add sample events_2026-01-14.json and clip files

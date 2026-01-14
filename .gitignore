@@ -14,8 +14,8 @@ node_modules/
 dist/
 .cache/
 
-# Environment
-.env
+# Environment (keeping .env in private repo)
+# .env
 .env.local
 
 # IDE
