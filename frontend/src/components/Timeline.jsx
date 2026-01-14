@@ -13,6 +13,8 @@ export default function Timeline({
 }) {
   const scrollContainerRef = useRef(null);
   const [scrollPosition, setScrollPosition] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [slideDirection, setSlideDirection] = useState('none');
 
   // Auto-scroll to selected event
   useEffect(() => {
@@ -41,8 +43,49 @@ export default function Timeline({
     }
   };
 
+  // Handle date change with animation
+  const handleDateChange = (newDate, direction) => {
+    setSlideDirection(direction);
+    setIsTransitioning(true);
+    setTimeout(() => {
+      onDateChange(newDate);
+      setTimeout(() => {
+        setIsTransitioning(false);
+        setSlideDirection('none');
+      }, 50);
+    }, 150);
+  };
+
+  // Format date for display
+  const formatDateDisplay = (dateStr) => {
+    if (!dateStr) return '';
+    const date = new Date(dateStr + 'T00:00:00');
+    const options = { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' };
+    return date.toLocaleDateString('en-US', options);
+  };
+
   return (
     <div className="bg-kanyo-card rounded-lg px-4 pt-3 pb-2">
+      {/* Date Indicator */}
+      <div className="flex items-center justify-center mb-2 pb-2 border-b border-kanyo-gray-600">
+        <div className={`text-sm font-semibold text-kanyo-gray-100 transition-all duration-200 ${
+          isTransitioning 
+            ? slideDirection === 'left' 
+              ? 'opacity-0 -translate-x-4' 
+              : slideDirection === 'right'
+              ? 'opacity-0 translate-x-4'
+              : 'opacity-0'
+            : 'opacity-100 translate-x-0'
+        }`}>
+          <div className="flex items-center gap-2">
+            <svg className="w-4 h-4 text-kanyo-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            <span>{formatDateDisplay(selectedDate)}</span>
+          </div>
+        </div>
+      </div>
+      
       {/* Visit Info Bar (when event selected) */}
       {selectedEvent && (
         <div className="flex items-center justify-between mb-3 pb-3 border-b border-kanyo-gray-500">
@@ -92,11 +135,12 @@ export default function Timeline({
         <button
           onClick={() => {
             const prevDate = getPreviousDate(selectedDate);
-            if (prevDate && onDateChange) {
-              onDateChange(prevDate);
+            if (prevDate) {
+              handleDateChange(prevDate, 'right');
             }
           }}
-          className="absolute left-0 top-0 bottom-0 z-50 w-10 bg-gradient-to-r from-kanyo-card to-transparent hover:from-kanyo-gray-700/80 transition-all flex items-center justify-start pl-2"
+          disabled={isTransitioning}
+          className="absolute left-0 top-0 bottom-0 z-50 w-10 bg-gradient-to-r from-kanyo-card to-transparent hover:from-kanyo-gray-700/80 transition-all flex items-center justify-start pl-2 disabled:opacity-50 disabled:cursor-not-allowed"
           title="Previous day"
         >
           <svg className="w-5 h-5 text-white opacity-70 hover:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -108,11 +152,12 @@ export default function Timeline({
         <button
           onClick={() => {
             const nextDate = getNextDate(selectedDate);
-            if (nextDate && onDateChange) {
-              onDateChange(nextDate);
+            if (nextDate) {
+              handleDateChange(nextDate, 'left');
             }
           }}
-          className="absolute right-0 top-0 bottom-0 z-50 w-10 bg-gradient-to-l from-kanyo-card to-transparent hover:from-kanyo-gray-700/80 transition-all flex items-center justify-end pr-2"
+          disabled={isTransitioning}
+          className="absolute right-0 top-0 bottom-0 z-50 w-10 bg-gradient-to-l from-kanyo-card to-transparent hover:from-kanyo-gray-700/80 transition-all flex items-center justify-end pr-2 disabled:opacity-50 disabled:cursor-not-allowed"
           title="Next day"
         >
           <svg className="w-5 h-5 text-white opacity-70 hover:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -138,10 +183,20 @@ export default function Timeline({
         {/* Event clips with proportional widths */}
         <div
           ref={scrollContainerRef}
-          className="absolute inset-0 overflow-x-auto scrollbar-thin"
+          className={`absolute inset-0 overflow-x-auto scrollbar-thin transition-opacity duration-200 ${
+            isTransitioning ? 'opacity-30' : 'opacity-100'
+          }`}
           onScroll={handleScroll}
         >
-          <div className="relative h-full" style={{ minWidth: '100%' }}>
+          <div className={`relative h-full transition-transform duration-150 ${
+            isTransitioning
+              ? slideDirection === 'left'
+                ? '-translate-x-8'
+                : slideDirection === 'right'
+                ? 'translate-x-8'
+                : ''
+              : 'translate-x-0'
+          }`} style={{ minWidth: '100%' }}>
             {events.length === 0 && (
               <div className="absolute inset-0 flex items-center justify-center">
                 <svg viewBox="0 0 83.5 98.3" className="w-12 h-12 opacity-20" style={{filter: 'invert(60%) sepia(80%) saturate(600%) hue-rotate(350deg)'}}>
