@@ -92,7 +92,7 @@ export default function WeekCalendar({ streamId, streamTimezone, selectedDate, o
                 key={item.date}
                 onClick={() => onDateChange(item.date)}
                 className={`
-                  py-3 px-2 rounded-lg text-center transition-all
+                  py-1.5 px-2 rounded-lg text-center transition-all
                   ${isSelected
                     ? 'bg-kanyo-orange text-white font-semibold'
                     : isToday
@@ -104,8 +104,8 @@ export default function WeekCalendar({ streamId, streamTimezone, selectedDate, o
                 `}
               >
                 <div className="text-xs uppercase opacity-70">{item.dayOfWeek}</div>
-                <div className="text-lg mt-1">{item.dayOfMonth}</div>
-                <div className={`w-1 h-1 rounded-full mx-auto mt-1 ${
+                <div className="text-base mt-0.5">{item.dayOfMonth}</div>
+                <div className={`w-1 h-1 rounded-full mx-auto mt-0.5 ${
                   hasEvents && !isSelected ? 'bg-kanyo-orange' : 'bg-transparent'
                 }`}></div>
               </button>
