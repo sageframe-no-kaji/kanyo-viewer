@@ -6,6 +6,7 @@ export default function VideoPlayer({ stream, selectedEvent, selectedDate, isLiv
       <div className="bg-kanyo-card rounded-lg overflow-hidden">
         <div className="relative" style={{ paddingBottom: '56.25%' }}>
           <iframe
+            key={`live-${stream.id}`}
             className="absolute top-0 left-0 w-full h-full"
             src={`https://www.youtube.com/embed/${stream.youtube_id}?autoplay=1&mute=0&rel=0`}
             title="Live Stream"
