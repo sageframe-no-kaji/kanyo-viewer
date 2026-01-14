@@ -1,0 +1,19 @@
+services:
+  viewer:
+    build: .
+    container_name: kanyo-viewer
+    ports:
+      - "3000:3000"
+    volumes:
+      # Mount clip directories read-only from detection containers
+      - /opt/services/kanyo-harvard:/data/harvard:ro
+      - /opt/services/kanyo-nsw:/data/nsw:ro
+    environment:
+      - KANYO_ENV=production
+    restart: unless-stopped
+    networks:
+      - kanyo-network
+
+networks:
+  kanyo-network:
+    driver: bridge
