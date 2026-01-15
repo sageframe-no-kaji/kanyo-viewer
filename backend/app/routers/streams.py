@@ -184,7 +184,7 @@ def get_stats_for_range(stream_id: str, range_str: str) -> Dict[str, Any]:
 
     # Collect stats
     total_visits = 0
-    last_event = None
+    all_events = []
 
     current_date = now.date()
     for _ in range(days):
@@ -192,17 +192,18 @@ def get_stats_for_range(stream_id: str, range_str: str) -> Dict[str, Any]:
         events = load_events_for_date(stream_id, date_str)
 
         total_visits += len(events)  # All returned events are visits
-
-        # Track most recent event
-        for event in events:
-            if last_event is None or event["timestamp"] > last_event.get("timestamp", ""):
-                last_event = event
+        all_events.extend(events)
 
         current_date = current_date - timedelta(days=1)
 
+    # Sort by timestamp descending and take last 10
+    all_events.sort(key=lambda x: x.get("timestamp", ""), reverse=True)
+    last_events = all_events[:10]
+
     return {
         "visits": total_visits,
-        "last_event": last_event,
+        "last_event": last_events[0] if last_events else None,
+        "last_events": last_events,
         "range": range_str,
     }
 
