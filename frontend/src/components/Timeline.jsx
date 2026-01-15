@@ -44,27 +44,39 @@ export default function Timeline({
 
   // Check if we can navigate forward (don't allow future dates/times)
   const canNavigateForward = () => {
-    // Check if there would be any events in the next 12-hour window
+    // Calculate what the next window would be
+    let nextDate, nextStartHour;
     if (startHour === 0) {
-      // Currently showing 12 AM - 12 PM, check if there are events in 12 PM - 12 AM
-      return events.some(event => {
-        const date = new Date(event.timestamp);
-        const eventDate = date.toISOString().split('T')[0];
-        const hour = date.getHours();
-        return eventDate === selectedDate && hour >= 12 && hour < 24;
-      });
+      // Currently showing 12 AM - 12 PM, next would be 12 PM - 12 AM same day
+      nextDate = selectedDate;
+      nextStartHour = 12;
     } else {
-      // Currently showing 12 PM - 12 AM, check if there are events tomorrow 12 AM - 12 PM
-      const nextDate = getNextDate(selectedDate);
-      if (!nextDate) return false;
-      
-      return events.some(event => {
-        const date = new Date(event.timestamp);
-        const eventDate = date.toISOString().split('T')[0];
-        const hour = date.getHours();
-        return eventDate === nextDate && hour >= 0 && hour < 12;
-      });
+      // Currently showing 12 PM - 12 AM, next would be tomorrow 12 AM - 12 PM
+      nextDate = getNextDate(selectedDate);
+      nextStartHour = 0;
     }
+
+    if (!nextDate) return false;
+
+    // Get current time in stream timezone
+    const now = new Date();
+    const streamNow = new Date(now.toLocaleString('en-US', { timeZone: streamTimezone }));
+    const currentDateStr = streamNow.toISOString().split('T')[0];
+    const currentHour = streamNow.getHours();
+
+    // If next window is in the past, allow navigation
+    if (nextDate < currentDateStr) {
+      return true;
+    }
+
+    // If next window is on today
+    if (nextDate === currentDateStr) {
+      // Allow if we're past the start of that window
+      return currentHour >= nextStartHour;
+    }
+
+    // Next window is in the future - don't allow
+    return false;
   };
 
   // Handle 12-hour window change with animation
@@ -177,11 +189,19 @@ export default function Timeline({
 
       {/* 12-hour timeline - no header, LIVE button inline */}
       <div className="relative h-16">
+        {/* Month abbreviation above left arrow */}
+        <div className="absolute left-0 top-0 text-[10px] text-kanyo-gray-300 pl-2">
+          {(() => {
+            const date = new Date(selectedDate + 'T00:00:00');
+            return date.toLocaleDateString('en-US', { month: 'short' }).toUpperCase();
+          })()}
+        </div>
+
         {/* Left scroll arrow - go back 12 hours */}
         <button
           onClick={() => handleTimeWindowChange('right')}
           disabled={isTransitioning}
-          className="absolute left-0 top-0 bottom-0 z-50 w-10 bg-gradient-to-r from-kanyo-card to-transparent hover:from-kanyo-gray-700/80 transition-all flex items-center justify-start pl-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="absolute left-0 top-3 bottom-0 z-50 w-10 bg-gradient-to-r from-kanyo-card to-transparent hover:from-kanyo-gray-700/80 transition-all flex items-center justify-start pl-2 disabled:opacity-50 disabled:cursor-not-allowed"
           title="Previous 12 hours"
         >
           <svg className="w-5 h-5 text-white opacity-70 hover:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -193,7 +213,7 @@ export default function Timeline({
         <button
           onClick={() => handleTimeWindowChange('left')}
           disabled={isTransitioning || !canNavigateForward()}
-          className="absolute right-0 top-0 bottom-0 z-50 w-10 bg-gradient-to-l from-kanyo-card to-transparent hover:from-kanyo-gray-700/80 transition-all flex items-center justify-end pr-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="absolute right-0 top-3 bottom-0 z-50 w-10 bg-gradient-to-l from-kanyo-card to-transparent hover:from-kanyo-gray-700/80 transition-all flex items-center justify-end pr-2 disabled:opacity-50 disabled:cursor-not-allowed"
           title="Next 12 hours"
         >
           <svg className="w-5 h-5 text-white opacity-70 hover:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
