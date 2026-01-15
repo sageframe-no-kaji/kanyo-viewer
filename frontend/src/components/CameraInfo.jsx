@@ -23,36 +23,36 @@ export default function CameraInfo({ stream, visitorTimezone, onTimezoneChange, 
   }
 
   return (
-    <div className={`bg-kanyo-card rounded-lg p-6 space-y-4 flex flex-col ${className}`}>
-      <h2 className="text-xl font-semibold text-white mb-4">Camera Info</h2>
+    <div className={`bg-kanyo-card rounded-lg p-6 space-y-3 flex flex-col ${className}`}>
+      <h2 className="text-lg font-semibold text-white mb-3">Camera Info</h2>
 
       {/* Location */}
       <div>
-        <div className="text-kanyo-gray-100 text-sm mb-1">Location</div>
-        <div className="text-white">{display.location}</div>
+        <div className="text-kanyo-gray-100 text-xs mb-1">Location</div>
+        <div className="text-white text-sm">{display.location}</div>
       </div>
 
       {/* Species */}
       <div>
-        <div className="text-kanyo-gray-100 text-sm mb-1">Species</div>
-        <div className="text-white">{display.species}</div>
+        <div className="text-kanyo-gray-100 text-xs mb-1">Species</div>
+        <div className="text-white text-sm">{display.species}</div>
       </div>
 
       {/* Maintainer */}
       {display.maintainer && (
         <div>
-          <div className="text-kanyo-gray-100 text-sm mb-1">Maintained by</div>
+          <div className="text-kanyo-gray-100 text-xs mb-1">Maintained by</div>
           {display.maintainer_url ? (
             <a
               href={display.maintainer_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-kanyo-orange hover:text-white transition-colors"
+              className="text-kanyo-orange hover:text-white transition-colors text-sm"
             >
               {display.maintainer}
             </a>
           ) : (
-            <div className="text-white">{display.maintainer}</div>
+            <div className="text-white text-sm">{display.maintainer}</div>
           )}
         </div>
       )}
@@ -60,21 +60,21 @@ export default function CameraInfo({ stream, visitorTimezone, onTimezoneChange, 
       {/* Description */}
       {display.description && (
         <div>
-          <div className="text-kanyo-gray-100 text-sm mb-1">About</div>
-          <div className="text-white text-sm">{display.description}</div>
+          <div className="text-kanyo-gray-100 text-xs mb-1">About</div>
+          <div className="text-white text-xs leading-relaxed">{display.description}</div>
         </div>
       )}
 
       {/* Dual Timezone Clocks */}
-      <div className="border-t border-kanyo-gray-500 pt-4 mt-4">
-        <div className="space-y-3">
+      <div className="border-t border-kanyo-gray-500 pt-3 mt-3">
+        <div className="space-y-2">
           {/* Stream Local Time */}
           <div>
-            <div className="text-kanyo-gray-100 text-xs mb-1">Stream Local Time</div>
-            <div className="text-white text-lg font-mono">
+            <div className="text-kanyo-gray-100 text-[10px] mb-1">Stream Local Time</div>
+            <div className="text-white text-base font-mono">
               {formatTimeInTimezone(currentTime, stream.timezone)}
             </div>
-            <div className="text-kanyo-gray-100 text-[10px] mt-1">
+            <div className="text-kanyo-gray-100 text-[9px] mt-0.5">
               {stream.timezone}
             </div>
           </div>
