@@ -170,16 +170,6 @@ export default function StreamView() {
 
       {/* Main Layout */}
       <div className="max-w-7xl mx-auto px-4 py-6">
-        {/* Week Calendar - Full Width */}
-        <div className="mb-6">
-          <WeekCalendar
-            streamId={streamId}
-            streamTimezone={stream.timezone}
-            selectedDate={selectedDate}
-            onDateChange={handleDateChange}
-          />
-        </div>
-
         {/* Video Section - 3 Column Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-6">
           {/* Camera Info - Left */}
@@ -193,12 +183,30 @@ export default function StreamView() {
           </div>
 
           {/* Video Player - Center */}
-          <div className="lg:col-span-7">
+          <div className="lg:col-span-7 space-y-6">
+            {/* Week Calendar */}
+            <WeekCalendar
+              streamId={streamId}
+              streamTimezone={stream.timezone}
+              selectedDate={selectedDate}
+              onDateChange={handleDateChange}
+            />
             <VideoPlayer
               stream={stream}
               selectedEvent={selectedEvent}
               selectedDate={selectedDate}
               isLive={isLive}
+            />
+            {/* Timeline */}
+            <Timeline
+              events={events}
+              selectedEvent={selectedEvent}
+              onEventSelect={handleEventSelect}
+              onLiveClick={handleLiveClick}
+              isLive={isLive}
+              streamId={streamId}
+              selectedDate={selectedDate}
+              onDateChange={handleDateChange}
             />
           </div>
 
@@ -213,18 +221,6 @@ export default function StreamView() {
             />
           </div>
         </div>
-
-        {/* Timeline - Full Width */}
-        <Timeline
-          events={events}
-          selectedEvent={selectedEvent}
-          onEventSelect={handleEventSelect}
-          onLiveClick={handleLiveClick}
-          isLive={isLive}
-          streamId={streamId}
-          selectedDate={selectedDate}
-          onDateChange={handleDateChange}
-        />
       </div>
     </div>
   );

@@ -71,10 +71,10 @@ export default function CameraInfo({ stream, visitorTimezone, onTimezoneChange, 
           {/* Stream Local Time */}
           <div>
             <div className="text-kanyo-gray-100 text-xs mb-1">Stream Local Time</div>
-            <div className="text-white text-2xl font-mono">
+            <div className="text-white text-lg font-mono">
               {formatTimeInTimezone(currentTime, stream.timezone)}
             </div>
-            <div className="text-kanyo-gray-100 text-xs mt-1">
+            <div className="text-kanyo-gray-100 text-[10px] mt-1">
               {stream.timezone}
             </div>
           </div>
@@ -83,10 +83,10 @@ export default function CameraInfo({ stream, visitorTimezone, onTimezoneChange, 
           {visitorTimezone && visitorTimezone !== stream.timezone && (
             <div>
               <div className="text-kanyo-gray-100 text-xs mb-1">Your Local Time</div>
-              <div className="text-white text-2xl font-mono">
+              <div className="text-white text-lg font-mono">
                 {formatTimeInTimezone(currentTime, visitorTimezone)}
               </div>
-              <div className="text-kanyo-gray-100 text-xs mt-1">
+              <div className="text-kanyo-gray-100 text-[10px] mt-1">
                 {visitorTimezone}
               </div>
             </div>
