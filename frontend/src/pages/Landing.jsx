@@ -88,13 +88,11 @@ export default function Landing() {
       </main>
 
       {/* Footer */}
-      <footer>
-        <div className="max-w-5xl mx-auto px-6">
-          <div className="py-6 bg-kanyo-gray-600 rounded-lg text-center">
-            <Link to="/about" className="text-kanyo-gray-100 hover:text-kanyo-orange transition-colors">
-              About Kanyo
-            </Link>
-          </div>
+      <footer className="max-w-5xl mx-auto px-6 pb-8">
+        <div className="py-6 bg-kanyo-gray-600 rounded-lg text-center">
+          <Link to="/about" className="text-kanyo-gray-100 hover:text-kanyo-orange transition-colors">
+            About Kanyo
+          </Link>
         </div>
       </footer>
     </div>
