@@ -122,16 +122,25 @@ export default function WeekCalendar({ streamId, streamTimezone, selectedDate, o
           })}
         </div>
 
-        {/* Next week button */}
-        <button
-          onClick={() => navigateWeek(1)}
-          className="p-1.5 rounded-lg bg-kanyo-gray-600 text-white hover:bg-kanyo-gray-500 transition-all"
-          title="Next week"
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-          </svg>
-        </button>
+        {/* Next week button with year */}
+        <div className="relative">
+          {/* Year above arrow */}
+          <div className="absolute -top-2 left-0 right-0 text-center text-[11px] font-semibold text-white">
+            {(() => {
+              const date = new Date(selectedDate + 'T00:00:00');
+              return date.getFullYear();
+            })()}
+          </div>
+          <button
+            onClick={() => navigateWeek(1)}
+            className="p-1.5 rounded-lg bg-kanyo-gray-600 text-white hover:bg-kanyo-gray-500 transition-all"
+            title="Next week"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        </div>
       </div>
     </div>
   );
