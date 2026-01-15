@@ -44,10 +44,10 @@ export default function Landing() {
       {/* Header */}
       <header>
         <div className="max-w-5xl mx-auto px-6">
-          <div className="py-6 bg-kanyo-card rounded-lg border-b border-kanyo-gray-500">
-            <div className="flex items-center gap-6">
+          <div className="py-4 bg-kanyo-card rounded-lg border-b border-kanyo-gray-500">
+            <div className="flex items-center gap-8">
               {/* Logo Circle - bigger, aligned with text */}
-              <div className="w-24 h-24 rounded-full bg-kanyo-orange flex items-center justify-center flex-shrink-0">
+              <div className="w-24 h-24 rounded-full bg-kanyo-orange flex items-center justify-center flex-shrink-0 ml-4">
                 <svg viewBox="0 0 500 548.5" className="w-20 h-20 fill-white">
                 <path d="M113.7,335.9h37.4l.9.9v13.7l-.9.9h-22.6l-7.4,11.4h31.4c0,3.3-.1,6.7,0,10s1.2,2.8-.3,3.7h-38.3l-10.6,14.3h13.4c6.2-8.7,19.7-10.4,28.3-4.2s4,4.2,4.3,4.2h10v-54.8h60.3l.9,93.1h-61.1v-26.9l-8.8-.5c-.8.3-1.8,3.6-2.7,4.8-7.9,11-28.6,9.1-32.6-4.3h-12v25.1h49.1v13.7h-19.4v10.9h21.1l-1.1,13.1h-21.1c-1.7,8.3-4.9,16.3-10.3,22.8,14.1-3.8,32.3-12.6,37.7-27.1s2.9-16.1,3.4-24.3h17.1c-.7,9-.7,17.5-3.1,26.3-10.9,39.4-64.6,50.9-99.7,55.4v-21.7c17.5-2.8,33.7-13.4,37.7-31.4h-28l.6-13.1h28.6v-10.9h-28.6v-34.3c-1.9.3-6.3,5.5-7.9,4.5l-9.8-12.2c5.7-4.3,11.4-8.7,16.6-13.7s5.9-5.4,7.4-8.9h-18c-1.4,0-.3-3.8-.3-4.8,0-2.7.2-5.4-.5-8l.8-.9h27.7l6.3-11.4h-8.3c-.7,0-7.3,9.2-10.4,10.2-4.5,1.3-10.5-3.5-15-3.9,5.7-4.6,10-8.9,13.2-15.7,1-2.3,2.8-9.5,3.7-10.6,3.4-4,19.1-2.7,23.1,1.4l-2.3,3.1ZM203.4,350.8h-26.9v12.6h26.9v-12.6ZM203.4,376.5h-26.9v12h26l.9-.9v-11.1ZM131.8,393.8c-4.9,1.1-3.3,9.6,3,7.6s3.1-9-3-7.6ZM203.4,401.1h-26.9v14.3h26.9v-14.3Z"/>
                 <path d="M286.3,382.8l-18.8,10.7c-.6,22.6,1.1,45.3-1.9,67.8-2.5,18.9-7.7,37.5-17.1,54l-12-4c7.8-17,11.7-35.9,13.1-54.6,1.6-19.8.6-39.1.5-58.8,0-20.7.1-41.3,0-62h66.3s-.6-16-.6-16c10.1.7,20.4.7,30.2,3.5,1.2,1.7-3.6,6.6-4,8.5h49.4c.5,0,4.6,1.2,5.4,1.4,5.6,2,9.5,6.5,10.9,12.2,7.5.4,16.1,1.6,20.2,8.7s2,4.5,2,4.8v8.9c-8.1-4.2-15.7-5.5-24.7-3.8s-16.5,4.9-18.7,11.3h-47.4v11.4h45.1v10.3h-43.7c-.2,0-.6-1-1.4.3v10h45.1v10.3h-45.1v10.3h62.3v9.4l-.9.9h-114.6v-55.4ZM370.3,344.5c5.5,7.5,22.2,13.9,26.1,2,0-.4-1.7-2-1.8-2h-24.3ZM295.4,350.8h-27.1l-.9.9v26.6c1.8-.5,3.6-2.1,5.1-3.2,5.7-4.3,10.8-9.4,15.8-14.5l7.1-9.7ZM330.3,351.4h-14l-9.4,12h14.6l1.4-1,7.4-11ZM360,351.4h-10l-8.9,11.4h11.7c1.1-.9,7.8-10.8,7.1-11.4ZM321.7,375.4h-18.9v11.4h18.9v-11.4ZM321.7,407.3v-10.9c-.4-.2-.7.6-.9.6h-18v10.3h18.9ZM321.7,416.5c-6.1.6-12.8,1.2-18.9,0v11.4h18.9v-11.4Z"/>
@@ -64,8 +64,8 @@ export default function Landing() {
             {/* Title */}
             <div>
               <h1 className="text-3xl font-bold text-white">The Kanyo Project</h1>
-              <p className="text-kanyo-orange italic text-lg mt-1">Contemplating Falcons</p>
-              <p className="text-kanyo-gray-100 text-sm mt-1">An open source peregrine falcon monitoring and event archive</p>
+              <p className="text-kanyo-orange italic text-lg">Contemplating Falcons</p>
+              <p className="text-kanyo-gray-100 text-sm">An open source peregrine falcon monitoring and event archive</p>
             </div>
             </div>
           </div>
