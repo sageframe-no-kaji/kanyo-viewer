@@ -227,13 +227,7 @@ export default function Timeline({
               >
                 {index % 3 === 0 && (
                   <div
-                    className={`absolute text-xs text-kanyo-gray-100 top-[48px] transition-all duration-300 ease-in-out ${
-                      index === 0
-                        ? 'translate-x-0 text-left'
-                        : index === 12
-                        ? 'translate-x-0 text-right'
-                        : '-translate-x-1/2'
-                    } ${
+                    className={`absolute text-xs text-kanyo-gray-100 top-[48px] whitespace-nowrap transition-all duration-300 ease-in-out ${
                       isTransitioning ? 'opacity-0 scale-95' : 'opacity-100 scale-100'
                     }`}
                     style={{
@@ -241,8 +235,10 @@ export default function Timeline({
                         index === 0
                           ? '28px'
                           : index === 12
-                          ? 'calc(100% - 28px)'
-                          : `${(index / 12) * 100}%`
+                          ? 'auto'
+                          : `${(index / 12) * 100}%`,
+                      right: index === 12 ? '28px' : 'auto',
+                      transform: index === 0 || index === 12 ? 'none' : 'translateX(-50%)'
                     }}
                   >
                     {display12Hour} {isPM ? 'PM' : 'AM'}
@@ -315,9 +311,9 @@ export default function Timeline({
                     />
                   ) : null}
 
-                  {/* Fallback placeholder when thumbnail missing - falcon positioned to appear centered between date header above and time labels below */}
+                  {/* Fallback placeholder when thumbnail missing - falcon centered in clip */}
                   <div
-                    className="w-full h-full bg-kanyo-orange/20 flex items-start justify-center pt-1"
+                    className="w-full h-full bg-kanyo-orange/20 flex items-center justify-center"
                     style={{ display: event.thumbnail ? 'none' : 'flex' }}
                   >
                     <svg viewBox="0 0 83.5 98.3" className="h-6 opacity-40" style={{filter: 'invert(60%) sepia(80%) saturate(600%) hue-rotate(350deg)'}}>
