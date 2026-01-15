@@ -130,47 +130,6 @@ export default function Timeline({
         </div>
       </div>
 
-      {/* Visit Info Bar (when event selected) - single line to match LIVE bar height */}
-      {selectedEvent && (
-        <div className="flex items-center justify-between mb-3 pb-3 border-b border-kanyo-gray-500">
-          {/* Left: Combined visit indicator and timing on single line */}
-          <div className="flex items-center gap-3 text-xs">
-            <span className="flex items-center gap-1.5 text-kanyo-red font-semibold">
-              <span className="w-2 h-2 bg-kanyo-red rounded-full"></span>
-              Visit
-            </span>
-            <span className="text-kanyo-gray-100">Arrived: {formatTime(selectedEvent.timestamp)}</span>
-            <span className="text-kanyo-gray-300">•</span>
-            <span className="text-kanyo-gray-100">Departed: {formatDepartureTime(selectedEvent)}</span>
-            <span className="text-kanyo-gray-300">•</span>
-            <span className="text-kanyo-gray-100">Duration: {formatDuration(selectedEvent.duration)}</span>
-          </div>
-
-          {/* Right: Action icons */}
-          <div className="flex items-center gap-2">
-            <a
-              href={api.getClipUrl(streamId, selectedDate, selectedEvent.clip)}
-              download
-              className="p-2 hover:bg-kanyo-gray-600 rounded transition-all"
-              title="Download clip"
-            >
-              <svg className="w-5 h-5 text-kanyo-gray-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-              </svg>
-            </a>
-            <button
-              onClick={() => handleShare(selectedEvent)}
-              className="p-2 hover:bg-kanyo-gray-600 rounded transition-all"
-              title="Share clip"
-            >
-              <svg className="w-5 h-5 text-kanyo-gray-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-              </svg>
-            </button>
-          </div>
-        </div>
-      )}
-
       {/* 12-hour timeline - no header, LIVE button inline */}
       <div className="relative h-24">
         {/* Left scroll arrow - go back 12 hours */}

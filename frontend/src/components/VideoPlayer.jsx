@@ -45,15 +45,18 @@ export default function VideoPlayer({ stream, selectedEvent, selectedDate, isLiv
           Your browser does not support the video tag.
         </video>
         <div className="p-4 border-t border-kanyo-gray-500">
-          <div className="flex items-center justify-between">
-            <span className={`font-medium ${
-              selectedEvent.type === 'arrival' ? 'text-kanyo-blue' : 'text-kanyo-red'
-            }`}>
-              {selectedEvent.type === 'arrival' ? '🔵 Arrival' : '🔴 Departure'}
-            </span>
-            <span className="text-kanyo-gray-100 text-sm">
-              {formatTimestamp(selectedEvent.timestamp)}
-            </span>
+          <div className="flex items-center justify-between text-xs">
+            <div className="flex items-center gap-3">
+              <span className="flex items-center gap-1.5 text-kanyo-red font-semibold">
+                <span className="w-2 h-2 bg-kanyo-red rounded-full"></span>
+                Visit
+              </span>
+              <span className="text-kanyo-gray-100">Arrived: {formatTimestamp(selectedEvent.timestamp)}</span>
+              <span className="text-kanyo-gray-300">•</span>
+              <span className="text-kanyo-gray-100">Departed: {formatDepartureTime(selectedEvent)}</span>
+              <span className="text-kanyo-gray-300">•</span>
+              <span className="text-kanyo-gray-100">Duration: {formatDuration(selectedEvent.duration)}</span>
+            </div>
           </div>
         </div>
       </div>
@@ -67,6 +70,13 @@ export default function VideoPlayer({ stream, selectedEvent, selectedDate, isLiv
         <div className="text-6xl mb-4">🦅</div>
         <p className="text-kanyo-gray-100 text-lg">Select an event or click LIVE</p>
       </div>
+      <div className="p-4 border-t border-kanyo-gray-500">
+        <div className="flex items-center justify-center">
+          <span className="text-kanyo-gray-100 text-sm">
+            Select a clip
+          </span>
+        </div>
+      </div>
     </div>
   );
 }
@@ -77,7 +87,36 @@ function formatTimestamp(isoString) {
   return date.toLocaleTimeString('en-US', {
     hour: 'numeric',
     minute: '2-digit',
-    second: '2-digit',
+    hour12: true
+  });
+}
+
+function formatDepartureTime(event) {
+  if (!event.timestamp || !event.duration) return 'Unknown';
+  const arrival = new Date(event.timestamp);
+  const departure = new Date(arrival.getTime() + event.duration * 1000);
+  return departure.toLocaleTimeString('en-US', {
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true
+  });
+}
+
+function formatDuration(seconds) {
+  if (!seconds) return '0s';
+
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const secs = Math.floor(seconds % 60);
+
+  if (hours > 0) {
+    return `${hours}h ${minutes}m`;
+  } else if (minutes > 0) {
+    return `${minutes}m ${secs}s`;
+  } else {
+    return `${secs}s`;
+  }
+}
     hour12: true
   });
 }
