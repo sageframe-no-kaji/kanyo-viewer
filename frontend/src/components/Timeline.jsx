@@ -299,9 +299,9 @@ export default function Timeline({
                     />
                   ) : null}
 
-                  {/* Fallback placeholder when thumbnail missing - falcon positioned higher */}
+                  {/* Fallback placeholder when thumbnail missing - falcon centered vertically */}
                   <div
-                    className="w-full h-full bg-kanyo-orange/20 flex items-start justify-center pt-1"
+                    className="w-full h-full bg-kanyo-orange/20 flex items-center justify-center"
                     style={{ display: event.thumbnail ? 'none' : 'flex' }}
                   >
                     <svg viewBox="0 0 83.5 98.3" className="h-6 opacity-40" style={{filter: 'invert(60%) sepia(80%) saturate(600%) hue-rotate(350deg)'}}>
