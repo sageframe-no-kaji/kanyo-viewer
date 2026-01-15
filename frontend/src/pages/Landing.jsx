@@ -44,7 +44,7 @@ export default function Landing() {
       {/* Header */}
       <header>
         <div className="max-w-5xl mx-auto px-6">
-          <div className="py-6 px-6 bg-kanyo-card rounded-lg border-b border-kanyo-gray-500">
+          <div className="py-6 bg-kanyo-card rounded-lg border-b border-kanyo-gray-500">
             <div className="flex items-center gap-6">
               {/* Logo Circle - bigger, aligned with text */}
               <div className="w-24 h-24 rounded-full bg-kanyo-orange flex items-center justify-center flex-shrink-0">
@@ -88,9 +88,9 @@ export default function Landing() {
       </main>
 
       {/* Footer */}
-      <footer className="mt-8">
+      <footer>
         <div className="max-w-5xl mx-auto px-6">
-          <div className="py-6 px-6 bg-kanyo-gray-600 rounded-lg text-center">
+          <div className="py-6 bg-kanyo-gray-600 rounded-lg text-center">
             <Link to="/about" className="text-kanyo-gray-100 hover:text-kanyo-orange transition-colors">
               About Kanyo
             </Link>
