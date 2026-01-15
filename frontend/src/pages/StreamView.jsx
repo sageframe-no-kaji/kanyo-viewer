@@ -170,35 +170,40 @@ export default function StreamView() {
 
       {/* Main Layout */}
       <div className="max-w-7xl mx-auto px-4 py-6">
-        {/* Video Section - 3 Column Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-6">
+        {/* Unified Rectangle Layout - 3 Columns with Fixed Height */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-6 h-[600px]">
           {/* Camera Info - Left - Fixed Height */}
-          <div className="lg:col-span-3">
+          <div className="lg:col-span-3 h-full">
             <CameraInfo
               stream={stream}
               visitorTimezone={visitorTimezone}
               onTimezoneChange={setVisitorTimezone}
-              className="h-[600px] overflow-y-auto"
+              className="h-full overflow-y-auto"
             />
           </div>
 
-          {/* Video Player - Center */}
-          <div className="lg:col-span-7 space-y-6">
+          {/* Video Section - Center - Unified Rectangle */}
+          <div className="lg:col-span-7 h-full flex flex-col">
             {/* Week Calendar */}
-            <WeekCalendar
-              streamId={streamId}
-              streamTimezone={stream.timezone}
-              selectedDate={selectedDate}
-              onDateChange={handleDateChange}
-            />
-            <VideoPlayer
-              stream={stream}
-              selectedEvent={selectedEvent}
-              selectedDate={selectedDate}
-              isLive={isLive}
-            />
-            {/* Timeline - Constrained to video width */}
-            <div>
+            <div className="flex-shrink-0">
+              <WeekCalendar
+                streamId={streamId}
+                streamTimezone={stream.timezone}
+                selectedDate={selectedDate}
+                onDateChange={handleDateChange}
+              />
+            </div>
+            {/* Video Player */}
+            <div className="flex-1 min-h-0">
+              <VideoPlayer
+                stream={stream}
+                selectedEvent={selectedEvent}
+                selectedDate={selectedDate}
+                isLive={isLive}
+              />
+            </div>
+            {/* Timeline */}
+            <div className="flex-shrink-0">
               <Timeline
                 events={events}
                 selectedEvent={selectedEvent}
@@ -213,13 +218,13 @@ export default function StreamView() {
           </div>
 
           {/* Stats Panel - Right - Fixed Height */}
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-2 h-full">
             <StatsPanel
               stream={stream}
               stats={stats}
               statsRange={statsRange}
               onRangeChange={setStatsRange}
-              className="h-[600px] overflow-y-auto"
+              className="h-full overflow-y-auto"
             />
           </div>
         </div>
