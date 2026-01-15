@@ -30,10 +30,10 @@ export default function StatsPanel({ stream, stats, statsRange, onRangeChange, c
         <div className="space-y-4 flex-1">
           <StatItem label="Visits" value={stats.visits || 0} />
 
-          {/* Last Events */}
+          {/* Latest Alerts */}
           {stats.last_events && stats.last_events.length > 0 && (
             <div className="border-t border-kanyo-gray-500 pt-4 mt-4">
-              <div className="text-kanyo-gray-100 text-sm mb-3">Last Events</div>
+              <div className="text-kanyo-gray-100 text-sm mb-3">Latest Alerts</div>
               <div className="space-y-3">
                 {stats.last_events.slice(0, 6).map((event, idx) => (
                   <div key={idx} className="flex flex-col gap-1">
