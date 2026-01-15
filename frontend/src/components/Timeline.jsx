@@ -44,30 +44,27 @@ export default function Timeline({
 
   // Check if we can navigate forward (don't allow future dates/times)
   const canNavigateForward = () => {
-    // Get current time in stream's timezone
-    const now = new Date();
-    const streamNow = new Date(now.toLocaleString('en-US', { timeZone: streamTimezone }));
-    const currentDateStr = streamNow.toISOString().split('T')[0];
-    const currentHour = streamNow.getHours();
-
-    // If we're on a past date, we can always navigate forward
-    if (selectedDate < currentDateStr) {
-      return true;
+    // Check if there would be any events in the next 12-hour window
+    if (startHour === 0) {
+      // Currently showing 12 AM - 12 PM, check if there are events in 12 PM - 12 AM
+      return events.some(event => {
+        const date = new Date(event.timestamp);
+        const eventDate = date.toISOString().split('T')[0];
+        const hour = date.getHours();
+        return eventDate === selectedDate && hour >= 12 && hour < 24;
+      });
+    } else {
+      // Currently showing 12 PM - 12 AM, check if there are events tomorrow 12 AM - 12 PM
+      const nextDate = getNextDate(selectedDate);
+      if (!nextDate) return false;
+      
+      return events.some(event => {
+        const date = new Date(event.timestamp);
+        const eventDate = date.toISOString().split('T')[0];
+        const hour = date.getHours();
+        return eventDate === nextDate && hour >= 0 && hour < 12;
+      });
     }
-
-    // If we're on today
-    if (selectedDate === currentDateStr) {
-      // If showing 12 AM - 12 PM (startHour=0), check if we can go to 12 PM - 12 AM
-      if (startHour === 0) {
-        // Can navigate if current time is past noon (12 PM)
-        return currentHour >= 12;
-      }
-      // If showing 12 PM - 12 AM (startHour=12), cannot navigate to tomorrow
-      return false;
-    }
-
-    // Future date - cannot navigate
-    return false;
   };
 
   // Handle 12-hour window change with animation
