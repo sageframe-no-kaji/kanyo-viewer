@@ -127,7 +127,32 @@ streams:
       species: "Species Name"
       maintainer: "Maintainer Name"
       telegram_channel: "telegram_channel_name"
+      thumbnail_url: "https://example.com/thumbnail.jpg"  # Optional
 ```
+
+### Landing Page Thumbnails
+
+The landing page displays stream thumbnails with a 3-level fallback system:
+
+1. **Static images** (highest priority) - Place JPG files in `frontend/public/thumbnails/`:
+   ```bash
+   frontend/public/thumbnails/
+     ├── kanyo-harvard.jpg
+     └── kanyo-nsw.jpg
+   ```
+   The filename must match the stream ID from `streams.yaml`.
+
+2. **URL from config** - Add `thumbnail_url` to the stream's `display` section in `streams.yaml`:
+   ```yaml
+   display:
+     thumbnail_url: "https://example.com/stream-thumbnail.jpg"
+   ```
+
+3. **Recent snapshot** - The viewer will automatically try to fetch a recent snapshot from the API at `/api/streams/{stream_id}/snapshot`.
+
+4. **Default icon** - If all else fails, displays an orange circle with the white Kanyo falcon logo.
+
+**Recommended**: Use static images for best performance. Simply drop a JPG file into `frontend/public/thumbnails/` with the stream ID as the filename.
 
 ### Data Paths
 
