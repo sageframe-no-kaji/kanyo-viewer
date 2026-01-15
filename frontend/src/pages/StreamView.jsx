@@ -154,8 +154,9 @@ export default function StreamView() {
     <div className="min-h-screen bg-kanyo-bg">
       {/* Header */}
       <header>
-        <div className="max-w-5xl mx-auto px-6 py-6 bg-kanyo-card border-b border-kanyo-gray-500">
-          <div className="flex items-center justify-between">
+        <div className="max-w-5xl mx-auto px-6">
+          <div className="py-6 bg-kanyo-card border-b border-kanyo-gray-500">
+            <div className="flex items-center justify-between">
             <Link to="/" className="text-kanyo-orange hover:text-white transition-colors">
               Streams
             </Link>
@@ -176,6 +177,7 @@ export default function StreamView() {
             <Link to="/about" className="text-kanyo-gray-100 hover:text-white transition-colors text-sm">
               About
             </Link>
+            </div>
           </div>
         </div>
       </header>
