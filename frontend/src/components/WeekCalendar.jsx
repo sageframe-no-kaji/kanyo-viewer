@@ -69,16 +69,25 @@ export default function WeekCalendar({ streamId, streamTimezone, selectedDate, o
   return (
     <div className="bg-kanyo-card rounded-lg p-2">
       <div className="flex items-center gap-2">
-        {/* Previous week button */}
-        <button
-          onClick={() => navigateWeek(-1)}
-          className="p-1.5 rounded-lg bg-kanyo-gray-600 text-white hover:bg-kanyo-gray-500 transition-all"
-          title="Previous week"
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-          </svg>
-        </button>
+        {/* Previous week button with month abbreviation */}
+        <div className="relative">
+          {/* Month abbreviation above arrow */}
+          <div className="absolute -top-2 left-0 right-0 text-center text-[11px] font-semibold text-white">
+            {(() => {
+              const date = new Date(selectedDate + 'T00:00:00');
+              return date.toLocaleDateString('en-US', { month: 'short' }).toUpperCase();
+            })()}
+          </div>
+          <button
+            onClick={() => navigateWeek(-1)}
+            className="p-1.5 rounded-lg bg-kanyo-gray-600 text-white hover:bg-kanyo-gray-500 transition-all"
+            title="Previous week"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+        </div>
 
         {/* Week days */}
         <div className="flex-1 grid grid-cols-7 gap-2">
