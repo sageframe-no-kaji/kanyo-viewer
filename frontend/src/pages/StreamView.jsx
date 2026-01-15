@@ -153,8 +153,8 @@ export default function StreamView() {
   return (
     <div className="min-h-screen bg-kanyo-bg">
       {/* Header */}
-      <header className="border-b border-kanyo-gray-500">
-        <div className="max-w-6xl mx-auto px-6 py-6 bg-kanyo-card">
+      <header>
+        <div className="max-w-5xl mx-auto px-6 py-6 bg-kanyo-card border-b border-kanyo-gray-500">
           <div className="flex items-center justify-between">
             <Link to="/" className="text-kanyo-orange hover:text-white transition-colors">
               Streams
@@ -217,7 +217,7 @@ export default function StreamView() {
       </div>
 
       {/* Main Layout */}
-      <div className="max-w-6xl mx-auto px-6 py-6">
+      <div className="max-w-5xl mx-auto px-6 py-6">
         {/* Unified Rectangle Layout - 3 Columns with Fixed Height */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-6 lg:h-[600px]">
           {/* Camera Info - Left - Fixed Height on Desktop, Mobile Tab Content */}
