@@ -166,70 +166,16 @@ def load_events_for_date(stream_id: str, date_str: str) -> List[Dict[str, Any]]:
 
 
 def get_stats_for_range(stream_id: str, range_str: str) -> Dict[str, Any]:
-    """Get stats for a time range from admin API."""
-    import os
-    import httpx
-
-    admin_url = os.getenv("ADMIN_API_URL", "http://localhost:8000")
-
-    try:
-        # Call admin API for events synchronously
-        with httpx.Client(timeout=10.0) as client:
-            response = client.get(
-                f"{admin_url}/api/streams/{stream_id}/events/recent",
-                params={"limit": 50}
-            )
-            response.raise_for_status()
-            events = response.json()
-
-        # Calculate stats from events
-        total_visits = 0
-        arrivals = 0
-        departures = 0
-        last_events = []
-
-        for event in events:
-            event_type = event.get("type", "")
-
-            if event_type == "arrival":
-                arrivals += 1
-                last_events.append({
-                    "type": "arrival",
-                    "timestamp": event.get("timestamp")
-                })
-            elif event_type == "departure":
-                departures += 1
-                last_events.append({
-                    "type": "departure",
-                    "timestamp": event.get("timestamp")
-                })
-
-        # Visits = min of arrivals and departures (matched pairs)
-        total_visits = min(arrivals, departures)
-
-        # Sort by timestamp descending
-        last_events.sort(key=lambda x: x.get("timestamp", ""), reverse=True)
-
-        return {
-            "visits": total_visits,
-            "arrivals": arrivals,
-            "departures": departures,
-            "last_event": last_events[0] if last_events else None,
-            "last_events": last_events[:10],
-            "range": range_str,
-        }
-    except Exception as e:
-        # Fallback to empty stats
-        return {
-            "visits": 0,
-            "arrivals": 0,
-            "departures": 0,
-            "last_event": None,
-            "last_events": [],
-            "range": range_str,
-            "error": str(e)
-        }
-
+    """Get stats for a time range - placeholder until admin API integration is complete."""
+    # TODO: Integrate with admin API once endpoint is confirmed
+    return {
+        "visits": 0,
+        "arrivals": 0,
+        "departures": 0,
+        "last_event": None,
+        "last_events": [],
+        "range": range_str,
+    }
 
 @router.get("")
 async def list_streams():
