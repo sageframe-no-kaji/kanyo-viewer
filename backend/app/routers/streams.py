@@ -392,3 +392,41 @@ async def get_stream_stats(stream_id: str, range: str = "24h"):
     """Get stats for a time range (24h, 2d, 3d, 4d, 5d)."""
     stats = get_stats_for_range(stream_id, range)
     return {"stream_id": stream_id, **stats}
+
+
+@router.get("/{stream_id}/snapshot")
+async def get_stream_snapshot(stream_id: str):
+    """Get the most recent arrival snapshot for a stream."""
+    from fastapi.responses import FileResponse
+    import re
+
+    clips_dir = get_clips_dir(stream_id)
+    tz = get_stream_timezone(stream_id)
+
+    # Search back up to 30 days for the most recent arrival snapshot
+    current_date = datetime.now(tz)
+    pattern = re.compile(r"falcon_(\d{6})_arrival\.(jpg|jpeg|png)$")
+
+    for _ in range(30):
+        date_str = current_date.strftime("%Y-%m-%d")
+        date_dir = clips_dir / date_str
+
+        if date_dir.exists():
+            # Find all arrival snapshots in this directory
+            snapshots = []
+            for file in date_dir.iterdir():
+                if file.is_file():
+                    match = pattern.match(file.name)
+                    if match:
+                        snapshots.append(file)
+
+            # Return the most recent one (sorted by filename, which includes time)
+            if snapshots:
+                most_recent = sorted(snapshots, reverse=True)[0]
+                return FileResponse(most_recent, media_type="image/jpeg")
+
+        # Move to previous day
+        current_date = current_date - timedelta(days=1)
+
+    # If no snapshot found, return 404
+    raise HTTPException(status_code=404, detail=f"No arrival snapshot found for {stream_id}")
