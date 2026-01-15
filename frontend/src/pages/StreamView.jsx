@@ -213,6 +213,7 @@ export default function StreamView() {
                 streamId={streamId}
                 selectedDate={selectedDate}
                 onDateChange={handleDateChange}
+                streamTimezone={stream.timezone}
               />
             </div>
           </div>

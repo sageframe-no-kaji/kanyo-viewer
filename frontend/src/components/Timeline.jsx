@@ -9,7 +9,8 @@ export default function Timeline({
   isLive,
   streamId,
   selectedDate,
-  onDateChange
+  onDateChange,
+  streamTimezone
 }) {
   const scrollContainerRef = useRef(null);
   const [isTransitioning, setIsTransitioning] = useState(false);
@@ -43,9 +44,11 @@ export default function Timeline({
 
   // Check if we can navigate forward (don't allow future dates/times)
   const canNavigateForward = () => {
+    // Get current time in stream's timezone
     const now = new Date();
-    const currentDateStr = now.toISOString().split('T')[0];
-    const currentHour = now.getHours();
+    const streamNow = new Date(now.toLocaleString('en-US', { timeZone: streamTimezone }));
+    const currentDateStr = streamNow.toISOString().split('T')[0];
+    const currentHour = streamNow.getHours();
 
     // If we're on a past date, we can always navigate forward
     if (selectedDate < currentDateStr) {
