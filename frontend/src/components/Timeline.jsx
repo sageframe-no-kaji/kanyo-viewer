@@ -190,7 +190,7 @@ export default function Timeline({
       {/* 12-hour timeline - no header, LIVE button inline */}
       <div className="relative h-16">
         {/* Month abbreviation above left arrow */}
-        <div className="absolute left-0 top-0 text-[10px] text-kanyo-gray-300 pl-2">
+        <div className="absolute left-0 top-0 text-[10px] text-kanyo-gray-300 pl-2 z-50">
           {(() => {
             const date = new Date(selectedDate + 'T00:00:00');
             return date.toLocaleDateString('en-US', { month: 'short' }).toUpperCase();
@@ -201,7 +201,7 @@ export default function Timeline({
         <button
           onClick={() => handleTimeWindowChange('right')}
           disabled={isTransitioning}
-          className="absolute left-0 top-3 bottom-0 z-50 w-10 bg-gradient-to-r from-kanyo-card to-transparent hover:from-kanyo-gray-700/80 transition-all flex items-center justify-start pl-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="absolute left-0 top-3 bottom-0 z-40 w-10 bg-gradient-to-r from-kanyo-card to-transparent hover:from-kanyo-gray-700/80 transition-all flex items-center justify-start pl-2 disabled:opacity-50 disabled:cursor-not-allowed"
           title="Previous 12 hours"
         >
           <svg className="w-5 h-5 text-white opacity-70 hover:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
