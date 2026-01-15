@@ -24,18 +24,12 @@ export default function CameraInfo({ stream, visitorTimezone, onTimezoneChange, 
 
   return (
     <div className={`bg-kanyo-card rounded-lg p-6 space-y-3 flex flex-col ${className}`}>
-      <h2 className="text-lg font-semibold text-white mb-3">Camera Info</h2>
+      <h2 className="text-lg font-semibold text-white mb-3">Stream Info</h2>
 
       {/* Location */}
       <div>
         <div className="text-kanyo-gray-100 text-xs mb-1">Location</div>
         <div className="text-white text-sm">{display.location}</div>
-      </div>
-
-      {/* Species */}
-      <div>
-        <div className="text-kanyo-gray-100 text-xs mb-1">Species</div>
-        <div className="text-white text-sm">{display.species}</div>
       </div>
 
       {/* Maintainer */}
@@ -65,48 +59,28 @@ export default function CameraInfo({ stream, visitorTimezone, onTimezoneChange, 
         </div>
       )}
 
-      {/* Dual Timezone Clocks */}
+      {/* Single Clock with Toggle */}
       <div className="border-t border-kanyo-gray-500 pt-3 mt-3">
         <div className="space-y-2">
-          {/* Stream Local Time */}
           <div>
-            <div className="text-kanyo-gray-100 text-[10px] mb-1">Stream Local Time</div>
-            <div className="text-white text-base font-mono">
-              {formatTimeInTimezone(currentTime, stream.timezone)}
+            <div className="text-kanyo-gray-100 text-[10px] mb-1">
+              {showTimezoneSelector ? 'Your Local Time' : 'Stream Local Time'}
+            </div>
+            <div className="text-white text-sm font-mono">
+              {formatTimeInTimezone(currentTime, showTimezoneSelector && visitorTimezone ? visitorTimezone : stream.timezone)}
             </div>
             <div className="text-kanyo-gray-100 text-[9px] mt-0.5">
-              {stream.timezone}
+              {showTimezoneSelector && visitorTimezone ? visitorTimezone : stream.timezone}
             </div>
           </div>
 
-          {/* Visitor Time */}
-          {visitorTimezone && visitorTimezone !== stream.timezone && (
-            <div>
-              <div className="text-kanyo-gray-100 text-xs mb-1">Your Local Time</div>
-              <div className="text-white text-lg font-mono">
-                {formatTimeInTimezone(currentTime, visitorTimezone)}
-              </div>
-              <div className="text-kanyo-gray-100 text-[10px] mt-1">
-                {visitorTimezone}
-              </div>
-            </div>
-          )}
-
-          {/* Timezone Selector Toggle */}
+          {/* Toggle Button */}
           <button
             onClick={() => setShowTimezoneSelector(!showTimezoneSelector)}
-            className="text-kanyo-orange hover:text-white text-sm transition-colors"
+            className="text-kanyo-orange hover:text-white text-xs transition-colors"
           >
-            {showTimezoneSelector ? '✕ Close' : '⚙ Change timezone'}
+            {showTimezoneSelector ? '← Stream Time' : 'Your Time →'}
           </button>
-
-          {/* Timezone Selector */}
-          {showTimezoneSelector && (
-            <TimezoneSelector
-              currentTimezone={visitorTimezone}
-              onSelect={handleTimezoneChange}
-            />
-          )}
         </div>
       </div>
     </div>
