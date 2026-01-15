@@ -12,7 +12,6 @@ export default function Timeline({
   onDateChange
 }) {
   const scrollContainerRef = useRef(null);
-  const [scrollPosition, setScrollPosition] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [slideDirection, setSlideDirection] = useState('none');
   const [startHour, setStartHour] = useState(0); // 0 for 12 AM, 12 for 12 PM
@@ -31,8 +30,6 @@ export default function Timeline({
   const handleScroll = (e) => {
     const container = e.target;
     const scrollLeft = container.scrollLeft;
-    const scrollWidth = container.scrollWidth;
-    const clientWidth = container.clientWidth;
 
     // If scrolled near the left edge, load previous day
     if (scrollLeft < 100) {
@@ -44,8 +41,40 @@ export default function Timeline({
     }
   };
 
+  // Check if we can navigate forward (don't allow future dates)
+  const canNavigateForward = () => {
+    const now = new Date();
+    const currentDate = new Date(selectedDate + 'T00:00:00');
+    const currentHour = now.getHours();
+
+    // If we're on a past date, we can always navigate forward
+    if (currentDate < new Date(now.toISOString().split('T')[0] + 'T00:00:00')) {
+      return true;
+    }
+
+    // If we're on today
+    if (currentDate.toISOString().split('T')[0] === now.toISOString().split('T')[0]) {
+      // If showing 12 AM - 12 PM and current time is past noon, can navigate
+      if (startHour === 0 && currentHour >= 12) {
+        return true;
+      }
+      // If showing 12 PM - 12 AM, cannot navigate to next day
+      if (startHour === 12) {
+        return false;
+      }
+    }
+
+    // Future date - cannot navigate
+    return false;
+  };
+
   // Handle 12-hour window change with animation
   const handleTimeWindowChange = (direction) => {
+    // Prevent navigation into the future
+    if (direction === 'left' && !canNavigateForward()) {
+      return;
+    }
+
     setSlideDirection(direction);
     setIsTransitioning(true);
 
@@ -147,7 +176,7 @@ export default function Timeline({
         {/* Right scroll arrow - go forward 12 hours */}
         <button
           onClick={() => handleTimeWindowChange('left')}
-          disabled={isTransitioning}
+          disabled={isTransitioning || !canNavigateForward()}
           className="absolute right-0 top-0 bottom-0 z-50 w-10 bg-gradient-to-l from-kanyo-card to-transparent hover:from-kanyo-gray-700/80 transition-all flex items-center justify-end pr-2 disabled:opacity-50 disabled:cursor-not-allowed"
           title="Next 12 hours"
         >
@@ -278,7 +307,7 @@ export default function Timeline({
             absolute top-1 right-2 px-3 py-1.5 rounded font-semibold text-xs transition-all z-50
             ${isLive
               ? 'bg-kanyo-red text-white'
-              : 'bg-kanyo-gray-600/90 text-white hover:bg-kanyo-gray-500'
+              : 'bg-kanyo-gray-600/90 text-white hover:bg-kanyo-gray-500 ring-1 ring-white/30'
             }
           `}
         >
@@ -329,58 +358,6 @@ function calculateEventPosition(event, startHour) {
     left,
     width: Math.min(width, 100 - left)
   };
-}
-
-/**
- * Format timestamp to time only
- */
-function formatTime(timestamp) {
-  if (!timestamp) return '';
-  const date = new Date(timestamp);
-  return date.toLocaleTimeString('en-US', {
-    hour: 'numeric',
-    minute: '2-digit',
-    hour12: true
-  });
-}
-
-/**
- * Format departure time (arrival + duration)
- */
-function formatDepartureTime(event) {
-  if (!event.timestamp || !event.duration) return '';
-  const arrival = new Date(event.timestamp);
-  const departure = new Date(arrival.getTime() + event.duration * 1000);
-  return departure.toLocaleTimeString('en-US', {
-    hour: 'numeric',
-    minute: '2-digit',
-    hour12: true
-  });
-}
-
-/**
- * Handle share functionality
- */
-function handleShare(event) {
-  const shareUrl = `${window.location.origin}${window.location.pathname}?date=${event.timestamp.split('T')[0]}&event=${event.event_id}`;
-
-  if (navigator.clipboard) {
-    navigator.clipboard.writeText(shareUrl)
-      .then(() => alert('Link copied to clipboard!'))
-      .catch(() => fallbackCopy(shareUrl));
-  } else {
-    fallbackCopy(shareUrl);
-  }
-}
-
-function fallbackCopy(text) {
-  const textArea = document.createElement('textarea');
-  textArea.value = text;
-  document.body.appendChild(textArea);
-  textArea.select();
-  document.execCommand('copy');
-  document.body.removeChild(textArea);
-  alert('Link copied to clipboard!');
 }
 
 /**

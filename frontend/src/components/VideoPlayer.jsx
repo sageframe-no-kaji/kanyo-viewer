@@ -6,7 +6,7 @@ export default function VideoPlayer({ stream, selectedEvent, selectedDate, isLiv
       <div className="bg-kanyo-card rounded-lg overflow-hidden">
         <div className="relative" style={{ paddingBottom: '56.25%' }}>
           <iframe
-            key={`live-${stream.id}-${Date.now()}`}
+            key={`live-${stream.id}`}
             className="absolute top-0 left-0 w-full h-full"
             src={`https://www.youtube.com/embed/${stream.youtube_id}?autoplay=1&mute=0&controls=1&rel=0&enablejsapi=1`}
             title="Live Stream"
@@ -16,12 +16,12 @@ export default function VideoPlayer({ stream, selectedEvent, selectedDate, isLiv
           />
         </div>
         <div className="p-4 border-t border-kanyo-gray-500">
-          <div className="flex items-center justify-between">
-            <span className="text-kanyo-green font-medium flex items-center">
-              <span className="w-2 h-2 bg-kanyo-green rounded-full mr-2 animate-pulse"></span>
+          <div className="flex items-center justify-between text-xs">
+            <span className="text-kanyo-green font-semibold flex items-center gap-1.5">
+              <span className="w-2 h-2 bg-kanyo-green rounded-full animate-pulse"></span>
               LIVE
             </span>
-            <span className="text-kanyo-gray-100 text-sm">
+            <span className="text-kanyo-gray-100">
               Viewing live stream
             </span>
           </div>
@@ -71,8 +71,9 @@ export default function VideoPlayer({ stream, selectedEvent, selectedDate, isLiv
         <p className="text-kanyo-gray-100 text-lg">Select an event or click LIVE</p>
       </div>
       <div className="p-4 border-t border-kanyo-gray-500">
-        <div className="flex items-center justify-center">
-          <span className="text-kanyo-gray-100 text-sm">
+        <div className="flex items-center justify-center text-xs">
+          <span className="text-kanyo-gray-100 font-semibold flex items-center gap-1.5">
+            <span className="w-2 h-2 bg-white rounded-full"></span>
             Select a clip
           </span>
         </div>
