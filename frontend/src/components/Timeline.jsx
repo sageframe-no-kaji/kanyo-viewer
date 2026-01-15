@@ -48,7 +48,7 @@ export default function Timeline({
   const handleTimeWindowChange = (direction) => {
     setSlideDirection(direction);
     setIsTransitioning(true);
-    
+
     setTimeout(() => {
       if (direction === 'right') {
         // Go back 12 hours
@@ -77,12 +77,12 @@ export default function Timeline({
           }
         }
       }
-      
+
       setTimeout(() => {
         setIsTransitioning(false);
         setSlideDirection('none');
-      }, 50);
-    }, 150);
+      }, 100);
+    }, 250);
   };
 
   // Format date and time range for display
@@ -111,13 +111,13 @@ export default function Timeline({
   return (
     <div className="bg-kanyo-card rounded-lg px-4 pt-3 pb-2">
       {/* Date Indicator */}
-      <div className="flex items-center justify-center mb-2 pb-2 border-b border-kanyo-gray-600">
-        <div className={`text-sm font-semibold text-kanyo-gray-100 transition-all duration-200 ${
+      <div className="flex items-center justify-center mb-2 pb-2 border-b border-kanyo-gray-600 overflow-hidden">
+        <div className={`text-sm font-semibold text-kanyo-gray-100 transition-all duration-300 ease-in-out ${
           isTransitioning
             ? slideDirection === 'left'
-              ? 'opacity-0 -translate-x-4'
+              ? 'opacity-0 -translate-x-12'
               : slideDirection === 'right'
-              ? 'opacity-0 translate-x-4'
+              ? 'opacity-0 translate-x-12'
               : 'opacity-0'
             : 'opacity-100 translate-x-0'
         }`}>
@@ -205,15 +205,15 @@ export default function Timeline({
             const displayHour = hour % 24;
             const isPM = displayHour >= 12;
             const display12Hour = displayHour === 0 ? 12 : displayHour > 12 ? displayHour - 12 : displayHour;
-            
+
             return (
               <div
                 key={index}
                 className="flex-1 border-l border-kanyo-gray-600 first:border-l-0"
               >
                 {index % 3 === 0 && index < 12 && (
-                  <div className={`absolute text-xs text-kanyo-gray-100 -translate-x-1/2 top-[72px] transition-all duration-200 ${
-                    isTransitioning ? 'opacity-0' : 'opacity-100'
+                  <div className={`absolute text-xs text-kanyo-gray-100 -translate-x-1/2 top-[72px] transition-all duration-300 ease-in-out ${
+                    isTransitioning ? 'opacity-0 scale-95' : 'opacity-100 scale-100'
                   }`}>
                     {display12Hour} {isPM ? 'PM' : 'AM'}
                   </div>
@@ -226,19 +226,19 @@ export default function Timeline({
         {/* Event clips with proportional widths */}
         <div
           ref={scrollContainerRef}
-          className={`absolute inset-0 overflow-x-auto scrollbar-thin transition-opacity duration-200 ${
-            isTransitioning ? 'opacity-30' : 'opacity-100'
+          className={`absolute inset-0 overflow-x-auto scrollbar-thin transition-all duration-300 ease-in-out ${
+            isTransitioning ? 'opacity-20' : 'opacity-100'
           }`}
           onScroll={handleScroll}
         >
-          <div className={`relative h-full transition-transform duration-150 ${
+          <div className={`relative h-full transition-all duration-300 ease-in-out ${
             isTransitioning
               ? slideDirection === 'left'
-                ? '-translate-x-8'
+                ? '-translate-x-16 scale-95'
                 : slideDirection === 'right'
-                ? 'translate-x-8'
+                ? 'translate-x-16 scale-95'
                 : ''
-              : 'translate-x-0'
+              : 'translate-x-0 scale-100'
           }`} style={{ minWidth: '100%' }}>
             {getVisibleEvents().length === 0 && (
               <div className="absolute inset-0 flex items-center justify-center">
@@ -350,7 +350,7 @@ function calculateEventPosition(event, startHour) {
   const eventMinutesFromDayStart = hour * 60 + minutes + seconds / 60;
   const windowStartMinutes = startHour * 60;
   const minutesFromWindowStart = eventMinutesFromDayStart - windowStartMinutes;
-  
+
   // If event is outside the window, don't show it
   if (minutesFromWindowStart < 0 || minutesFromWindowStart >= 720) {
     return { left: 0, width: 0 };
