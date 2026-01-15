@@ -16,12 +16,12 @@ export default function VideoPlayer({ stream, selectedEvent, selectedDate, isLiv
           />
         </div>
         <div className="p-4 border-t border-kanyo-gray-500">
-          <div className="flex items-center justify-between text-xs">
-            <span className="text-kanyo-green font-semibold flex items-center gap-1.5">
+          <div className="flex items-center justify-between">
+            <span className="text-kanyo-green font-medium text-sm flex items-center gap-1.5">
               <span className="w-2 h-2 bg-kanyo-green rounded-full animate-pulse"></span>
               LIVE
             </span>
-            <span className="text-kanyo-gray-100">
+            <span className="text-kanyo-gray-100 text-xs">
               Viewing live stream
             </span>
           </div>
@@ -45,17 +45,17 @@ export default function VideoPlayer({ stream, selectedEvent, selectedDate, isLiv
           Your browser does not support the video tag.
         </video>
         <div className="p-4 border-t border-kanyo-gray-500">
-          <div className="flex items-center justify-between text-xs">
+          <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <span className="flex items-center gap-1.5 text-kanyo-red font-semibold">
+              <span className="flex items-center gap-1.5 text-kanyo-red font-medium text-sm">
                 <span className="w-2 h-2 bg-kanyo-red rounded-full"></span>
                 Visit
               </span>
-              <span className="text-kanyo-gray-100">Arrived: {formatTimestamp(selectedEvent.timestamp)}</span>
-              <span className="text-kanyo-gray-300">•</span>
-              <span className="text-kanyo-gray-100">Departed: {formatDepartureTime(selectedEvent)}</span>
-              <span className="text-kanyo-gray-300">•</span>
-              <span className="text-kanyo-gray-100">Duration: {formatDuration(selectedEvent.duration)}</span>
+              <span className="text-kanyo-gray-100 text-xs">Arrived: {formatTimestamp(selectedEvent.timestamp)}</span>
+              <span className="text-kanyo-gray-300 text-xs">•</span>
+              <span className="text-kanyo-gray-100 text-xs">Departed: {formatDepartureTime(selectedEvent)}</span>
+              <span className="text-kanyo-gray-300 text-xs">•</span>
+              <span className="text-kanyo-gray-100 text-xs">Duration: {formatDuration(selectedEvent.duration)}</span>
             </div>
           </div>
         </div>
@@ -71,8 +71,8 @@ export default function VideoPlayer({ stream, selectedEvent, selectedDate, isLiv
         <p className="text-kanyo-gray-100 text-lg">Select an event or click LIVE</p>
       </div>
       <div className="p-4 border-t border-kanyo-gray-500">
-        <div className="flex items-center justify-center text-xs">
-          <span className="text-kanyo-gray-100 font-semibold flex items-center gap-1.5">
+        <div className="flex items-center">
+          <span className="text-kanyo-gray-100 font-medium text-sm flex items-center gap-1.5">
             <span className="w-2 h-2 bg-white rounded-full"></span>
             Select a clip
           </span>

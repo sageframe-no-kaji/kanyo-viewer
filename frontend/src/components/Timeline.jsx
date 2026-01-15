@@ -41,27 +41,26 @@ export default function Timeline({
     }
   };
 
-  // Check if we can navigate forward (don't allow future dates)
+  // Check if we can navigate forward (don't allow future dates/times)
   const canNavigateForward = () => {
     const now = new Date();
-    const currentDate = new Date(selectedDate + 'T00:00:00');
+    const currentDateStr = now.toISOString().split('T')[0];
     const currentHour = now.getHours();
 
     // If we're on a past date, we can always navigate forward
-    if (currentDate < new Date(now.toISOString().split('T')[0] + 'T00:00:00')) {
+    if (selectedDate < currentDateStr) {
       return true;
     }
 
     // If we're on today
-    if (currentDate.toISOString().split('T')[0] === now.toISOString().split('T')[0]) {
-      // If showing 12 AM - 12 PM and current time is past noon, can navigate
-      if (startHour === 0 && currentHour >= 12) {
-        return true;
+    if (selectedDate === currentDateStr) {
+      // If showing 12 AM - 12 PM (startHour=0), check if we can go to 12 PM - 12 AM
+      if (startHour === 0) {
+        // Can navigate if current time is past noon (12 PM)
+        return currentHour >= 12;
       }
-      // If showing 12 PM - 12 AM, cannot navigate to next day
-      if (startHour === 12) {
-        return false;
-      }
+      // If showing 12 PM - 12 AM (startHour=12), cannot navigate to tomorrow
+      return false;
     }
 
     // Future date - cannot navigate
