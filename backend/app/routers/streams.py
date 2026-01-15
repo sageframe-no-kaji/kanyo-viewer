@@ -172,7 +172,63 @@ def get_stats_for_range(stream_id: str, range_str: str) -> Dict[str, Any]:
 
     admin_url = os.getenv("ADMIN_API_URL", "http://localhost:8000")
 
-    try:\n        # Call admin API for events synchronously\n        with httpx.Client(timeout=10.0) as client:\n            response = client.get(f\"{admin_url}/api/streams/{stream_id}/events/recent\", params={\"limit\": 50})\n            response.raise_for_status()\n            events = response.json()\n        \n        # Calculate stats from events\n        total_visits = 0\n        arrivals = 0\n        departures = 0\n        last_events = []\n        \n        for event in events:\n            event_type = event.get(\"type\", \"\")\n            \n            if event_type == \"arrival\":\n                arrivals += 1\n                last_events.append({\n                    \"type\": \"arrival\",\n                    \"timestamp\": event.get(\"timestamp\")\n                })\n            elif event_type == \"departure\":\n                departures += 1\n                last_events.append({\n                    \"type\": \"departure\",\n                    \"timestamp\": event.get(\"timestamp\")\n                })\n        \n        # Visits = min of arrivals and departures (matched pairs)\n        total_visits = min(arrivals, departures)\n        \n        # Sort by timestamp descending\n        last_events.sort(key=lambda x: x.get(\"timestamp\", \"\"), reverse=True)\n        \n        return {\n            \"visits\": total_visits,\n            \"arrivals\": arrivals,\n            \"departures\": departures,\n            \"last_event\": last_events[0] if last_events else None,\n            \"last_events\": last_events[:10],\n            \"range\": range_str,\n        }\n    except Exception as e:\n        # Fallback to empty stats\n        return {\n            \"visits\": 0,\n            \"arrivals\": 0,\n            \"departures\": 0,\n            \"last_event\": None,\n            \"last_events\": [],\n            \"range\": range_str,\n            \"error\": str(e)\n        }
+    try:
+        # Call admin API for events synchronously
+        with httpx.Client(timeout=10.0) as client:
+            response = client.get(
+                f"{admin_url}/api/streams/{stream_id}/events/recent",
+                params={"limit": 50}
+            )
+            response.raise_for_status()
+            events = response.json()
+
+        # Calculate stats from events
+        total_visits = 0
+        arrivals = 0
+        departures = 0
+        last_events = []
+
+        for event in events:
+            event_type = event.get("type", "")
+
+            if event_type == "arrival":
+                arrivals += 1
+                last_events.append({
+                    "type": "arrival",
+                    "timestamp": event.get("timestamp")
+                })
+            elif event_type == "departure":
+                departures += 1
+                last_events.append({
+                    "type": "departure",
+                    "timestamp": event.get("timestamp")
+                })
+
+        # Visits = min of arrivals and departures (matched pairs)
+        total_visits = min(arrivals, departures)
+
+        # Sort by timestamp descending
+        last_events.sort(key=lambda x: x.get("timestamp", ""), reverse=True)
+
+        return {
+            "visits": total_visits,
+            "arrivals": arrivals,
+            "departures": departures,
+            "last_event": last_events[0] if last_events else None,
+            "last_events": last_events[:10],
+            "range": range_str,
+        }
+    except Exception as e:
+        # Fallback to empty stats
+        return {
+            "visits": 0,
+            "arrivals": 0,
+            "departures": 0,
+            "last_event": None,
+            "last_events": [],
+            "range": range_str,
+            "error": str(e)
+        }
 
 
 @router.get("")
