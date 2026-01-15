@@ -117,6 +117,3 @@ function formatDuration(seconds) {
     return `${secs}s`;
   }
 }
-    hour12: true
-  });
-}
