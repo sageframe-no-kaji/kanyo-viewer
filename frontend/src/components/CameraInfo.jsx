@@ -4,7 +4,10 @@ import TimezoneSelector from './TimezoneSelector';
 
 export default function CameraInfo({ stream, visitorTimezone, onTimezoneChange, className = '' }) {
   const [currentTime, setCurrentTime] = useState(new Date());
-  const [showTimezoneSelector, setShowTimezoneSelector] = useState(false);
+  const [showLocalTime, setShowLocalTime] = useState(false);
+
+  // Get browser's actual timezone
+  const browserTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
   // Update time every second
   useEffect(() => {
@@ -15,12 +18,6 @@ export default function CameraInfo({ stream, visitorTimezone, onTimezoneChange, 
   }, []);
 
   const display = stream?.display || {};
-
-  function handleTimezoneChange(newTimezone) {
-    saveVisitorTimezone(newTimezone);
-    onTimezoneChange(newTimezone);
-    setShowTimezoneSelector(false);
-  }
 
   return (
     <div className={`bg-kanyo-card rounded-lg p-6 space-y-3 flex flex-col ${className}`}>
@@ -59,27 +56,30 @@ export default function CameraInfo({ stream, visitorTimezone, onTimezoneChange, 
         </div>
       )}
 
-      {/* Single Clock with Toggle */}
-      <div className="border-t border-kanyo-gray-500 pt-3 mt-3">
+      {/* Spacer to push clock to bottom */}
+      <div className="flex-1"></div>
+
+      {/* Single Clock with Toggle - at bottom */}
+      <div className="border-t border-kanyo-gray-500 pt-3 mt-auto">
         <div className="space-y-2">
           <div>
             <div className="text-kanyo-gray-100 text-[10px] mb-1">
-              {showTimezoneSelector ? 'Your Local Time' : 'Stream Local Time'}
+              {showLocalTime ? 'Your Local Time' : 'Stream Local Time'}
             </div>
             <div className="text-white text-sm font-mono">
-              {formatTimeInTimezone(currentTime, showTimezoneSelector && visitorTimezone ? visitorTimezone : stream.timezone)}
+              {formatTimeInTimezone(currentTime, showLocalTime ? browserTimezone : stream.timezone)}
             </div>
             <div className="text-kanyo-gray-100 text-[9px] mt-0.5">
-              {showTimezoneSelector && visitorTimezone ? visitorTimezone : stream.timezone}
+              {showLocalTime ? browserTimezone : stream.timezone}
             </div>
           </div>
 
           {/* Toggle Button */}
           <button
-            onClick={() => setShowTimezoneSelector(!showTimezoneSelector)}
+            onClick={() => setShowLocalTime(!showLocalTime)}
             className="text-kanyo-orange hover:text-white text-xs transition-colors"
           >
-            {showTimezoneSelector ? '← Stream Time' : 'Your Time →'}
+            {showLocalTime ? '← Stream Time' : 'Your Time →'}
           </button>
         </div>
       </div>
