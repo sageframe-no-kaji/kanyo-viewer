@@ -190,7 +190,7 @@ export default function Timeline({
       {/* 12-hour timeline - no header, LIVE button inline */}
       <div className="relative h-16">
         {/* Month abbreviation above left arrow */}
-        <div className="absolute left-0 top-0 text-[10px] text-kanyo-gray-300 pl-2 z-50">
+        <div className="absolute left-0 top-0 text-[11px] font-semibold text-white pl-2 z-50">
           {(() => {
             const date = new Date(selectedDate + 'T00:00:00');
             return date.toLocaleDateString('en-US', { month: 'short' }).toUpperCase();
