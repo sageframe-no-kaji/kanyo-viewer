@@ -15,6 +15,7 @@ export default function Timeline({
   const [scrollPosition, setScrollPosition] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [slideDirection, setSlideDirection] = useState('none');
+  const [startHour, setStartHour] = useState(0); // 0 for 12 AM, 12 for 12 PM
 
   // Auto-scroll to selected event
   useEffect(() => {
@@ -43,12 +44,40 @@ export default function Timeline({
     }
   };
 
-  // Handle date change with animation
-  const handleDateChange = (newDate, direction) => {
+  // Handle 12-hour window change with animation
+  const handleTimeWindowChange = (direction) => {
     setSlideDirection(direction);
     setIsTransitioning(true);
+    
     setTimeout(() => {
-      onDateChange(newDate);
+      if (direction === 'right') {
+        // Go back 12 hours
+        if (startHour === 0) {
+          // Currently showing 12 AM - 12 PM, go to previous day 12 PM - 12 AM
+          const prevDate = getPreviousDate(selectedDate);
+          if (prevDate) {
+            onDateChange(prevDate);
+            setStartHour(12);
+          }
+        } else {
+          // Currently showing 12 PM - 12 AM, go to 12 AM - 12 PM same day
+          setStartHour(0);
+        }
+      } else {
+        // Go forward 12 hours
+        if (startHour === 0) {
+          // Currently showing 12 AM - 12 PM, go to 12 PM - 12 AM same day
+          setStartHour(12);
+        } else {
+          // Currently showing 12 PM - 12 AM, go to next day 12 AM - 12 PM
+          const nextDate = getNextDate(selectedDate);
+          if (nextDate) {
+            onDateChange(nextDate);
+            setStartHour(0);
+          }
+        }
+      }
+      
       setTimeout(() => {
         setIsTransitioning(false);
         setSlideDirection('none');
@@ -56,12 +85,27 @@ export default function Timeline({
     }, 150);
   };
 
-  // Format date for display
+  // Format date and time range for display
   const formatDateDisplay = (dateStr) => {
     if (!dateStr) return '';
     const date = new Date(dateStr + 'T00:00:00');
     const options = { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' };
-    return date.toLocaleDateString('en-US', options);
+    const dateText = date.toLocaleDateString('en-US', options);
+    const timeRange = startHour === 0 ? '12 AM - 12 PM' : '12 PM - 12 AM';
+    return `${dateText} (${timeRange})`;
+  };
+
+  // Get filtered events for current 12-hour window
+  const getVisibleEvents = () => {
+    return events.filter(event => {
+      const date = new Date(event.timestamp);
+      const hour = date.getHours();
+      if (startHour === 0) {
+        return hour >= 0 && hour < 12;
+      } else {
+        return hour >= 12 && hour < 24;
+      }
+    });
   };
 
   return (
@@ -69,9 +113,9 @@ export default function Timeline({
       {/* Date Indicator */}
       <div className="flex items-center justify-center mb-2 pb-2 border-b border-kanyo-gray-600">
         <div className={`text-sm font-semibold text-kanyo-gray-100 transition-all duration-200 ${
-          isTransitioning 
-            ? slideDirection === 'left' 
-              ? 'opacity-0 -translate-x-4' 
+          isTransitioning
+            ? slideDirection === 'left'
+              ? 'opacity-0 -translate-x-4'
               : slideDirection === 'right'
               ? 'opacity-0 translate-x-4'
               : 'opacity-0'
@@ -85,7 +129,7 @@ export default function Timeline({
           </div>
         </div>
       </div>
-      
+
       {/* Visit Info Bar (when event selected) */}
       {selectedEvent && (
         <div className="flex items-center justify-between mb-3 pb-3 border-b border-kanyo-gray-500">
@@ -131,34 +175,24 @@ export default function Timeline({
 
       {/* 12-hour timeline - no header, LIVE button inline */}
       <div className="relative h-24">
-        {/* Left scroll arrow - go to previous day */}
+        {/* Left scroll arrow - go back 12 hours */}
         <button
-          onClick={() => {
-            const prevDate = getPreviousDate(selectedDate);
-            if (prevDate) {
-              handleDateChange(prevDate, 'right');
-            }
-          }}
+          onClick={() => handleTimeWindowChange('right')}
           disabled={isTransitioning}
           className="absolute left-0 top-0 bottom-0 z-50 w-10 bg-gradient-to-r from-kanyo-card to-transparent hover:from-kanyo-gray-700/80 transition-all flex items-center justify-start pl-2 disabled:opacity-50 disabled:cursor-not-allowed"
-          title="Previous day"
+          title="Previous 12 hours"
         >
           <svg className="w-5 h-5 text-white opacity-70 hover:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
         </button>
 
-        {/* Right scroll arrow - go to next day */}
+        {/* Right scroll arrow - go forward 12 hours */}
         <button
-          onClick={() => {
-            const nextDate = getNextDate(selectedDate);
-            if (nextDate) {
-              handleDateChange(nextDate, 'left');
-            }
-          }}
+          onClick={() => handleTimeWindowChange('left')}
           disabled={isTransitioning}
           className="absolute right-0 top-0 bottom-0 z-50 w-10 bg-gradient-to-l from-kanyo-card to-transparent hover:from-kanyo-gray-700/80 transition-all flex items-center justify-end pr-2 disabled:opacity-50 disabled:cursor-not-allowed"
-          title="Next day"
+          title="Next 12 hours"
         >
           <svg className="w-5 h-5 text-white opacity-70 hover:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -166,18 +200,27 @@ export default function Timeline({
         </button>
         {/* Hour grid lines */}
         <div className="absolute inset-0 flex">
-          {Array.from({ length: 13 }).map((_, hour) => (
-            <div
-              key={hour}
-              className="flex-1 border-l border-kanyo-gray-600 first:border-l-0"
-            >
-              {hour % 3 === 0 && hour < 12 && (
-                <div className="absolute text-xs text-kanyo-gray-100 -translate-x-1/2 top-[72px]">
-                  {hour === 0 ? '12 AM' : `${hour} AM`}
-                </div>
-              )}
-            </div>
-          ))}
+          {Array.from({ length: 13 }).map((_, index) => {
+            const hour = startHour + index;
+            const displayHour = hour % 24;
+            const isPM = displayHour >= 12;
+            const display12Hour = displayHour === 0 ? 12 : displayHour > 12 ? displayHour - 12 : displayHour;
+            
+            return (
+              <div
+                key={index}
+                className="flex-1 border-l border-kanyo-gray-600 first:border-l-0"
+              >
+                {index % 3 === 0 && index < 12 && (
+                  <div className={`absolute text-xs text-kanyo-gray-100 -translate-x-1/2 top-[72px] transition-all duration-200 ${
+                    isTransitioning ? 'opacity-0' : 'opacity-100'
+                  }`}>
+                    {display12Hour} {isPM ? 'PM' : 'AM'}
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
 
         {/* Event clips with proportional widths */}
@@ -197,7 +240,7 @@ export default function Timeline({
                 : ''
               : 'translate-x-0'
           }`} style={{ minWidth: '100%' }}>
-            {events.length === 0 && (
+            {getVisibleEvents().length === 0 && (
               <div className="absolute inset-0 flex items-center justify-center">
                 <svg viewBox="0 0 83.5 98.3" className="w-12 h-12 opacity-20" style={{filter: 'invert(60%) sepia(80%) saturate(600%) hue-rotate(350deg)'}}>
                   <path d="M73.2,11.4c-1.3-1.8-2.9-3.3-4.8-4.5-4.4-2.8-9.3-4.6-14.4-5.4-6.1-1.2-12.5-1.1-18.6.3-3.9.9-7.6,2.7-10.8,5.2-3.2,2.6-5.7,5.9-7.4,9.7-1,2.2-1.9,4.5-2.9,6.7-1.3,3.2-2.8,6.3-4.3,9.4-1.4,2.8-2.8,5.6-4,8.5-.8,1.9-1.8,3.7-3.1,5.4-.8.9-1.7,1.6-2.7,2.1-.3.1-.2.5-.2.8,0,8.5,0,17,0,25.5,2.3-6.3,5.4-12.3,9.2-17.9,2.5-3.6,5.4-6.9,8.8-9.7-3.9,5.4-7.1,11.2-9.8,17.2-2.2,4.9-4.1,9.9-5.5,15.1-1.6,5.6-2.4,11.4-2.3,17.2,1.8-1.8,3.5-3.6,5.2-5.3,10.3-10.4,20.6-20.7,30.8-31.2.6-.7,1.2-1.4,1.9-2-3.1,4.3-6,8.8-9,13.2-3.1,4.7-6.1,9.4-9,14.1-2.5,4.2-4.9,8.3-7.3,12.5,2.4.1,4.9.2,7.3.4.6-.6,1.2-1.2,1.8-1.8,3.5-3.6,6.9-7.2,10.4-10.9,3.5-3.7,7.1-7.4,10.6-11.1,0,.3-.4.5-.5.8-1.6,3.3-3.2,6.5-4.8,9.7-2.1,4.3-4.3,8.5-6.3,12.8,2,0,4,.2,6,.2.2,0,.4,0,.6,0,.7-.6,1.3-1.2,1.9-1.8h0c5.9-5.7,11.1-12,15.6-18.8-.5,2.3-.9,4.7-1.3,7-.7,3.7-1.4,7.3-2.1,11,0,.3-.2.7,0,1h0c.2.2.4.2.6.2.2,0,.4,0,.6-.3.8-.8,1.5-1.8,2.2-2.7,2.1-3.1,3.7-6.5,4.9-10,1.2-3.5,2.1-7,2.5-10.7,1-6.6.8-13.4-.5-20-.2-.9-.4-1.9-.7-2.8-.7-1.8-1.1-3.7-1-5.6.1-2.3.9-4.6,2.2-6.5,1.3-1.9,3-3.7,4.9-5-1.4.3-2.9,0-4.3-.6-1-.7-1.5-1.9-2.5-2.7h0c-.4-.3-.9-.4-1.4-.4-2.2,0-4.5,0-6.7,0h0c-1,0-1.8-.8-1.8-1.8s.7-1.8,1.7-1.9c1.4,0,2.8,0,4.2,0,.9,0,1.7-.2,2.5-.7,1.9-1,3.4-2.5,4.2-4.5.5-1.3.6-2.7.3-4,.6,0,1.3,0,1.9,0,.9-.5,1.7-1.2,2.4-1.9.8-.7,1.4-1.6,2.4-1.8,1.5-.2,2.9.3,4,1.3-.4-1.1-1-2.2-1.7-3.1h0ZM54.3,20.4c-1.4,1.7-3.3,2.8-5.4,3.1-2.1,0-4.1-.5-6-1.4-3-1.2-6.2-1.8-9.5-1.5-2.9.3-5.7,1.4-8.1,3.2-2.9,2.1-5.4,4.8-7.3,7.8-1.7,2.5-3.1,5.2-4.2,8-.7,1.8-1.3,3.7-1.7,5.6.2-1.6.5-3.2,1-4.8.9-3.6,2.2-7.2,4.1-10.4,1.5-2.8,3.4-5.3,5.8-7.4,2.1-1.9,4.6-3.2,7.3-3.9-1.7-.7-3.2-1.7-4.4-3,2.3.9,4.7,1.3,7.1,1.2,1.6,0,3.2-.3,4.8-.7,1.2-.3,2.4-.7,3.7-1h0c1.3-.3,2.6-.6,3.9-.7-1.1.7-1.9,1.8-2.1,3.1-.2,1.3.2,2.6,1.1,3.6,1.5,1.7,3.9,2.1,5.8.9,1.9-1.2,2.6-3.6,1.8-5.6-.3-.8-.9-1.5-1.7-1.9,2.2.3,4.4.7,6.6,1.3-.4,1.8-1.3,3.4-2.6,4.7h0Z"/>
@@ -206,8 +249,8 @@ export default function Timeline({
               </div>
             )}
 
-            {events.map((event, index) => {
-              const { left, width } = calculateEventPosition(event);
+            {getVisibleEvents().map((event, index) => {
+              const { left, width } = calculateEventPosition(event, startHour);
               const isSelected = selectedEvent?.event_id === event.event_id;
 
               return (
@@ -293,9 +336,9 @@ export default function Timeline({
 }
 
 /**
- * Calculate event position and width on 12-hour timeline (12 AM - 12 PM)
+ * Calculate event position and width on 12-hour timeline
  */
-function calculateEventPosition(event) {
+function calculateEventPosition(event, startHour) {
   if (!event.timestamp || !event.duration) return { left: 0, width: 0 };
 
   const date = new Date(event.timestamp);
@@ -303,10 +346,16 @@ function calculateEventPosition(event) {
   const minutes = date.getMinutes();
   const seconds = date.getSeconds();
 
-  // Only show events from 12 AM to 12 PM (0-11 hours)
-  if (hour >= 12) return { left: 0, width: 0 };
+  // Calculate minutes from start of current 12-hour window
+  const eventMinutesFromDayStart = hour * 60 + minutes + seconds / 60;
+  const windowStartMinutes = startHour * 60;
+  const minutesFromWindowStart = eventMinutesFromDayStart - windowStartMinutes;
+  
+  // If event is outside the window, don't show it
+  if (minutesFromWindowStart < 0 || minutesFromWindowStart >= 720) {
+    return { left: 0, width: 0 };
+  }
 
-  const startMinutes = hour * 60 + minutes + seconds / 60;
   let durationMinutes = event.duration / 60;
 
   // Scale clips shorter than 30 minutes to appear as 30 minutes
@@ -315,7 +364,7 @@ function calculateEventPosition(event) {
   }
 
   // Position as percentage of 12 hours (720 minutes)
-  const left = (startMinutes / 720) * 100;
+  const left = (minutesFromWindowStart / 720) * 100;
   const width = (durationMinutes / 720) * 100;
 
   // Ensure clips don't overflow timeline
