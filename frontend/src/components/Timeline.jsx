@@ -225,10 +225,19 @@ export default function Timeline({
                 key={index}
                 className="flex-1 border-l border-kanyo-gray-600 first:border-l-0"
               >
-                {index % 3 === 0 && index < 12 && (
-                  <div className={`absolute text-xs text-kanyo-gray-100 -translate-x-1/2 top-[48px] transition-all duration-300 ease-in-out ${
-                    isTransitioning ? 'opacity-0 scale-95' : 'opacity-100 scale-100'
-                  }`}>
+                {index % 3 === 0 && (
+                  <div
+                    className={`absolute text-xs text-kanyo-gray-100 top-[48px] transition-all duration-300 ease-in-out ${
+                      index === 0
+                        ? 'translate-x-2'
+                        : index === 12
+                        ? '-translate-x-2'
+                        : '-translate-x-1/2'
+                    } ${
+                      isTransitioning ? 'opacity-0 scale-95' : 'opacity-100 scale-100'
+                    }`}
+                    style={{ left: `${(index / 12) * 100}%` }}
+                  >
                     {display12Hour} {isPM ? 'PM' : 'AM'}
                   </div>
                 )}
@@ -301,7 +310,7 @@ export default function Timeline({
 
                   {/* Fallback placeholder when thumbnail missing - falcon positioned to appear centered between date header above and time labels below */}
                   <div
-                    className="w-full h-full bg-kanyo-orange/20 flex items-start justify-center pt-4"
+                    className="w-full h-full bg-kanyo-orange/20 flex items-start justify-center pt-2.5"
                     style={{ display: event.thumbnail ? 'none' : 'flex' }}
                   >
                     <svg viewBox="0 0 83.5 98.3" className="h-6 opacity-40" style={{filter: 'invert(60%) sepia(80%) saturate(600%) hue-rotate(350deg)'}}>
