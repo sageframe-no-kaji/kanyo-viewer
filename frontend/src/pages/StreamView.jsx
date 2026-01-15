@@ -193,7 +193,7 @@ export default function StreamView() {
           </div>
 
           {/* Video Player - Center */}
-          <div className="lg:col-span-6">
+          <div className="lg:col-span-7">
             <VideoPlayer
               stream={stream}
               selectedEvent={selectedEvent}
@@ -203,7 +203,7 @@ export default function StreamView() {
           </div>
 
           {/* Stats Panel - Right */}
-          <div className="lg:col-span-3">
+          <div className="lg:col-span-2">
             <StatsPanel
               stream={stream}
               stats={stats}

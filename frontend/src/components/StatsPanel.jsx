@@ -27,23 +27,26 @@ export default function StatsPanel({ stream, stats, statsRange, onRangeChange, c
 
       {/* Stats Display */}
       {stats ? (
-        <div className="space-y-4">
+        <div className="space-y-4 flex-1">
           <StatItem label="Visits" value={stats.visits || 0} />
-          <StatItem label="Arrivals" value={stats.arrivals || 0} color="text-kanyo-blue" />
-          <StatItem label="Departures" value={stats.departures || 0} color="text-kanyo-red" />
 
-          {stats.last_event && (
+          {/* Last Events */}
+          {stats.last_events && stats.last_events.length > 0 && (
             <div className="border-t border-kanyo-gray-500 pt-4 mt-4">
-              <div className="text-kanyo-gray-100 text-sm mb-1">Last Event</div>
-              <div className="flex items-center justify-between">
-                <span className={`text-sm font-medium ${
-                  stats.last_event.type === 'arrival' ? 'text-kanyo-blue' : 'text-kanyo-red'
-                }`}>
-                  {stats.last_event.type === 'arrival' ? '🔵 Arrival' : '🔴 Departure'}
-                </span>
-                <span className="text-white text-sm">
-                  {formatTimestamp(stats.last_event.timestamp)}
-                </span>
+              <div className="text-kanyo-gray-100 text-sm mb-3">Last Events</div>
+              <div className="space-y-3">
+                {stats.last_events.slice(0, 10).map((event, idx) => (
+                  <div key={idx} className="flex flex-col gap-1">
+                    <span className={`text-xs font-medium ${
+                      event.type === 'arrival' ? 'text-kanyo-blue' : 'text-kanyo-red'
+                    }`}>
+                      {event.type === 'arrival' ? '🔵 Arrival' : '🔴 Departure'}
+                    </span>
+                    <span className="text-white text-xs">
+                      {formatTimestamp(event.timestamp)}
+                    </span>
+                  </div>
+                ))}
               </div>
             </div>
           )}
