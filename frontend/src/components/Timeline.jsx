@@ -138,9 +138,9 @@ export default function Timeline({
 
   return (
     <div className="bg-kanyo-card rounded-lg px-4 pt-3 pb-2">
-      {/* Date Indicator */}
-      <div className="flex items-center justify-center mb-2 pb-2 border-b border-kanyo-gray-600 overflow-hidden">
-        <div className={`text-sm font-semibold text-kanyo-gray-100 transition-all duration-300 ease-in-out ${
+      {/* Date Indicator with LIVE button */}
+      <div className="flex items-center justify-between mb-2 pb-2 border-b border-kanyo-gray-600 overflow-hidden">
+        <div className={`text-sm font-semibold text-kanyo-gray-100 transition-all duration-300 ease-in-out flex-1 flex justify-center ${
           isTransitioning
             ? slideDirection === 'left'
               ? 'opacity-0 -translate-x-12'
@@ -156,6 +156,23 @@ export default function Timeline({
             <span>{formatDateDisplay(selectedDate)}</span>
           </div>
         </div>
+
+        {/* LIVE button */}
+        <button
+          onClick={onLiveClick}
+          className={`
+            px-3 py-1.5 rounded font-semibold text-xs transition-all
+            ${isLive
+              ? 'bg-kanyo-red text-white'
+              : 'bg-kanyo-gray-600/90 text-white hover:bg-kanyo-gray-500 ring-1 ring-white/30'
+            }
+          `}
+        >
+          <span className="flex items-center gap-1">
+            {isLive && <span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></span>}
+            LIVE
+          </span>
+        </button>
       </div>
 
       {/* 12-hour timeline - no header, LIVE button inline */}
@@ -298,23 +315,6 @@ export default function Timeline({
             })}
           </div>
         </div>
-
-        {/* LIVE button - fixed position, doesn't scroll */}
-        <button
-          onClick={onLiveClick}
-          className={`
-            absolute top-1 right-2 px-3 py-1.5 rounded font-semibold text-xs transition-all z-50
-            ${isLive
-              ? 'bg-kanyo-red text-white'
-              : 'bg-kanyo-gray-600/90 text-white hover:bg-kanyo-gray-500 ring-1 ring-white/30'
-            }
-          `}
-        >
-          <span className="flex items-center gap-1">
-            {isLive && <span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></span>}
-            LIVE
-          </span>
-        </button>
       </div>
     </div>
   );
