@@ -22,6 +22,7 @@ export default function StreamView() {
   const [visitorTimezone, setVisitorTimezone] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [mobileTab, setMobileTab] = useState('cam'); // 'cam', 'info', 'stats'
 
   // Initialize timezone
   useEffect(() => {
@@ -168,12 +169,48 @@ export default function StreamView() {
         </div>
       </header>
 
+      {/* Mobile Tab Navigation - Only visible on mobile */}
+      <div className="lg:hidden bg-kanyo-card border-b border-kanyo-gray-500">
+        <div className="flex">
+          <button
+            onClick={() => setMobileTab('cam')}
+            className={`flex-1 py-3 text-sm font-semibold transition-colors ${
+              mobileTab === 'cam'
+                ? 'text-white bg-kanyo-gray-600 border-b-2 border-kanyo-orange'
+                : 'text-kanyo-gray-300 hover:text-white'
+            }`}
+          >
+            CAM
+          </button>
+          <button
+            onClick={() => setMobileTab('info')}
+            className={`flex-1 py-3 text-sm font-semibold transition-colors ${
+              mobileTab === 'info'
+                ? 'text-white bg-kanyo-gray-600 border-b-2 border-kanyo-orange'
+                : 'text-kanyo-gray-300 hover:text-white'
+            }`}
+          >
+            Cam Info
+          </button>
+          <button
+            onClick={() => setMobileTab('stats')}
+            className={`flex-1 py-3 text-sm font-semibold transition-colors ${
+              mobileTab === 'stats'
+                ? 'text-white bg-kanyo-gray-600 border-b-2 border-kanyo-orange'
+                : 'text-kanyo-gray-300 hover:text-white'
+            }`}
+          >
+            Statistics
+          </button>
+        </div>
+      </div>
+
       {/* Main Layout */}
       <div className="max-w-7xl mx-auto px-4 py-6">
         {/* Unified Rectangle Layout - 3 Columns with Fixed Height */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-6 h-[600px]">
-          {/* Camera Info - Left - Fixed Height */}
-          <div className="lg:col-span-3 h-full">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-6 lg:h-[600px]">
+          {/* Camera Info - Left - Fixed Height on Desktop, Mobile Tab Content */}
+          <div className={`lg:col-span-3 lg:h-full ${mobileTab === 'info' ? 'block' : 'hidden lg:block'}`}>
             <CameraInfo
               stream={stream}
               visitorTimezone={visitorTimezone}
@@ -182,8 +219,8 @@ export default function StreamView() {
             />
           </div>
 
-          {/* Video Section - Center - Unified Rectangle */}
-          <div className="lg:col-span-7 h-full flex flex-col">
+          {/* Video Section - Center - Unified Rectangle - Always First on Mobile */}
+          <div className={`lg:col-span-7 lg:h-full flex flex-col ${mobileTab === 'cam' ? 'block' : 'hidden lg:flex'}`}>
             {/* Week Calendar */}
             <div className="flex-shrink-0">
               <WeekCalendar
@@ -218,8 +255,8 @@ export default function StreamView() {
             </div>
           </div>
 
-          {/* Stats Panel - Right - Fixed Height */}
-          <div className="lg:col-span-2 h-full">
+          {/* Stats Panel - Right - Fixed Height on Desktop, Mobile Tab Content */}
+          <div className={`lg:col-span-2 lg:h-full ${mobileTab === 'stats' ? 'block' : 'hidden lg:block'}`}>
             <StatsPanel
               stream={stream}
               stats={stats}
