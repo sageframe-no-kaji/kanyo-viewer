@@ -74,7 +74,7 @@ export default function VideoPlayer({ stream, selectedEvent, selectedDate, isLiv
         <div className="flex items-center">
           <span className="text-kanyo-gray-100 font-medium text-sm flex items-center gap-1.5">
             <span className="w-2 h-2 bg-white rounded-full"></span>
-            Select a clip
+            SELECT A CLIP
           </span>
         </div>
       </div>

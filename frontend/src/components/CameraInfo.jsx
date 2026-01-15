@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { formatTimeInTimezone, setVisitorTimezone as saveVisitorTimezone } from '../utils/timezone';
 import TimezoneSelector from './TimezoneSelector';
 
-export default function CameraInfo({ stream, visitorTimezone, onTimezoneChange }) {
+export default function CameraInfo({ stream, visitorTimezone, onTimezoneChange, className = '' }) {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [showTimezoneSelector, setShowTimezoneSelector] = useState(false);
 
@@ -23,7 +23,7 @@ export default function CameraInfo({ stream, visitorTimezone, onTimezoneChange }
   }
 
   return (
-    <div className="bg-kanyo-card rounded-lg p-6 space-y-4">
+    <div className={`bg-kanyo-card rounded-lg p-6 space-y-4 flex flex-col ${className}`}>
       <h2 className="text-xl font-semibold text-white mb-4">Camera Info</h2>
 
       {/* Location */}
@@ -109,20 +109,6 @@ export default function CameraInfo({ stream, visitorTimezone, onTimezoneChange }
           )}
         </div>
       </div>
-
-      {/* Subscribe Button */}
-      {display.telegram_channel && (
-        <div className="border-t border-kanyo-gray-500 pt-4 mt-4">
-          <a
-            href={`https://t.me/${display.telegram_channel.replace('@', '')}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="block w-full bg-kanyo-blue hover:bg-opacity-80 text-white font-semibold py-3 px-4 rounded-lg text-center transition-all"
-          >
-            📢 Subscribe on Telegram
-          </a>
-        </div>
-      )}
     </div>
   );
 }

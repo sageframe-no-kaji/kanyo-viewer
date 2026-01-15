@@ -1,8 +1,9 @@
-export default function StatsPanel({ stats, statsRange, onRangeChange }) {
+export default function StatsPanel({ stream, stats, statsRange, onRangeChange, className = '' }) {
   const ranges = ['24h', '2d', '3d', '4d', '5d'];
+  const display = stream?.display || {};
 
   return (
-    <div className="bg-kanyo-card rounded-lg p-6">
+    <div className={`bg-kanyo-card rounded-lg p-6 flex flex-col ${className}`}>
       <h3 className="text-lg font-semibold text-white mb-4">Statistics</h3>
 
       {/* Range Selector */}
@@ -50,6 +51,20 @@ export default function StatsPanel({ stats, statsRange, onRangeChange }) {
       ) : (
         <div className="text-kanyo-gray-100 text-center py-4">
           Loading stats...
+        </div>
+      )}
+
+      {/* Subscribe Button - pushed to bottom */}
+      {display.telegram_channel && (
+        <div className="border-t border-kanyo-gray-500 pt-4 mt-auto">
+          <a
+            href={`https://t.me/${display.telegram_channel.replace('@', '')}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block w-full bg-kanyo-blue hover:bg-opacity-80 text-white font-semibold py-3 px-4 rounded-lg text-center transition-all"
+          >
+            📢 Subscribe on Telegram
+          </a>
         </div>
       )}
     </div>

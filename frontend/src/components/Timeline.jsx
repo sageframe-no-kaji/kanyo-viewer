@@ -69,8 +69,8 @@ export default function Timeline({
 
   // Handle 12-hour window change with animation
   const handleTimeWindowChange = (direction) => {
-    // Prevent navigation into the future
-    if (direction === 'left' && !canNavigateForward()) {
+    // Prevent navigation into the future (right arrow goes back, left goes forward)
+    if (direction === 'right' && !canNavigateForward()) {
       return;
     }
 

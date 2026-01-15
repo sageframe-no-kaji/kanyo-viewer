@@ -170,53 +170,61 @@ export default function StreamView() {
 
       {/* Main Layout */}
       <div className="max-w-7xl mx-auto px-4 py-6">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* Main Content (3 columns on desktop) */}
-          <div className="lg:col-span-3 space-y-6">
-            {/* Week Calendar */}
-            <WeekCalendar
-              streamId={streamId}
-              streamTimezone={stream.timezone}
-              selectedDate={selectedDate}
-              onDateChange={handleDateChange}
-            />
+        {/* Week Calendar - Full Width */}
+        <div className="mb-6">
+          <WeekCalendar
+            streamId={streamId}
+            streamTimezone={stream.timezone}
+            selectedDate={selectedDate}
+            onDateChange={handleDateChange}
+          />
+        </div>
 
-            {/* Video Player */}
+        {/* Video Section - 3 Column Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-6">
+          {/* Camera Info - Left */}
+          <div className="lg:col-span-3">
+            <CameraInfo
+              stream={stream}
+              visitorTimezone={visitorTimezone}
+              onTimezoneChange={setVisitorTimezone}
+              className="h-full"
+            />
+          </div>
+
+          {/* Video Player - Center */}
+          <div className="lg:col-span-6">
             <VideoPlayer
               stream={stream}
               selectedEvent={selectedEvent}
               selectedDate={selectedDate}
               isLive={isLive}
             />
-
-            {/* Timeline */}
-            <Timeline
-              events={events}
-              selectedEvent={selectedEvent}
-              onEventSelect={handleEventSelect}
-              onLiveClick={handleLiveClick}
-              isLive={isLive}
-              streamId={streamId}
-              selectedDate={selectedDate}
-              onDateChange={handleDateChange}
-            />
           </div>
 
-          {/* Sidebar (1 column on desktop) */}
-          <div className="lg:col-span-1 space-y-6">
-            <CameraInfo
-              stream={stream}
-              visitorTimezone={visitorTimezone}
-              onTimezoneChange={setVisitorTimezone}
-            />
-
+          {/* Stats Panel - Right */}
+          <div className="lg:col-span-3">
             <StatsPanel
+              stream={stream}
               stats={stats}
               statsRange={statsRange}
               onRangeChange={setStatsRange}
+              className="h-full"
             />
           </div>
         </div>
+
+        {/* Timeline - Full Width */}
+        <Timeline
+          events={events}
+          selectedEvent={selectedEvent}
+          onEventSelect={handleEventSelect}
+          onLiveClick={handleLiveClick}
+          isLive={isLive}
+          streamId={streamId}
+          selectedDate={selectedDate}
+          onDateChange={handleDateChange}
+        />
       </div>
     </div>
   );
