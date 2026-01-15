@@ -130,22 +130,20 @@ export default function Timeline({
         </div>
       </div>
 
-      {/* Visit Info Bar (when event selected) */}
+      {/* Visit Info Bar (when event selected) - single line to match LIVE bar height */}
       {selectedEvent && (
         <div className="flex items-center justify-between mb-3 pb-3 border-b border-kanyo-gray-500">
-          {/* Left: Visit indicator and timing */}
-          <div className="flex items-center gap-4">
-            <span className="flex items-center gap-1.5 text-kanyo-red font-semibold text-sm">
+          {/* Left: Combined visit indicator and timing on single line */}
+          <div className="flex items-center gap-3 text-xs">
+            <span className="flex items-center gap-1.5 text-kanyo-red font-semibold">
               <span className="w-2 h-2 bg-kanyo-red rounded-full"></span>
               Visit
             </span>
-            <div className="flex items-center gap-3 text-xs text-kanyo-gray-100">
-              <span>Arrived: {formatTime(selectedEvent.timestamp)}</span>
-              <span>•</span>
-              <span>Departed: {formatDepartureTime(selectedEvent)}</span>
-              <span>•</span>
-              <span>Duration: {formatDuration(selectedEvent.duration)}</span>
-            </div>
+            <span className="text-kanyo-gray-100">Arrived: {formatTime(selectedEvent.timestamp)}</span>
+            <span className="text-kanyo-gray-300">•</span>
+            <span className="text-kanyo-gray-100">Departed: {formatDepartureTime(selectedEvent)}</span>
+            <span className="text-kanyo-gray-300">•</span>
+            <span className="text-kanyo-gray-100">Duration: {formatDuration(selectedEvent.duration)}</span>
           </div>
 
           {/* Right: Action icons */}
@@ -318,7 +316,7 @@ export default function Timeline({
         <button
           onClick={onLiveClick}
           className={`
-            absolute top-1 right-12 px-3 py-1.5 rounded font-semibold text-xs transition-all z-50
+            absolute top-1 right-2 px-3 py-1.5 rounded font-semibold text-xs transition-all z-50
             ${isLive
               ? 'bg-kanyo-red text-white'
               : 'bg-kanyo-gray-600/90 text-white hover:bg-kanyo-gray-500'
