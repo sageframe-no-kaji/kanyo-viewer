@@ -159,7 +159,7 @@ export default function Timeline({
       </div>
 
       {/* 12-hour timeline - no header, LIVE button inline */}
-      <div className="relative h-24">
+      <div className="relative h-16">
         {/* Left scroll arrow - go back 12 hours */}
         <button
           onClick={() => handleTimeWindowChange('right')}
@@ -197,7 +197,7 @@ export default function Timeline({
                 className="flex-1 border-l border-kanyo-gray-600 first:border-l-0"
               >
                 {index % 3 === 0 && index < 12 && (
-                  <div className={`absolute text-xs text-kanyo-gray-100 -translate-x-1/2 top-[72px] transition-all duration-300 ease-in-out ${
+                  <div className={`absolute text-xs text-kanyo-gray-100 -translate-x-1/2 top-[48px] transition-all duration-300 ease-in-out ${
                     isTransitioning ? 'opacity-0 scale-95' : 'opacity-100 scale-100'
                   }`}>
                     {display12Hour} {isPM ? 'PM' : 'AM'}
@@ -244,7 +244,7 @@ export default function Timeline({
                   data-event-id={event.event_id}
                   onClick={() => onEventSelect(event)}
                   className={`
-                    absolute top-0 h-14 rounded overflow-hidden
+                    absolute top-0 h-12 rounded overflow-hidden
                     transition-all group
                     ${isSelected
                       ? 'ring-2 ring-kanyo-orange scale-y-110'
