@@ -275,8 +275,26 @@ export default function Timeline({
               </div>
             )}
 
-            {getVisibleEvents().map((event, index) => {
+            {getVisibleEvents().map((event, index, allEvents) => {
               const { left, width } = calculateEventPosition(event, startHour);
+              
+              // Check for overlap with previous event and adjust position if needed
+              let adjustedLeft = left;
+              let adjustedWidth = width;
+              
+              if (index > 0) {
+                const prevEvent = allEvents[index - 1];
+                const prevPos = calculateEventPosition(prevEvent, startHour);
+                const prevEnd = prevPos.left + prevPos.width;
+                
+                // If current clip would overlap with previous, shift it to start after previous
+                if (adjustedLeft < prevEnd) {
+                  adjustedLeft = prevEnd;
+                  // Ensure adjusted clip doesn't overflow timeline
+                  adjustedWidth = Math.min(width, 100 - adjustedLeft);
+                }
+              }
+              
               const isSelected = selectedEvent?.event_id === event.event_id;
 
               return (
@@ -293,8 +311,8 @@ export default function Timeline({
                     }
                   `}
                   style={{
-                    left: `${left}%`,
-                    width: `${width}%`,
+                    left: `${adjustedLeft}%`,
+                    width: `${adjustedWidth}%`,
                     zIndex: isSelected ? 20 : index + 1,
                   }}
                 >
@@ -367,9 +385,9 @@ function calculateEventPosition(event, startHour) {
 
   let durationMinutes = event.duration / 60;
 
-  // Scale clips shorter than 30 minutes to appear as 30 minutes
-  if (durationMinutes < 30) {
-    durationMinutes = 30;
+  // Scale clips shorter than 45 minutes to appear as 45 minutes
+  if (durationMinutes < 45) {
+    durationMinutes = 45;
   }
 
   // Position as percentage of 12 hours (720 minutes)
