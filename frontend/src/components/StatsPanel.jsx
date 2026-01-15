@@ -35,7 +35,7 @@ export default function StatsPanel({ stream, stats, statsRange, onRangeChange, c
             <div className="border-t border-kanyo-gray-500 pt-4 mt-4">
               <div className="text-kanyo-gray-100 text-sm mb-3">Last Events</div>
               <div className="space-y-3">
-                {stats.last_events.slice(0, 10).map((event, idx) => (
+                {stats.last_events.slice(0, 6).map((event, idx) => (
                   <div key={idx} className="flex flex-col gap-1">
                     <span className={`text-xs font-medium ${
                       event.type === 'arrival' ? 'text-kanyo-blue' : 'text-kanyo-red'

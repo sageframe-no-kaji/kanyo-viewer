@@ -172,13 +172,13 @@ export default function StreamView() {
       <div className="max-w-7xl mx-auto px-4 py-6">
         {/* Video Section - 3 Column Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-6">
-          {/* Camera Info - Left */}
+          {/* Camera Info - Left - Fixed Height */}
           <div className="lg:col-span-3">
             <CameraInfo
               stream={stream}
               visitorTimezone={visitorTimezone}
               onTimezoneChange={setVisitorTimezone}
-              className="h-full"
+              className="h-[600px] overflow-y-auto"
             />
           </div>
 
@@ -197,27 +197,29 @@ export default function StreamView() {
               selectedDate={selectedDate}
               isLive={isLive}
             />
-            {/* Timeline */}
-            <Timeline
-              events={events}
-              selectedEvent={selectedEvent}
-              onEventSelect={handleEventSelect}
-              onLiveClick={handleLiveClick}
-              isLive={isLive}
-              streamId={streamId}
-              selectedDate={selectedDate}
-              onDateChange={handleDateChange}
-            />
+            {/* Timeline - Constrained to video width */}
+            <div>
+              <Timeline
+                events={events}
+                selectedEvent={selectedEvent}
+                onEventSelect={handleEventSelect}
+                onLiveClick={handleLiveClick}
+                isLive={isLive}
+                streamId={streamId}
+                selectedDate={selectedDate}
+                onDateChange={handleDateChange}
+              />
+            </div>
           </div>
 
-          {/* Stats Panel - Right */}
+          {/* Stats Panel - Right - Fixed Height */}
           <div className="lg:col-span-2">
             <StatsPanel
               stream={stream}
               stats={stats}
               statsRange={statsRange}
               onRangeChange={setStatsRange}
-              className="h-full"
+              className="h-[600px] overflow-y-auto"
             />
           </div>
         </div>

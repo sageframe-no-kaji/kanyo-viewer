@@ -168,54 +168,54 @@ def load_events_for_date(stream_id: str, date_str: str) -> List[Dict[str, Any]]:
 def get_stats_for_range(stream_id: str, range_str: str) -> Dict[str, Any]:
     """Get stats by scanning clips directory directly."""
     import re
-    
+
     # Parse range (e.g., "24h", "7d")
     hours = 24  # default
     if range_str.endswith('h'):
         hours = int(range_str[:-1])
     elif range_str.endswith('d'):
         hours = int(range_str[:-1]) * 24
-    
+
     clips_dir = get_clips_dir(stream_id)
     tz = get_stream_timezone(stream_id)
     now = datetime.now(tz)
     cutoff = now - timedelta(hours=hours)
-    
+
     # Get date folders to check
     dates_to_check = set()
     current = cutoff
     while current <= now:
         dates_to_check.add(current.strftime("%Y-%m-%d"))
         current += timedelta(days=1)
-    
+
     # Pattern: falcon_HHMMSS_type.ext (completed files only)
     pattern = re.compile(r"falcon_(\d{6})_(arrival|departure|visit)\.(mp4|jpg|jpeg|avi|mov|mkv|png)$")
-    
+
     arrivals = 0
     departures = 0
     visits = 0
     events_by_time = {}  # deduplicate by time
-    
+
     for date_str in sorted(dates_to_check):
         date_path = clips_dir / date_str
         if not date_path.exists():
             continue
-        
+
         for clip_file in date_path.iterdir():
             if not clip_file.is_file():
                 continue
-            
+
             match = pattern.match(clip_file.name)
             if not match:
                 continue
-            
+
             time_str, clip_type, ext = match.groups()
-            
+
             # Parse clip datetime
             hour = int(time_str[:2])
             minute = int(time_str[2:4])
             second = int(time_str[4:6])
-            
+
             try:
                 clip_date = datetime.strptime(date_str, "%Y-%m-%d")
                 clip_dt = tz.localize(clip_date.replace(hour=hour, minute=minute, second=second)) \
@@ -223,11 +223,11 @@ def get_stats_for_range(stream_id: str, range_str: str) -> Dict[str, Any]:
                     else clip_date.replace(hour=hour, minute=minute, second=second, tzinfo=tz)
             except Exception:
                 continue
-            
+
             # Filter by cutoff time
             if clip_dt < cutoff:
                 continue
-            
+
             # Count by type
             if clip_type == "arrival":
                 arrivals += 1
@@ -235,7 +235,7 @@ def get_stats_for_range(stream_id: str, range_str: str) -> Dict[str, Any]:
                 departures += 1
             elif clip_type == "visit":
                 visits += 1
-            
+
             # Track events (deduplicate by time, prefer arrival/departure over visit)
             time_key = f"{time_str[:2]}:{time_str[2:4]}:{time_str[4:6]}"
             if time_key in events_by_time:
@@ -243,21 +243,21 @@ def get_stats_for_range(stream_id: str, range_str: str) -> Dict[str, Any]:
                 # Prefer arrival/departure over visit
                 if existing["type"] in ["arrival", "departure"]:
                     continue
-            
+
             events_by_time[time_key] = {
                 "time": time_key,
                 "type": clip_type,
                 "timestamp": clip_dt.isoformat(),
                 "datetime": clip_dt
             }
-    
+
     # Sort events by datetime (most recent first)
     last_events = sorted(events_by_time.values(), key=lambda x: x["datetime"], reverse=True)
-    
+
     # Remove datetime object before returning (not JSON serializable)
     for event in last_events:
         event.pop("datetime", None)
-    
+
     return {
         "visits": visits,
         "arrivals": arrivals,
