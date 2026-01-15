@@ -10,8 +10,10 @@ services:
       - /opt/services/kanyo-nsw:/data/nsw:ro
     environment:
       - KANYO_ENV=production
-      - ADMIN_API_URL=http://host.docker.internal:8080
+      - ADMIN_API_URL=http://172.17.0.1:8080
     restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     networks:
       - kanyo-network
 
