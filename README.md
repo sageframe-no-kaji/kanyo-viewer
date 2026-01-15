@@ -141,6 +141,12 @@ The landing page displays stream thumbnails with a 3-level fallback system:
      └── kanyo-nsw.jpg
    ```
    The filename must match the stream ID from `streams.yaml`.
+   
+   **Recommended size**: 1280×720 pixels (16:9 aspect ratio)
+   - Minimum: 640×360 pixels
+   - Maximum: 1920×1080 pixels
+   - Format: JPG (recommended) or PNG
+   - File size: Keep under 500KB for fast loading
 
 2. **URL from config** - Add `thumbnail_url` to the stream's `display` section in `streams.yaml`:
    ```yaml

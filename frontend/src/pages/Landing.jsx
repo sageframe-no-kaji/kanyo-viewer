@@ -88,11 +88,13 @@ export default function Landing() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-kanyo-gray-500 mt-12">
-        <div className="max-w-5xl mx-auto px-6 py-6 text-center text-kanyo-gray-100">
-          <Link to="/about" className="hover:text-kanyo-orange transition-colors">
-            About Kanyo
-          </Link>
+      <footer className="mt-12">
+        <div className="max-w-5xl mx-auto px-6">
+          <div className="py-4 px-6 bg-kanyo-gray-600 text-center">
+            <Link to="/about" className="text-kanyo-gray-100 hover:text-kanyo-orange transition-colors">
+              About Kanyo
+            </Link>
+          </div>
         </div>
       </footer>
     </div>
@@ -126,6 +128,8 @@ function StreamCard({ stream }) {
             }
             // Final fallback: hide image and show icon circle
             else {
+              e.target.style.display = 'none';
+              e.target.nextElementSibling.style.display = 'flex';
             }
           }}
         />
