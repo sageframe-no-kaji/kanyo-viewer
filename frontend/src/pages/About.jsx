@@ -40,48 +40,93 @@ export default function About() {
 
         <div className="space-y-6 text-kanyo-gray-100">
           <section>
-            <h2 className="text-2xl font-semibold text-white mb-3">What is Kanyo?</h2>
+            <h2 className="text-2xl font-semibold text-white mb-3">The Origin</h2>
+            <p className="leading-relaxed mb-4">
+              On a flight to New York, I ended up seated next to a Harvard professor involved with the FAS falcon cam. She mentioned that she checks the stream regularly but wishes there was a way to know when the falcons are actually there—without scrubbing through hours of empty nest footage.
+            </p>
             <p className="leading-relaxed">
-              Kanyo is an automated falcon monitoring system that uses computer vision to detect
-              falcon arrivals, departures, and visits from live camera streams. The system automatically
-              creates video clips and thumbnails of significant events, making it easy to watch and
-              share falcon activity.
+              That conversation stuck with me. Three months later, Kanyo exists.
             </p>
           </section>
 
           <section>
-            <h2 className="text-2xl font-semibold text-white mb-3">Features</h2>
+            <h2 className="text-2xl font-semibold text-white mb-3">What It Does</h2>
+            <p className="leading-relaxed mb-4">
+              Kanyo watches falcon nest cameras 24/7 using computer vision. When a bird arrives or departs, it:
+            </p>
             <ul className="list-disc list-inside space-y-2 leading-relaxed">
-              <li>Real-time falcon detection with confidence scoring</li>
-              <li>Automatic clip generation for arrivals and departures</li>
-              <li>Timeline view showing all events throughout the day</li>
-              <li>Live stream viewing and archived clip playback</li>
-              <li>Multi-stream support across different geographic locations</li>
-              <li>Dual timezone display (stream local time + visitor timezone)</li>
+              <li>Clips the moment automatically</li>
+              <li>Sends a Telegram notification</li>
+              <li>Archives everything in a searchable timeline</li>
+            </ul>
+            <p className="leading-relaxed mt-4">
+              No more scrubbing through hours of empty nest footage.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-2xl font-semibold text-white mb-3">The Vision</h2>
+            <p className="leading-relaxed mb-4">
+              This is bigger than one nest cam.
+            </p>
+            <p className="leading-relaxed mb-4">
+              The detection engine is open source and designed to be reusable. Anyone monitoring wildlife cameras—researchers tracking breeding patterns, conservation groups watching endangered raptors, citizen scientists documenting behavior—can run Kanyo on their own streams.
+            </p>
+            <p className="leading-relaxed">
+              The viewer you're using now is one possible frontend. The real value is the detection pipeline underneath.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-2xl font-semibold text-white mb-3">Get Involved</h2>
+            <div className="space-y-4">
+              <div>
+                <h3 className="text-lg font-semibold text-white mb-2">Ornithologists & Researchers</h3>
+                <p className="leading-relaxed">
+                  Use the data. Improve the detection models. Train them on your species. If you're studying raptors and want automated monitoring, let's talk.
+                </p>
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-white mb-2">Developers</h3>
+                <p className="leading-relaxed">
+                  The detection pipeline is Python + YOLOv8. The viewer is React + FastAPI. It's not perfect—PRs, issues, and ideas are all welcome.
+                </p>
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-white mb-2">Camera Operators</h3>
+                <p className="leading-relaxed">
+                  Have a nest cam you'd like Kanyo to monitor? Reach out.
+                </p>
+              </div>
+            </div>
+          </section>
+
+          <section>
+            <h2 className="text-2xl font-semibold text-white mb-3">Links</h2>
+            <ul className="space-y-2 leading-relaxed">
+              <li>
+                <a href="https://github.com/sageframe-no-kaji" target="_blank" rel="noopener noreferrer" className="text-kanyo-orange hover:text-white transition-colors">
+                  GitHub
+                </a>
+              </li>
+              <li>
+                <a href="https://linkedin.com/in/atmarcus" target="_blank" rel="noopener noreferrer" className="text-kanyo-orange hover:text-white transition-colors">
+                  LinkedIn
+                </a>
+              </li>
             </ul>
           </section>
 
           <section>
-            <h2 className="text-2xl font-semibold text-white mb-3">Technology</h2>
+            <h2 className="text-2xl font-semibold text-white mb-3">Contact</h2>
             <p className="leading-relaxed">
-              Kanyo is built with FastAPI (Python) for the detection pipeline and backend API,
-              React + Vite for the frontend viewer, and Docker for deployment. The system is
-              designed to be reusable by others monitoring falcon nests.
+              Questions, ideas, or just want to say hello: <a href="mailto:tyro@sageframe.net" className="text-kanyo-orange hover:text-white transition-colors">tyro@sageframe.net</a>
             </p>
           </section>
 
-          <section>
-            <h2 className="text-2xl font-semibold text-white mb-3">Open Source</h2>
-            <p className="leading-relaxed">
-              The Kanyo detection tool is available as open source software. The viewer is a
-              separate deployment-specific frontend for presenting the data to the public.
-            </p>
-          </section>
-
-          <div className="mt-12 p-6 bg-kanyo-card rounded-lg">
-            <p className="text-sm text-kanyo-gray-100">
-              For questions or more information, please visit the project repository or contact
-              the stream maintainers directly.
+          <div className="mt-12 pt-6 border-t border-kanyo-gray-500 text-center">
+            <p className="text-sm text-kanyo-gray-300 italic">
+              A Sageframe project by Andrew T. Marcus
             </p>
           </div>
         </div>
