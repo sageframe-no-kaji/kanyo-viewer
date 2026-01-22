@@ -21,29 +21,29 @@ export default function CameraInfo({ stream, visitorTimezone, onTimezoneChange, 
 
   return (
     <div className={`bg-kanyo-card rounded-lg p-6 space-y-3 flex flex-col ${className}`}>
-      <h2 className="text-lg font-semibold text-white mb-3">Stream Info</h2>
+      <h2 className="text-lg font-semibold text-kanyo-text mb-3">Stream Info</h2>
 
       {/* Location */}
       <div>
-        <div className="text-kanyo-gray-100 text-xs mb-1">Location</div>
-        <div className="text-white text-sm">{display.location}</div>
+        <div className="text-kanyo-secondary-text text-xs mb-1">Location</div>
+        <div className="text-kanyo-text text-sm">{display.location}</div>
       </div>
 
       {/* Maintainer */}
       {display.maintainer && (
         <div>
-          <div className="text-kanyo-gray-100 text-xs mb-1">Maintained by</div>
+          <div className="text-kanyo-secondary-text text-xs mb-1">Maintained by</div>
           {display.maintainer_url ? (
             <a
               href={display.maintainer_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-kanyo-orange hover:text-white transition-colors text-sm"
+              className="text-kanyo-orange hover:text-kanyo-text transition-colors text-sm"
             >
               {display.maintainer}
             </a>
           ) : (
-            <div className="text-white text-sm">{display.maintainer}</div>
+            <div className="text-kanyo-text text-sm">{display.maintainer}</div>
           )}
         </div>
       )}
@@ -51,8 +51,8 @@ export default function CameraInfo({ stream, visitorTimezone, onTimezoneChange, 
       {/* Description */}
       {display.description && (
         <div>
-          <div className="text-kanyo-gray-100 text-xs mb-1">About</div>
-          <div className="text-white text-xs leading-relaxed">{display.description}</div>
+          <div className="text-kanyo-secondary-text text-xs mb-1">About</div>
+          <div className="text-kanyo-text text-xs leading-relaxed">{display.description}</div>
         </div>
       )}
 
@@ -63,13 +63,13 @@ export default function CameraInfo({ stream, visitorTimezone, onTimezoneChange, 
       <div className="border-t border-kanyo-gray-500 pt-3 mt-auto">
         <div className="space-y-2">
           <div>
-            <div className="text-kanyo-gray-100 text-[10px] mb-1">
+            <div className="text-kanyo-secondary-text text-[10px] mb-1">
               {showLocalTime ? 'Your Local Time' : 'Stream Local Time'}
             </div>
-            <div className="text-white text-sm font-mono">
+            <div className="text-kanyo-text text-sm font-mono">
               {formatTimeInTimezone(currentTime, showLocalTime ? browserTimezone : stream.timezone)}
             </div>
-            <div className="text-kanyo-gray-100 text-[9px] mt-0.5">
+            <div className="text-kanyo-secondary-text text-[9px] mt-0.5">
               {showLocalTime ? browserTimezone : stream.timezone}
             </div>
           </div>
@@ -77,7 +77,7 @@ export default function CameraInfo({ stream, visitorTimezone, onTimezoneChange, 
           {/* Toggle Button */}
           <button
             onClick={() => setShowLocalTime(!showLocalTime)}
-            className="text-kanyo-orange hover:text-white text-xs transition-colors"
+            className="text-kanyo-orange hover:text-kanyo-text text-xs transition-colors"
           >
             {showLocalTime ? '← Stream Time' : 'Your Time →'}
           </button>

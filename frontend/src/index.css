@@ -6,12 +6,15 @@
   --color-kanyo-bg: #ffffff;
   --color-kanyo-card: #f5f5f7;
   --color-kanyo-text: #1d1d1f;
+  --color-kanyo-secondary-text: #6e6e73;
+  --color-kanyo-button-bg: #ffffff;
+  --color-kanyo-button-hover: #e8e8ed;
   --color-kanyo-gray-100: #6e6e73;
   --color-kanyo-gray-200: #86868b;
   --color-kanyo-gray-300: #d2d2d7;
-  --color-kanyo-gray-400: #3a3a3c;
-  --color-kanyo-gray-500: #2c2c2e;
-  --color-kanyo-gray-600: #1c1c1e;
+  --color-kanyo-gray-400: #e8e8ed;
+  --color-kanyo-gray-500: #d2d2d7;
+  --color-kanyo-gray-600: #f5f5f7;
 }
 
 .dark {
@@ -19,6 +22,9 @@
   --color-kanyo-bg: #000000;
   --color-kanyo-card: #1c1c1e;
   --color-kanyo-text: #ffffff;
+  --color-kanyo-secondary-text: #8e8e93;
+  --color-kanyo-button-bg: #3a3a3c;
+  --color-kanyo-button-hover: #48484a;
   --color-kanyo-gray-100: #8e8e93;
   --color-kanyo-gray-200: #636366;
   --color-kanyo-gray-300: #48484a;
@@ -32,6 +38,9 @@
   --color-kanyo-bg: var(--color-kanyo-bg);
   --color-kanyo-card: var(--color-kanyo-card);
   --color-kanyo-text: var(--color-kanyo-text);
+  --color-kanyo-secondary-text: var(--color-kanyo-secondary-text);
+  --color-kanyo-button-bg: var(--color-kanyo-button-bg);
+  --color-kanyo-button-hover: var(--color-kanyo-button-hover);
   --color-kanyo-orange: #ff9500;
   --color-kanyo-blue: #0a84ff;
   --color-kanyo-red: #ff453a;

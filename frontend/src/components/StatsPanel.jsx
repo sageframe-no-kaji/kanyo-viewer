@@ -4,7 +4,7 @@ export default function StatsPanel({ stream, stats, statsRange, onRangeChange, c
 
   return (
     <div className={`bg-kanyo-card rounded-lg p-4 flex flex-col ${className}`}>
-      <h3 className="text-base font-semibold text-white mb-3">Statistics</h3>
+      <h3 className="text-base font-semibold text-kanyo-text mb-3">Statistics</h3>
 
       {/* Range Selector */}
       <div className="flex gap-1.5 mb-4">
@@ -16,7 +16,7 @@ export default function StatsPanel({ stream, stats, statsRange, onRangeChange, c
               px-2 py-1 rounded text-xs font-medium whitespace-nowrap transition-all
               ${range === statsRange
                 ? 'bg-kanyo-orange text-white'
-                : 'bg-kanyo-gray-600 text-kanyo-gray-100 hover:bg-kanyo-gray-500'
+                : 'bg-kanyo-button-bg text-kanyo-text hover:bg-kanyo-button-hover border border-kanyo-gray-500'
               }
             `}
           >
@@ -45,7 +45,7 @@ export default function StatsPanel({ stream, stats, statsRange, onRangeChange, c
                       }"></span>
                       {event.type === 'arrival' ? 'Arrival' : 'Departure'}
                     </span>
-                    <span className="text-white text-[10px]">
+                    <span className="text-kanyo-secondary-text text-[10px]">
                       {formatTimestamp(event.timestamp)}
                     </span>
                   </div>
@@ -91,10 +91,10 @@ export default function StatsPanel({ stream, stats, statsRange, onRangeChange, c
   );
 }
 
-function StatItem({ label, value, color = 'text-white' }) {
+function StatItem({ label, value, color = 'text-kanyo-text' }) {
   return (
     <div className="flex items-center justify-between">
-      <span className="text-kanyo-gray-100 text-xs">{label}</span>
+      <span className="text-kanyo-secondary-text text-xs">{label}</span>
       <span className={`text-lg font-bold ${color}`}>{value}</span>
     </div>
   );
