@@ -1,10 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { formatTimeInTimezone, setVisitorTimezone as saveVisitorTimezone } from '../utils/timezone';
 import TimezoneSelector from './TimezoneSelector';
 
 export default function CameraInfo({ stream, visitorTimezone, onTimezoneChange, className = '' }) {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [showLocalTime, setShowLocalTime] = useState(false);
+  const [isDescriptionTruncated, setIsDescriptionTruncated] = useState(false);
+  const descriptionRef = useRef(null);
 
   // Get browser's actual timezone
   const browserTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -16,6 +18,14 @@ export default function CameraInfo({ stream, visitorTimezone, onTimezoneChange, 
     }, 1000);
     return () => clearInterval(interval);
   }, []);
+
+  // Check if description is truncated
+  useEffect(() => {
+    if (descriptionRef.current) {
+      const isOverflowing = descriptionRef.current.scrollHeight > descriptionRef.current.clientHeight;
+      setIsDescriptionTruncated(isOverflowing);
+    }
+  }, [display.description]);
 
   const display = stream?.display || {};
 
@@ -70,9 +80,15 @@ export default function CameraInfo({ stream, visitorTimezone, onTimezoneChange, 
       {display.description && (
         <div>
           <div className="text-kanyo-secondary-text text-xs mb-1">About</div>
-          <div className="text-kanyo-text text-xs leading-relaxed max-h-[6lh] overflow-y-auto">
+          <div 
+            ref={descriptionRef}
+            className="text-kanyo-text text-xs leading-relaxed max-h-[5lh] overflow-y-auto"
+          >
             {display.description}
           </div>
+          {isDescriptionTruncated && (
+            <div className="text-kanyo-secondary-text text-xs text-right mt-1">...</div>
+          )}
         </div>
       )}
 
