@@ -7,6 +7,8 @@ import WeekCalendar from '../components/WeekCalendar';
 import Timeline from '../components/Timeline';
 import CameraInfo from '../components/CameraInfo';
 import StatsPanel from '../components/StatsPanel';
+import ThemeToggle from '../components/ThemeToggle';
+import ThemeToggle from '../components/ThemeToggle';
 
 export default function StreamView() {
   const { streamId } = useParams();
@@ -129,15 +131,15 @@ export default function StreamView() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-kanyo-bg flex items-center justify-center">
-        <div className="text-white text-xl">Loading stream...</div>
+      <div className="min-h-screen bg-kanyo-light-bg dark:bg-kanyo-bg flex items-center justify-center">
+        <div className="text-kanyo-light-text dark:text-white text-xl">Loading...</div>
       </div>
     );
   }
 
-  if (error || !stream) {
+  if (error) {
     return (
-      <div className="min-h-screen bg-kanyo-bg flex items-center justify-center">
+      <div className="min-h-screen bg-kanyo-light-bg dark:bg-kanyo-bg flex items-center justify-center">
         <div className="text-center">
           <div className="text-kanyo-red text-xl mb-4">
             {error || 'Stream not found'}
@@ -151,11 +153,11 @@ export default function StreamView() {
   }
 
   return (
-    <div className="min-h-screen bg-kanyo-bg">
+    <div className="min-h-screen bg-kanyo-light-bg dark:bg-kanyo-bg">
       {/* Header */}
       <header>
         <div className="max-w-5xl mx-auto px-6">
-          <div className="py-6 px-6 bg-kanyo-card border-b border-kanyo-gray-500">
+          <div className="py-6 px-6 bg-kanyo-light-card dark:bg-kanyo-card border-b border-kanyo-light-gray-300 dark:border-kanyo-gray-500">
             <div className="flex items-center justify-between">
             <Link to="/" className="text-kanyo-orange hover:text-white transition-colors">
               Streams
@@ -170,13 +172,16 @@ export default function StreamView() {
                 <path d="M319.4,191.4l-19.4,2.8c-1.4-7.4-5.9-14.4-13-17.6-2.4-1.1-4.7-1.3-7.1-2.1s-1.3,0-1.1-.8c17.3-6.5,38-3.7,40.6,17.7Z"/>
                 <path d="M348,180.8c-.7,5.6-5.2,12.1-9.5,15.6l-14.5-5.1c3.8-6.3,5.9-13.8,4-21.1,5.1-.2,10.6-1.5,15.7-1.7s4.3-.2,4.3.9c-.3,3.6.4,7.9,0,11.4Z"/>
               </svg>
-              <h1 className="text-xl font-semibold text-white">
+              <h1 className="text-xl font-semibold text-kanyo-light-text dark:text-white">
                 {stream.name}
               </h1>
             </div>
-            <Link to="/about" className="text-kanyo-gray-100 hover:text-white transition-colors text-sm">
-              About
-            </Link>
+            <div className="flex items-center gap-4 mr-4">
+              <ThemeToggle />
+              <Link to="/about" className="text-kanyo-gray-100 hover:text-white transition-colors text-sm">
+                About
+              </Link>
+            </div>
             </div>
           </div>
         </div>
