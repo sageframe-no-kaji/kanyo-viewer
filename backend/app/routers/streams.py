@@ -210,7 +210,7 @@ def get_stats_for_range(stream_id: str, range_str: str) -> Dict[str, Any]:
             if not match:
                 continue
 
-            time_str, clip_type, ext = match.groups()
+            time_str, clip_type = match.groups()
 
             # Parse clip datetime
             hour = int(time_str[:2])
