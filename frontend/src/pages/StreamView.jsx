@@ -232,7 +232,7 @@ export default function StreamView() {
               stream={stream}
               visitorTimezone={visitorTimezone}
               onTimezoneChange={setVisitorTimezone}
-              className="h-full overflow-y-auto"
+              className="h-full"
             />
           </div>
 
@@ -279,7 +279,7 @@ export default function StreamView() {
               stats={stats}
               statsRange={statsRange}
               onRangeChange={setStatsRange}
-              className="h-full overflow-y-auto"
+              className="h-full"
             />
           </div>
         </div>
