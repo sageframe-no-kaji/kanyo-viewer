@@ -70,7 +70,7 @@ export default function WeekCalendar({ streamId, streamTimezone, selectedDate, o
     <div className="bg-kanyo-card rounded-lg p-2">
       <div className="flex items-center gap-2">
         {/* Previous week button with month abbreviation */}
-        <div className="relative">
+        <div className="relative pt-3">
           {/* Month abbreviation above arrow */}
           <div className="absolute -top-2 left-0 right-0 text-center text-[11px] font-semibold text-kanyo-text">
             {(() => {
@@ -123,9 +123,9 @@ export default function WeekCalendar({ streamId, streamTimezone, selectedDate, o
         </div>
 
         {/* Next week button with year */}
-        <div className="relative">
+        <div className="relative pt-3">
           {/* Year above arrow */}
-          <div className="absolute -top-3 left-0 right-0 text-center text-[11px] font-semibold text-kanyo-text">
+          <div className="absolute -top-2 left-0 right-0 text-center text-[11px] font-semibold text-kanyo-text">
             {(() => {
               const date = new Date(selectedDate + 'T00:00:00');
               return date.getFullYear();

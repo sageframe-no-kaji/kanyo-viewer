@@ -4,13 +4,14 @@ const ThemeContext = createContext();
 
 export function ThemeProvider({ children }) {
   const [isDark, setIsDark] = useState(() => {
-    // Check localStorage first
+    // Always default to dark mode
+    // Only respect localStorage if it was explicitly set
     const stored = localStorage.getItem('kanyo-theme');
-    if (stored) {
-      return stored === 'dark';
+    // If nothing stored, default to dark
+    if (!stored) {
+      return true;
     }
-    // Default to dark mode
-    return true;
+    return stored === 'dark';
   });
 
   useEffect(() => {
