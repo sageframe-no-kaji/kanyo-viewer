@@ -7,7 +7,8 @@ export default function About() {
       <header>
         <div className="max-w-5xl mx-auto px-6">
           <div className="py-4 bg-kanyo-card rounded-lg border-b border-kanyo-gray-500">
-            <div className="flex items-center gap-8">
+            <div className="flex items-center justify-between gap-8">
+              <div className="flex items-center gap-8">
               {/* Logo Circle - bigger, aligned with text */}
               <div className="w-24 h-24 rounded-full bg-kanyo-orange flex items-center justify-center flex-shrink-0 ml-4">
                 <svg viewBox="0 0 500 548.5" className="w-20 h-20 fill-white">
@@ -29,6 +30,12 @@ export default function About() {
               <p className="text-kanyo-orange italic text-lg">Contemplating Falcons</p>
               <p className="text-kanyo-gray-100 text-sm">An open source peregrine falcon monitoring and event archive</p>
             </div>
+            </div>
+
+            {/* Back to Streams Link */}
+            <Link to="/" className="text-kanyo-gray-100 hover:text-kanyo-orange transition-colors text-base font-medium whitespace-nowrap mr-4">
+              Streams
+            </Link>
             </div>
           </div>
         </div>
