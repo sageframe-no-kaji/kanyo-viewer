@@ -113,6 +113,25 @@ export default function About() {
           </section>
 
           <section>
+            <h2 className="text-2xl font-semibold text-kanyo-text mb-3">Looking for a Home</h2>
+            <p className="leading-relaxed mb-4">
+              Kanyo currently runs on a server in my living room. It works, but a home internet connection isn't ideal for serving video clips to the world.
+            </p>
+            <p className="leading-relaxed mb-4">
+              If you have access to any of the following and want to support the project, I'd love to hear from you:
+            </p>
+            <ul className="list-disc list-inside space-y-2 leading-relaxed mb-4">
+              <li><span className="font-semibold text-kanyo-text">Colocation space</span> — A rack or even a network drop where I could place a small machine</li>
+              <li><span className="font-semibold text-kanyo-text">Compute resources</span> — Cloud credits, spare VM capacity, or GPU time for detection</li>
+              <li><span className="font-semibold text-kanyo-text">University infrastructure</span> — Research computing clusters, media hosting, or student project resources</li>
+              <li><span className="font-semibold text-kanyo-text">CDN or storage</span> — Help with bandwidth for serving video clips</li>
+            </ul>
+            <p className="leading-relaxed">
+              The detection pipeline needs modest GPU access. The viewer just needs reliable bandwidth. Even partial support would make a real difference.
+            </p>
+          </section>
+
+          <section>
             <h2 className="text-2xl font-semibold text-kanyo-text mb-3">Links</h2>
             <ul className="space-y-2 leading-relaxed">
               <li>
