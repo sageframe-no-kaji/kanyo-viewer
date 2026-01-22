@@ -15,7 +15,7 @@ export default function VideoPlayer({ stream, selectedEvent, selectedDate, isLiv
             allowFullScreen
           />
         </div>
-        <div className="p-4 border-t border-kanyo-gray-500">
+        <div className="px-4 pt-3 pb-2 border-t border-kanyo-gray-500">
           <div className="flex items-center justify-between">
             <span className="text-kanyo-green font-medium text-sm flex items-center gap-1.5">
               <span className="w-2 h-2 bg-kanyo-green rounded-full animate-pulse"></span>
@@ -44,7 +44,7 @@ export default function VideoPlayer({ stream, selectedEvent, selectedDate, isLiv
           <source src={clipUrl} type="video/mp4" />
           Your browser does not support the video tag.
         </video>
-        <div className="p-4 border-t border-kanyo-gray-500">
+        <div className="px-4 pt-3 pb-2 border-t border-kanyo-gray-500">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <span className="flex items-center gap-1.5 text-kanyo-red font-medium text-sm">
@@ -79,7 +79,7 @@ export default function VideoPlayer({ stream, selectedEvent, selectedDate, isLiv
           <path d="M286.3,382.8l-18.8,10.7c-.6,22.6,1.1,45.3-1.9,67.8-2.5,18.9-7.7,37.5-17.1,54l-12-4c7.8-17,11.7-35.9,13.1-54.6,1.6-19.8.6-39.1.5-58.8,0-20.7.1-41.3,0-62h66.3s-.6-16-.6-16c10.1.7,20.4.7,30.2,3.5,1.2,1.7-3.6,6.6-4,8.5h49.4c.5,0,4.6,1.2,5.4,1.4,5.6,2,9.5,6.5,10.9,12.2,7.5.4,16.1,1.6,20.2,8.7s2,4.5,2,4.8v8.9c-8.1-4.2-15.7-5.5-24.7-3.8s-16.5,4.9-18.7,11.3h-47.4v11.4h45.1v10.3h-43.7c-.2,0-.6-1-1.4.3v10h45.1v10.3h-45.1v10.3h62.3v9.4l-.9.9h-114.6v-55.4ZM370.3,344.5c5.5,7.5,22.2,13.9,26.1,2,0-.4-1.7-2-1.8-2h-24.3ZM295.4,350.8h-27.1l-.9.9v26.6c1.8-.5,3.6-2.1,5.1-3.2,5.7-4.3,10.8-9.4,15.8-14.5l7.1-9.7ZM330.3,351.4h-14l-9.4,12h14.6l1.4-1,7.4-11ZM360,351.4h-10l-8.9,11.4h11.7c1.1-.9,7.8-10.8,7.1-11.4ZM321.7,375.4h-18.9v11.4h18.9v-11.4ZM321.7,407.3v-10.9c-.4-.2-.7.6-.9.6h-18v10.3h18.9ZM321.7,416.5c-6.1.6-12.8,1.2-18.9,0v11.4h18.9v-11.4Z"/>
         </svg>
       </div>
-      <div className="p-4 border-t border-kanyo-gray-500">
+      <div className="px-4 pt-3 pb-2 border-t border-kanyo-gray-500">
         <div className="flex items-center justify-between">
           <span className="text-kanyo-gray-100 font-medium text-sm flex items-center gap-1.5">
             <span className="w-2 h-2 bg-white rounded-full"></span>
