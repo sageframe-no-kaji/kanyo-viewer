@@ -45,7 +45,8 @@ export default function Landing() {
       <header>
         <div className="max-w-5xl mx-auto px-6">
           <div className="py-4 bg-kanyo-card rounded-lg border-b border-kanyo-gray-500">
-            <div className="flex items-center gap-8">
+            <div className="flex items-center justify-between gap-8">
+              <div className="flex items-center gap-8">
               {/* Logo Circle - bigger, aligned with text */}
               <div className="w-24 h-24 rounded-full bg-kanyo-orange flex items-center justify-center flex-shrink-0 ml-4">
                 <svg viewBox="0 0 500 548.5" className="w-20 h-20 fill-white">
@@ -67,6 +68,12 @@ export default function Landing() {
               <p className="text-kanyo-orange italic text-lg">Contemplating Falcons</p>
               <p className="text-kanyo-gray-100 text-sm">An open source peregrine falcon monitoring and event archive</p>
             </div>
+            </div>
+
+            {/* About Link */}
+            <Link to="/about" className="text-kanyo-gray-100 hover:text-kanyo-orange transition-colors text-sm whitespace-nowrap">
+              About
+            </Link>
             </div>
           </div>
         </div>
