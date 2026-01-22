@@ -333,6 +333,7 @@ async def get_stream_detail(stream_id: str):
         "display": stream_config.get("display", {}),
         "youtube_id": stream_config.get("youtube_id"),
         "timezone": stream_config.get("timezone"),
+        "telegram_channel": stream_config.get("telegram_channel"),
         "stats": stats,
     }
 
