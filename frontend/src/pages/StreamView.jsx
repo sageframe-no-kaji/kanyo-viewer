@@ -224,20 +224,19 @@ export default function StreamView() {
 
       {/* Main Layout */}
       <div className="max-w-5xl mx-auto px-6 py-6">
-        {/* Unified Rectangle Layout - 3 Columns with Fixed Height */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-6 lg:h-[600px]">
-          {/* Camera Info - Left - Fixed Height on Desktop, Mobile Tab Content */}
-          <div className={`lg:col-span-3 lg:h-full lg:overflow-hidden ${mobileTab === 'info' ? 'block' : 'hidden lg:block'}`}>
+        {/* Unified Rectangle Layout - 3 Columns */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-6">
+          {/* Camera Info - Left */}
+          <div className={`lg:col-span-3 ${mobileTab === 'info' ? 'block' : 'hidden lg:block'}`}>
             <CameraInfo
               stream={stream}
               visitorTimezone={visitorTimezone}
               onTimezoneChange={setVisitorTimezone}
-              className="h-full"
             />
           </div>
 
-          {/* Video Section - Center - Unified Rectangle - Always First on Mobile */}
-          <div className={`lg:col-span-7 lg:h-full flex flex-col ${mobileTab === 'cam' ? 'block' : 'hidden lg:flex'}`}>
+          {/* Video Section - Center */}
+          <div className={`lg:col-span-7 flex flex-col ${mobileTab === 'cam' ? 'block' : 'hidden lg:flex'}`}>
             {/* Week Calendar */}
             <div className="flex-shrink-0">
               <WeekCalendar
@@ -272,14 +271,13 @@ export default function StreamView() {
             </div>
           </div>
 
-          {/* Stats Panel - Right - Fixed Height on Desktop, Mobile Tab Content */}
-          <div className={`lg:col-span-2 lg:h-full lg:overflow-hidden ${mobileTab === 'stats' ? 'block' : 'hidden lg:block'}`}>
+          {/* Stats Panel - Right */}
+          <div className={`lg:col-span-2 ${mobileTab === 'stats' ? 'block' : 'hidden lg:block'}`}>
             <StatsPanel
               stream={stream}
               stats={stats}
               statsRange={statsRange}
               onRangeChange={setStatsRange}
-              className="h-full"
             />
           </div>
         </div>
