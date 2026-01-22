@@ -26,7 +26,7 @@ export default function StatsPanel({ stream, stats, statsRange, onRangeChange, c
       </div>
 
       {/* Stats Display */}
-      <div className="flex-1 overflow-y-auto">
+      <div>
       {stats ? (
         <div className="space-y-3">
           <StatItem label="Visits" value={stats.visits || 0} />

@@ -33,8 +33,8 @@ export default function CameraInfo({ stream, visitorTimezone, onTimezoneChange, 
     <div className={`bg-kanyo-card rounded-lg p-4 flex flex-col ${className}`}>
       <h2 className="text-lg font-semibold text-kanyo-text mb-3">Stream Info</h2>
 
-      {/* Scrollable content section */}
-      <div className="flex-1 overflow-y-auto space-y-3">
+      {/* Content section */}
+      <div className="space-y-3">
 
       {/* Location */}
       <div>
