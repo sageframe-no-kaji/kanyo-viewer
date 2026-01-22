@@ -68,11 +68,8 @@ export default function StatsPanel({ stream, stats, statsRange, onRangeChange, c
         </div>
       )}
 
-      {/* Spacer to push Subscribe to bottom */}
-      <div className="flex-1"></div>
-
       {/* Subscribe Button - aligned with clock at bottom */}
-      {stream?.telegram_channel && (
+      {stream && stream.telegram_channel && (
         <div className="border-t border-kanyo-gray-500 pt-3 mt-auto">
           <a
             href={`https://t.me/${stream.telegram_channel.replace('@', '')}`}
