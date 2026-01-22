@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 export default {
+  darkMode: 'class',
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
@@ -7,7 +8,7 @@ export default {
   theme: {
     extend: {
       colors: {
-        // HKSV-inspired dark theme
+        // Dark theme (default)
         'kanyo-bg': '#000000',
         'kanyo-card': '#1c1c1e',
         'kanyo-orange': '#ff9500',
@@ -21,6 +22,16 @@ export default {
           400: '#3a3a3c',
           500: '#2c2c2e',
           600: '#1c1c1e',
+        },
+        // Light mode overrides
+        'kanyo-light-bg': '#ffffff',
+        'kanyo-light-card': '#f5f5f7',
+        'kanyo-light-text': '#1d1d1f',
+        'kanyo-light-gray': {
+          100: '#6e6e73',
+          200: '#86868b',
+          300: '#d2d2d7',
+          400: '#e8e8ed',
         }
       },
       fontFamily: {

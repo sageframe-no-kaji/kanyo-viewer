@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../utils/api';
+import ThemeToggle from '../components/ThemeToggle';
 
 export default function Landing() {
   const [streams, setStreams] = useState([]);
@@ -40,11 +41,11 @@ export default function Landing() {
   }
 
   return (
-    <div className="min-h-screen bg-kanyo-bg">
+    <div className="min-h-screen bg-kanyo-bg dark:bg-kanyo-bg bg-kanyo-light-bg">
       {/* Header */}
       <header>
         <div className="max-w-5xl mx-auto px-6">
-          <div className="py-4 bg-kanyo-card rounded-lg border-b border-kanyo-gray-500">
+          <div className="py-4 bg-kanyo-card dark:bg-kanyo-card bg-kanyo-light-card rounded-lg border-b border-kanyo-gray-500 dark:border-kanyo-gray-500 border-kanyo-light-gray-300">
             <div className="flex items-center justify-between gap-8">
               <div className="flex items-center gap-8">
               {/* Logo Circle - bigger, aligned with text */}
@@ -64,16 +65,19 @@ export default function Landing() {
 
             {/* Title */}
             <div>
-              <h1 className="text-3xl font-bold text-white">The Kanyo Project</h1>
+              <h1 className="text-3xl font-bold text-white dark:text-white text-kanyo-light-text">The Kanyo Project</h1>
               <p className="text-kanyo-orange italic text-lg">Contemplating Falcons</p>
-              <p className="text-kanyo-gray-100 text-sm">An open source peregrine falcon monitoring and event archive</p>
+              <p className="text-kanyo-gray-100 dark:text-kanyo-gray-100 text-kanyo-light-gray-100 text-sm">An open source peregrine falcon monitoring and event archive</p>
             </div>
             </div>
 
-            {/* About Link */}
-            <Link to="/about" className="text-kanyo-gray-100 hover:text-kanyo-orange transition-colors text-base font-medium whitespace-nowrap mr-4">
-              About
-            </Link>
+            {/* Theme Toggle and About Link */}
+            <div className="flex items-center gap-4">
+              <ThemeToggle />
+              <Link to="/about" className="text-kanyo-gray-100 hover:text-kanyo-orange transition-colors text-base font-medium whitespace-nowrap">
+                About
+              </Link>
+            </div>
             </div>
           </div>
         </div>
@@ -113,10 +117,10 @@ function StreamCard({ stream }) {
   return (
     <Link
       to={`/stream/${stream.id}`}
-      className="block bg-kanyo-card rounded-xl overflow-hidden hover:ring-2 hover:ring-kanyo-orange transition-all"
+      className="block bg-kanyo-card dark:bg-kanyo-card bg-kanyo-light-card rounded-xl overflow-hidden hover:ring-2 hover:ring-kanyo-orange transition-all"
     >
       {/* Thumbnail */}
-      <div className="aspect-video bg-kanyo-gray-600 flex items-center justify-center relative overflow-hidden">
+      <div className="aspect-video bg-kanyo-gray-600 dark:bg-kanyo-gray-600 bg-kanyo-light-gray-400 flex items-center justify-center relative overflow-hidden">
         {/* Try static image first, then display.thumbnail_url, then snapshot from most recent arrival */}
         <img
           src={`/thumbnails/${stream.id}.jpg`}
@@ -138,23 +142,23 @@ function StreamCard({ stream }) {
       {/* Info */}
       <div className="p-4">
         <div className="flex items-start justify-between mb-2">
-          <h2 className="text-xl font-semibold text-white">{display.short_name || stream.name}</h2>
+          <h2 className="text-xl font-semibold text-white dark:text-white text-kanyo-light-text">{display.short_name || stream.name}</h2>
           <span className="flex items-center text-kanyo-green text-sm">
             <span className="w-2 h-2 bg-kanyo-green rounded-full mr-1"></span>
             LIVE
           </span>
         </div>
 
-        <p className="text-kanyo-gray-100 text-sm mb-3">{display.location}</p>
+        <p className="text-kanyo-gray-100 dark:text-kanyo-gray-100 text-kanyo-light-gray-100 text-sm mb-3">{display.location}</p>
 
-        <div className="text-sm text-kanyo-gray-100 space-y-1">
+        <div className="text-sm text-kanyo-gray-100 dark:text-kanyo-gray-100 text-kanyo-light-gray-100 space-y-1">
           <div className="flex justify-between">
             <span>Visits (24h):</span>
-            <span className="text-white font-medium">{stats.visits || 0}</span>
+            <span className="text-white dark:text-white text-kanyo-light-text font-medium">{stats.visits || 0}</span>
           </div>
           <div className="flex justify-between">
             <span>Last event:</span>
-            <span className="text-white font-medium">
+            <span className="text-white dark:text-white text-kanyo-light-text font-medium">
               {stats.last_event ? formatTimestamp(stats.last_event.timestamp) : 'None'}
             </span>
           </div>
