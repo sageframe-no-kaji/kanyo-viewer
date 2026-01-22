@@ -57,6 +57,14 @@ class Settings:
         with open(config_path, "r") as f:
             config = yaml.safe_load(f)
 
+        # Extract YouTube ID from video_source URL
+        youtube_id = None
+        video_source = config.get("video_source", "")
+        if "youtube.com/watch?v=" in video_source:
+            youtube_id = video_source.split("v=")[1].split("&")[0]
+        elif "youtu.be/" in video_source:
+            youtube_id = video_source.split("youtu.be/")[1].split("?")[0]
+
         # Merge registry data with config data
         return {
             "id": stream_id,
@@ -65,7 +73,7 @@ class Settings:
             "data_path": registry["data_path"],
             "display": config.get("display", {}),
             "telegram_channel": config.get("telegram_channel"),
-            "youtube_id": config.get("youtube_id"),
+            "youtube_id": youtube_id,
         }
 
     @property
