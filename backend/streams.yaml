@@ -1,32 +1,12 @@
+# Stream Registry for Kanyo Viewer
+# This file maps stream IDs to their config.yaml locations
+# Display metadata is loaded from each stream's config.yaml (single source of truth)
+
 streams:
   kanyo-harvard:
-    name: "Harvard Falcon Cam"
-    youtube_id: "glczTFRRAK4"
+    config_path: "/configs/harvard/config.yaml"
     data_path: "/data/harvard"
-    timezone: "America/New_York"
-    display:
-      short_name: "Harvard"
-      location: "Memorial Hall, Harvard University, Cambridge MA"
-      coordinates: [42.3762, -71.1158]
-      species: "Peregrine Falcon (Falco peregrinus)"
-      nest_status: "Active nest since 1999. These falcons have successfully raised chicks for over two decades."
-      maintainer: "Harvard Faculty of Arts & Sciences"
-      maintainer_url: "https://www.fas.harvard.edu/"
-      description: "Active nest since 1999. Watch these magnificent birds of prey raise their young."
-      telegram_channel: "@kanyo_fas_falcon_cam"
 
   kanyo-nsw:
-    name: "NSW Falcon Cam"
-    youtube_id: "VuZaWzhXSAI"
+    config_path: "/configs/nsw/config.yaml"
     data_path: "/data/nsw"
-    timezone: "Australia/Sydney"
-    display:
-      short_name: "NSW"
-      location: "New South Wales, Australia"
-      coordinates: [-33.8688, 151.2093]
-      species: "Peregrine Falcon (Falco peregrinus)"
-      nest_status: "Active monitoring site for peregrine falcon conservation efforts."
-      maintainer: "NSW Wildlife Trust"
-      maintainer_url: "https://example.com"
-      description: "Monitoring peregrine falcons in Australia."
-      telegram_channel: "@kanyo_nsw_falcon"
