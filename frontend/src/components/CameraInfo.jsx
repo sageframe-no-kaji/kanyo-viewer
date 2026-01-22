@@ -47,14 +47,6 @@ export default function CameraInfo({ stream, visitorTimezone, onTimezoneChange, 
         </div>
       )}
 
-      {/* Nest Status */}
-      {display.nest_status && (
-        <div>
-          <div className="text-kanyo-secondary-text text-xs mb-1">Nest Status</div>
-          <div className="text-kanyo-text text-[10px] leading-tight">{display.nest_status}</div>
-        </div>
-      )}
-
       {/* Maintainer */}
       {display.maintainer && (
         <div>
@@ -78,7 +70,7 @@ export default function CameraInfo({ stream, visitorTimezone, onTimezoneChange, 
       {display.description && (
         <div>
           <div className="text-kanyo-secondary-text text-xs mb-1">About</div>
-          <div className="text-kanyo-text text-[10px] leading-tight max-h-32 overflow-y-auto pr-2 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-kanyo-gray-700 [&::-webkit-scrollbar-thumb]:bg-kanyo-orange [&::-webkit-scrollbar-thumb]:rounded">{display.description}</div>
+          <div className="text-kanyo-text text-xs leading-relaxed">{display.description}</div>
         </div>
       )}
 
