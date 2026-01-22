@@ -189,12 +189,11 @@ def get_stats_for_range(stream_id: str, range_str: str) -> Dict[str, Any]:
         current += timedelta(days=1)
 
     # Pattern: falcon_HHMMSS_type.ext (completed files only)
+    # Only count .mp4 files (not .tmp, .log, or thumbnails)
     pattern = re.compile(
-        r"falcon_(\d{6})_(arrival|departure|visit)\.(mp4|jpg|jpeg|avi|mov|mkv|png)$"
+        r"falcon_(\d{6})_(arrival|departure|visit)\.mp4$"
     )
 
-    arrivals = 0
-    departures = 0
     visits = 0
     events_by_time: dict = {}  # deduplicate by time
 
@@ -232,12 +231,8 @@ def get_stats_for_range(stream_id: str, range_str: str) -> Dict[str, Any]:
             if clip_dt < cutoff:
                 continue
 
-            # Count by type
-            if clip_type == "arrival":
-                arrivals += 1
-            elif clip_type == "departure":
-                departures += 1
-            elif clip_type == "visit":
+            # Only count visit files for the visits stat
+            if clip_type == "visit":
                 visits += 1
 
             # Track events (deduplicate by time, prefer arrival/departure over visit)
@@ -263,9 +258,7 @@ def get_stats_for_range(stream_id: str, range_str: str) -> Dict[str, Any]:
         event.pop("datetime", None)
 
     return {
-        "visits": visits,
-        "arrivals": arrivals,
-        "departures": departures,
+        "visits": visits,  # Only completed visit.mp4 files
         "last_events": last_events[:10],  # limit to 10 most recent
         "range": range_str,
     }
