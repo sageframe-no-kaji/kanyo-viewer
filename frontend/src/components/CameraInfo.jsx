@@ -85,7 +85,7 @@ export default function CameraInfo({ stream, visitorTimezone, onTimezoneChange, 
           <div className="text-kanyo-secondary-text text-xs mb-1">About</div>
           <div
             ref={descriptionRef}
-            className="text-kanyo-text text-xs leading-relaxed max-h-[5lh] overflow-y-auto"
+            className="text-kanyo-text text-xs leading-relaxed max-h-[8lh] overflow-y-auto"
           >
             {display.description}
           </div>
@@ -94,7 +94,7 @@ export default function CameraInfo({ stream, visitorTimezone, onTimezoneChange, 
       </div>
 
       {/* Single Clock with Toggle - at bottom */}
-      <div className="mt-auto border-t border-kanyo-gray-500 pt-3">
+      <div className="mt-auto pt-3">
         <div className="space-y-2">
           <div>
             <div className="text-kanyo-secondary-text text-[10px] mb-1">

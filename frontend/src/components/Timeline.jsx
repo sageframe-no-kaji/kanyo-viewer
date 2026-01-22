@@ -205,7 +205,7 @@ export default function Timeline({
         <button
           onClick={() => handleTimeWindowChange('left')}
           disabled={isTransitioning || !canNavigateForward()}
-          className="absolute right-0 top-3 bottom-0 z-50 w-10 bg-gradient-to-l from-kanyo-card to-transparent hover:from-kanyo-gray-700/80 transition-all flex items-center justify-end pr-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="absolute right-0 top-0 bottom-0 z-50 w-10 bg-gradient-to-l from-kanyo-card to-transparent hover:from-kanyo-gray-700/80 transition-all flex items-center justify-end pr-2 disabled:opacity-50 disabled:cursor-not-allowed"
           title="Next 12 hours"
         >
           <svg className="w-5 h-5 text-white opacity-70 hover:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -227,7 +227,7 @@ export default function Timeline({
               >
                 {index % 3 === 0 && (
                   <div
-                    className={`absolute text-xs text-kanyo-gray-100 top-[48px] whitespace-nowrap transition-all duration-300 ease-in-out ${
+                    className={`absolute text-xs text-kanyo-gray-100 top-[54px] whitespace-nowrap transition-all duration-300 ease-in-out ${
                       isTransitioning ? 'opacity-0 scale-95' : 'opacity-100 scale-100'
                     }`}
                     style={{
