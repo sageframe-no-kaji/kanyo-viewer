@@ -9,22 +9,29 @@ export function ThemeProvider({ children }) {
     if (stored) {
       return stored === 'dark';
     }
-    // Default to system preference
-    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+    // Default to dark mode
+    return true;
   });
 
   useEffect(() => {
     // Apply theme to document
+    const root = document.documentElement;
     if (isDark) {
-      document.documentElement.classList.add('dark');
+      root.classList.add('dark');
+      root.classList.remove('light');
     } else {
-      document.documentElement.classList.remove('dark');
+      root.classList.remove('dark');
+      root.classList.add('light');
     }
     // Save to localStorage
     localStorage.setItem('kanyo-theme', isDark ? 'dark' : 'light');
+    console.log('Theme changed:', isDark ? 'dark' : 'light', 'Classes:', root.className);
   }, [isDark]);
 
-  const toggleTheme = () => setIsDark(!isDark);
+  const toggleTheme = () => {
+    console.log('Toggle clicked, current:', isDark);
+    setIsDark(!isDark);
+  };
 
   return (
     <ThemeContext.Provider value={{ isDark, toggleTheme }}>
