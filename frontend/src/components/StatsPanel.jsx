@@ -3,7 +3,7 @@ export default function StatsPanel({ stream, stats, statsRange, onRangeChange, c
   const display = stream?.display || {};
 
   return (
-    <div className={`bg-kanyo-card rounded-lg p-4 h-full flex flex-col ${className}`}>
+    <div className={`bg-kanyo-card rounded-lg p-4 flex flex-col ${className}`}>
       <h3 className="text-base font-semibold text-kanyo-text mb-3">Statistics</h3>
 
       {/* Range Selector */}
