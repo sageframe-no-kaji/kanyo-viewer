@@ -27,7 +27,33 @@ export default function CameraInfo({ stream, visitorTimezone, onTimezoneChange, 
       <div>
         <div className="text-kanyo-secondary-text text-xs mb-1">Location</div>
         <div className="text-kanyo-text text-sm">{display.location}</div>
+        {display.coordinates && display.coordinates.length === 2 && (
+          <a
+            href={`https://www.google.com/maps?q=${display.coordinates[0]},${display.coordinates[1]}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-kanyo-orange hover:text-kanyo-text transition-colors text-xs"
+          >
+            View on Map →
+          </a>
+        )}
       </div>
+
+      {/* Species */}
+      {display.species && (
+        <div>
+          <div className="text-kanyo-secondary-text text-xs mb-1">Species</div>
+          <div className="text-kanyo-text text-sm">{display.species}</div>
+        </div>
+      )}
+
+      {/* Nest Status */}
+      {display.nest_status && (
+        <div>
+          <div className="text-kanyo-secondary-text text-xs mb-1">Nest Status</div>
+          <div className="text-kanyo-text text-xs leading-relaxed">{display.nest_status}</div>
+        </div>
+      )}
 
       {/* Maintainer */}
       {display.maintainer && (
