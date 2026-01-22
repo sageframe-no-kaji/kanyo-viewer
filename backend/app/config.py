@@ -65,6 +65,7 @@ class Settings:
             "data_path": registry["data_path"],
             "display": config.get("display", {}),
             "telegram_channel": config.get("telegram_channel"),
+            "youtube_id": config.get("youtube_id"),
         }
 
     @property
