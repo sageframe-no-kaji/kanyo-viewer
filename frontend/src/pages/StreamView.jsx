@@ -155,7 +155,7 @@ export default function StreamView() {
     <div className="min-h-screen bg-kanyo-bg">
       {/* Header */}
       <header>
-        <div className="max-w-5xl mx-auto">
+        <div className="max-w-5xl mx-auto px-6">
           <div className="bg-kanyo-card border-b border-kanyo-gray-500 rounded-t-lg lg:rounded-none overflow-hidden">
             {/* Mobile: Title on top, controls below */}
             <div className="lg:hidden">
