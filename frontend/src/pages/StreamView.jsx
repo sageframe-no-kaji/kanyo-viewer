@@ -257,7 +257,7 @@ export default function StreamView() {
               />
             </div>
             {/* Timeline */}
-            <div className="flex-shrink-0 mt-3">
+            <div className="flex-shrink-0 mt-1">
               <Timeline
                 events={events}
                 selectedEvent={selectedEvent}
