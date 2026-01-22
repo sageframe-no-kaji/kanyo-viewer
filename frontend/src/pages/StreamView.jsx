@@ -252,9 +252,9 @@ export default function StreamView() {
       {/* Main Layout */}
       <div className="max-w-5xl mx-auto px-6 py-6">
         {/* Unified Rectangle Layout - 3 Columns */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-6">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-6 lg:items-start">
           {/* Camera Info - Left */}
-          <div className={`lg:col-span-3 ${mobileTab === 'info' ? 'block' : 'hidden lg:block'}`}>
+          <div className={`lg:col-span-3 lg:self-start ${mobileTab === 'info' ? 'block' : 'hidden lg:block'}`}>
             <CameraInfo
               stream={stream}
               visitorTimezone={visitorTimezone}
@@ -299,7 +299,7 @@ export default function StreamView() {
           </div>
 
           {/* Stats Panel - Right */}
-          <div className={`lg:col-span-2 ${mobileTab === 'stats' ? 'block' : 'hidden lg:block'}`}>
+          <div className={`lg:col-span-2 lg:self-start lg:sticky lg:top-6 ${mobileTab === 'stats' ? 'block' : 'hidden lg:block'}`}>
             <StatsPanel
               stream={stream}
               stats={stats}
