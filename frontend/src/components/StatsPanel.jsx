@@ -26,8 +26,9 @@ export default function StatsPanel({ stream, stats, statsRange, onRangeChange, c
       </div>
 
       {/* Stats Display */}
+      <div className="flex-1 overflow-y-auto">
       {stats ? (
-        <div className="space-y-3 flex-1">
+        <div className="space-y-3">
           <StatItem label="Visits" value={stats.visits || 0} />
 
           {/* Latest Alerts */}
@@ -67,10 +68,11 @@ export default function StatsPanel({ stream, stats, statsRange, onRangeChange, c
           Loading stats...
         </div>
       )}
+      </div>
 
       {/* Subscribe Button - aligned with clock at bottom */}
       {stream && stream.telegram_channel && (
-        <div className="border-t border-kanyo-gray-500 pt-3 mt-3">
+        <div className="border-t border-kanyo-gray-500 pt-3">
           <a
             href={`https://t.me/${stream.telegram_channel.replace('@', '')}`}
             target="_blank"
