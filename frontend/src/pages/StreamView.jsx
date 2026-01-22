@@ -8,7 +8,6 @@ import Timeline from '../components/Timeline';
 import CameraInfo from '../components/CameraInfo';
 import StatsPanel from '../components/StatsPanel';
 import ThemeToggle from '../components/ThemeToggle';
-import ThemeToggle from '../components/ThemeToggle';
 
 export default function StreamView() {
   const { streamId } = useParams();
