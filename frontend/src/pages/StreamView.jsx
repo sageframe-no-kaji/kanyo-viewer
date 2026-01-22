@@ -248,7 +248,7 @@ export default function StreamView() {
               />
             </div>
             {/* Video Player */}
-            <div className="flex-1 min-h-0">
+            <div className="flex-shrink-0">
               <VideoPlayer
                 stream={stream}
                 selectedEvent={selectedEvent}
