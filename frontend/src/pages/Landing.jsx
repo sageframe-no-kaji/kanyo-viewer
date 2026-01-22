@@ -71,7 +71,7 @@ export default function Landing() {
             </div>
 
             {/* About Link */}
-            <Link to="/about" className="text-kanyo-gray-100 hover:text-kanyo-orange transition-colors text-sm whitespace-nowrap">
+            <Link to="/about" className="text-kanyo-gray-100 hover:text-kanyo-orange transition-colors text-base font-medium whitespace-nowrap mr-4">
               About
             </Link>
             </div>
