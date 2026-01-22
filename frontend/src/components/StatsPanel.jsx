@@ -72,10 +72,10 @@ export default function StatsPanel({ stream, stats, statsRange, onRangeChange, c
       <div className="flex-1"></div>
 
       {/* Subscribe Button - aligned with clock at bottom */}
-      {display.telegram_channel && (
+      {stream?.telegram_channel && (
         <div className="border-t border-kanyo-gray-500 pt-3 mt-auto">
           <a
-            href={`https://t.me/${display.telegram_channel.replace('@', '')}`}
+            href={`https://t.me/${stream.telegram_channel.replace('@', '')}`}
             target="_blank"
             rel="noopener noreferrer"
             className="flex flex-col items-center justify-center gap-2 w-full bg-kanyo-blue hover:bg-opacity-80 text-white font-medium py-4 px-4 rounded-lg transition-all"

@@ -86,9 +86,6 @@ export default function CameraInfo({ stream, visitorTimezone, onTimezoneChange, 
           >
             {display.description}
           </div>
-          {isDescriptionTruncated && (
-            <div className="text-kanyo-secondary-text text-xs text-right mt-1">...</div>
-          )}
         </div>
       )}
 
