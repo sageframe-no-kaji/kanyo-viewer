@@ -70,7 +70,9 @@ export default function CameraInfo({ stream, visitorTimezone, onTimezoneChange, 
       {display.description && (
         <div>
           <div className="text-kanyo-secondary-text text-xs mb-1">About</div>
-          <div className="text-kanyo-text text-xs leading-relaxed">{display.description}</div>
+          <div className="text-kanyo-text text-xs leading-relaxed max-h-[6lh] overflow-y-auto">
+            {display.description}
+          </div>
         </div>
       )}
 
