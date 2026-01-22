@@ -259,7 +259,7 @@ def get_stats_for_range(stream_id: str, range_str: str) -> Dict[str, Any]:
 
     return {
         "visits": visits,  # Only completed visit.mp4 files
-        "last_events": last_events[:10],  # limit to 10 most recent
+        "last_events": last_events,  # All events in the time range
         "range": range_str,
     }
 
