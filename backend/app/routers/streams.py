@@ -171,9 +171,9 @@ def get_stats_for_range(stream_id: str, range_str: str) -> Dict[str, Any]:
 
     # Parse range (e.g., "24h", "7d")
     hours = 24  # default
-    if range_str.endswith('h'):
+    if range_str.endswith("h"):
         hours = int(range_str[:-1])
-    elif range_str.endswith('d'):
+    elif range_str.endswith("d"):
         hours = int(range_str[:-1]) * 24
 
     clips_dir = get_clips_dir(stream_id)
@@ -189,12 +189,14 @@ def get_stats_for_range(stream_id: str, range_str: str) -> Dict[str, Any]:
         current += timedelta(days=1)
 
     # Pattern: falcon_HHMMSS_type.ext (completed files only)
-    pattern = re.compile(r"falcon_(\d{6})_(arrival|departure|visit)\.(mp4|jpg|jpeg|avi|mov|mkv|png)$")
+    pattern = re.compile(
+        r"falcon_(\d{6})_(arrival|departure|visit)\.(mp4|jpg|jpeg|avi|mov|mkv|png)$"
+    )
 
     arrivals = 0
     departures = 0
     visits = 0
-    events_by_time = {}  # deduplicate by time
+    events_by_time: dict = {}  # deduplicate by time
 
     for date_str in sorted(dates_to_check):
         date_path = clips_dir / date_str
@@ -218,9 +220,11 @@ def get_stats_for_range(stream_id: str, range_str: str) -> Dict[str, Any]:
 
             try:
                 clip_date = datetime.strptime(date_str, "%Y-%m-%d")
-                clip_dt = tz.localize(clip_date.replace(hour=hour, minute=minute, second=second)) \
-                    if hasattr(tz, "localize") \
+                clip_dt = (
+                    tz.localize(clip_date.replace(hour=hour, minute=minute, second=second))
+                    if hasattr(tz, "localize")
                     else clip_date.replace(hour=hour, minute=minute, second=second, tzinfo=tz)
+                )
             except Exception:
                 continue
 
@@ -248,7 +252,7 @@ def get_stats_for_range(stream_id: str, range_str: str) -> Dict[str, Any]:
                 "time": time_key,
                 "type": clip_type,
                 "timestamp": clip_dt.isoformat(),
-                "datetime": clip_dt
+                "datetime": clip_dt,
             }
 
     # Sort events by datetime (most recent first)
@@ -265,6 +269,7 @@ def get_stats_for_range(stream_id: str, range_str: str) -> Dict[str, Any]:
         "last_events": last_events[:10],  # limit to 10 most recent
         "range": range_str,
     }
+
 
 @router.get("")
 async def list_streams():
