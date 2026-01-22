@@ -227,7 +227,7 @@ export default function StreamView() {
         {/* Unified Rectangle Layout - 3 Columns with Fixed Height */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-6 lg:h-[600px]">
           {/* Camera Info - Left - Fixed Height on Desktop, Mobile Tab Content */}
-          <div className={`lg:col-span-3 lg:h-full ${mobileTab === 'info' ? 'block' : 'hidden lg:block'}`}>
+          <div className={`lg:col-span-3 lg:h-full lg:overflow-hidden ${mobileTab === 'info' ? 'block' : 'hidden lg:block'}`}>
             <CameraInfo
               stream={stream}
               visitorTimezone={visitorTimezone}
@@ -257,7 +257,7 @@ export default function StreamView() {
               />
             </div>
             {/* Timeline */}
-            <div className="flex-shrink-0 mt-1">
+            <div className="flex-shrink-0 mt-3">
               <Timeline
                 events={events}
                 selectedEvent={selectedEvent}
@@ -273,7 +273,7 @@ export default function StreamView() {
           </div>
 
           {/* Stats Panel - Right - Fixed Height on Desktop, Mobile Tab Content */}
-          <div className={`lg:col-span-2 lg:h-full ${mobileTab === 'stats' ? 'block' : 'hidden lg:block'}`}>
+          <div className={`lg:col-span-2 lg:h-full lg:overflow-hidden ${mobileTab === 'stats' ? 'block' : 'hidden lg:block'}`}>
             <StatsPanel
               stream={stream}
               stats={stats}

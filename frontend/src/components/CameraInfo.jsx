@@ -34,7 +34,7 @@ export default function CameraInfo({ stream, visitorTimezone, onTimezoneChange, 
       <h2 className="text-lg font-semibold text-kanyo-text mb-3">Stream Info</h2>
 
       {/* Content section */}
-      <div className="space-y-3">
+      <div className="flex-1 min-h-0 overflow-y-auto space-y-3">
 
       {/* Location */}
       <div>
