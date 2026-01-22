@@ -11,6 +11,8 @@ export default function CameraInfo({ stream, visitorTimezone, onTimezoneChange, 
   // Get browser's actual timezone
   const browserTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
+  const display = stream?.display || {};
+
   // Update time every second
   useEffect(() => {
     const interval = setInterval(() => {
@@ -26,8 +28,6 @@ export default function CameraInfo({ stream, visitorTimezone, onTimezoneChange, 
       setIsDescriptionTruncated(isOverflowing);
     }
   }, [display.description]);
-
-  const display = stream?.display || {};
 
   return (
     <div className={`bg-kanyo-card rounded-lg p-6 space-y-3 flex flex-col ${className}`}>
@@ -80,7 +80,7 @@ export default function CameraInfo({ stream, visitorTimezone, onTimezoneChange, 
       {display.description && (
         <div>
           <div className="text-kanyo-secondary-text text-xs mb-1">About</div>
-          <div 
+          <div
             ref={descriptionRef}
             className="text-kanyo-text text-xs leading-relaxed max-h-[5lh] overflow-y-auto"
           >
