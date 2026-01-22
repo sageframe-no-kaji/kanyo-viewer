@@ -72,7 +72,7 @@ export default function WeekCalendar({ streamId, streamTimezone, selectedDate, o
         {/* Previous week button with month abbreviation */}
         <div className="relative">
           {/* Month abbreviation above arrow */}
-          <div className="absolute -top-2 left-0 right-0 text-center text-[11px] font-semibold text-white">
+          <div className="absolute -top-2 left-0 right-0 text-center text-[11px] font-semibold text-kanyo-text">
             {(() => {
               const date = new Date(selectedDate + 'T00:00:00');
               return date.toLocaleDateString('en-US', { month: 'short' }).toUpperCase();
@@ -80,7 +80,7 @@ export default function WeekCalendar({ streamId, streamTimezone, selectedDate, o
           </div>
           <button
             onClick={() => navigateWeek(-1)}
-            className="p-1.5 rounded-lg bg-kanyo-gray-600 text-white hover:bg-kanyo-gray-500 transition-all"
+            className="p-1.5 rounded-lg bg-kanyo-button-bg text-kanyo-text hover:bg-kanyo-button-hover transition-all border border-kanyo-gray-500"
             title="Previous week"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -125,7 +125,7 @@ export default function WeekCalendar({ streamId, streamTimezone, selectedDate, o
         {/* Next week button with year */}
         <div className="relative">
           {/* Year above arrow */}
-          <div className="absolute -top-2 left-0 right-0 text-center text-[11px] font-semibold text-kanyo-text">
+          <div className="absolute -top-3 left-0 right-0 text-center text-[11px] font-semibold text-kanyo-text">
             {(() => {
               const date = new Date(selectedDate + 'T00:00:00');
               return date.getFullYear();
