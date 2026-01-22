@@ -89,9 +89,6 @@ export default function CameraInfo({ stream, visitorTimezone, onTimezoneChange, 
         </div>
       )}
 
-      {/* Spacer to push clock to bottom */}
-      <div className="flex-1"></div>
-
       {/* Single Clock with Toggle - at bottom */}
       <div className="border-t border-kanyo-gray-500 pt-3 mt-auto">
         <div className="space-y-2">
