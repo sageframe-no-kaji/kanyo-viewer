@@ -31,19 +31,16 @@ export default function StatsPanel({ stream, stats, statsRange, onRangeChange, c
         <div className="space-y-3 flex-1 flex flex-col min-h-0">
           <StatItem label="Visits" value={stats.visits || 0} />
 
-          {/* Latest Alerts */}
+          {/* Latest Alerts - with fixed max height */}
           {stats.last_events && stats.last_events.length > 0 ? (
-            <div className="border-t border-kanyo-gray-500 pt-3 mt-3 flex-1 flex flex-col min-h-0">
+            <div className="border-t border-kanyo-gray-500 pt-3 mt-3">
               <div className="text-kanyo-gray-100 text-xs mb-2">Latest Alerts</div>
-              <div className="space-y-2 overflow-y-auto min-h-0 scrollbar-thin flex-1">
-                {stats.last_events.map((event, idx) => (
+              <div className="space-y-2 overflow-y-auto lg:overflow-visible max-h-32 lg:max-h-none scrollbar-thin">
+                {stats.last_events.slice(0, 10).map((event, idx) => (
                   <div key={idx} className="flex flex-col gap-0.5">
-                    <span className={`text-[10px] font-medium flex items-center gap-1 ${
+                    <span className={`text-[10px] font-medium ${
                       event.type === 'arrival' ? 'text-kanyo-blue' : 'text-kanyo-red'
                     }`}>
-                      <span className="inline-block w-1.5 h-1.5 rounded-full ${
-                        event.type === 'arrival' ? 'bg-kanyo-blue' : 'bg-kanyo-red'
-                      }"></span>
                       {event.type === 'arrival' ? 'Arrival' : 'Departure'}
                     </span>
                     <span className="text-kanyo-secondary-text text-[10px]">

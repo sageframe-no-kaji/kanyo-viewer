@@ -159,18 +159,18 @@ export default function StreamView() {
           <div className="bg-kanyo-card border-b border-kanyo-gray-500 rounded-t-lg lg:rounded-none overflow-hidden">
             {/* Mobile: Title on top, controls below */}
             <div className="lg:hidden">
-              {/* Title row - centered */}
-              <div className="flex items-center justify-center py-4 border-b border-kanyo-gray-500">
-                <h1 className="text-lg font-semibold text-kanyo-text">
-                  {stream.name}
+              {/* Title row - centered, with padding */}
+              <div className="py-3 px-4 border-b border-kanyo-gray-500">
+                <h1 className="text-base font-semibold text-kanyo-text text-center truncate">
+                  {stream.display?.short_name || stream.name}
                 </h1>
               </div>
-              {/* Controls row - same padding as content */}
-              <div className="flex items-center justify-between py-3 px-6">
-                <Link to="/" className="text-kanyo-orange hover:text-white transition-colors text-sm">
-                  Streams
+              {/* Controls row */}
+              <div className="flex items-center justify-between py-2 px-4">
+                <Link to="/" className="text-kanyo-orange hover:text-white transition-colors text-sm font-medium">
+                  Streams觀鷹
                 </Link>
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-3">
                   <ThemeToggle />
                   <Link to="/about" className="text-kanyo-gray-100 hover:text-white transition-colors text-sm">
                     About
