@@ -9,6 +9,7 @@ streams:
       location: "Memorial Hall, Harvard University, Cambridge MA"
       coordinates: [42.3762, -71.1158]
       species: "Peregrine Falcon (Falco peregrinus)"
+      nest_status: "Active nest since 1999. These falcons have successfully raised chicks for over two decades."
       maintainer: "Harvard Faculty of Arts & Sciences"
       maintainer_url: "https://www.fas.harvard.edu/"
       description: "Active nest since 1999. Watch these magnificent birds of prey raise their young."
@@ -24,6 +25,7 @@ streams:
       location: "New South Wales, Australia"
       coordinates: [-33.8688, 151.2093]
       species: "Peregrine Falcon (Falco peregrinus)"
+      nest_status: "Active monitoring site for peregrine falcon conservation efforts."
       maintainer: "NSW Wildlife Trust"
       maintainer_url: "https://example.com"
       description: "Monitoring peregrine falcons in Australia."
