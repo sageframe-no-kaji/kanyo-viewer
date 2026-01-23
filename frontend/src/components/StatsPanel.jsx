@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom';
+
 export default function StatsPanel({ stream, stats, statsRange, onRangeChange, className = '' }) {
   const ranges = ['24h', '2d', '3d'];
   const display = stream?.display || {};
@@ -84,6 +86,11 @@ export default function StatsPanel({ stream, stats, statsRange, onRangeChange, c
             </svg>
             <span className="text-xs">Subscribe</span>
           </a>
+          <p className="text-center mt-2">
+            <Link to="/help/telegram" className="text-kanyo-gray-300 hover:text-kanyo-orange text-xs transition-colors">
+              What's Telegram?
+            </Link>
+          </p>
         </div>
       )}
     </div>
