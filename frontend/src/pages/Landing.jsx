@@ -92,7 +92,10 @@ export default function Landing() {
                   </svg>
                 </div>
                 <div>
-                  <h1 className="text-3xl font-bold text-kanyo-text">The Kanyo Project</h1>
+                  <h1 className="text-3xl font-bold text-kanyo-text flex items-center gap-2">
+                    <span>The Kanyo Project</span>
+                    <span className="text-xs font-bold text-white bg-kanyo-orange px-2 py-1 rounded uppercase tracking-wide">Beta</span>
+                  </h1>
                   <p className="text-kanyo-orange italic text-lg">Contemplating Falcons</p>
                   <p className="text-kanyo-gray-100 text-sm">An open source peregrine falcon monitoring and event archive</p>
                 </div>

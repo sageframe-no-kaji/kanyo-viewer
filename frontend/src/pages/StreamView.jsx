@@ -163,8 +163,9 @@ export default function StreamView() {
             {/* Mobile: Title on top, nav below */}
             <div className="lg:hidden">
               <div className="py-3 px-4 border-b border-kanyo-gray-500">
-                <h1 className="text-base font-semibold text-kanyo-text text-center truncate">
-                  {stream.display?.short_name || stream.name}
+                <h1 className="text-base font-semibold text-kanyo-text text-center truncate flex items-center justify-center gap-2">
+                  <span>{stream.display?.short_name || stream.name}</span>
+                  <span className="text-[9px] font-bold text-white bg-kanyo-orange px-1.5 py-0.5 rounded uppercase tracking-wide">Beta</span>
                 </h1>
               </div>
               <div className="flex items-center justify-between py-2 px-4">
@@ -208,8 +209,9 @@ export default function StreamView() {
                     <path d="M319.4,191.4l-19.4,2.8c-1.4-7.4-5.9-14.4-13-17.6-2.4-1.1-4.7-1.3-7.1-2.1s-1.3,0-1.1-.8c17.3-6.5,38-3.7,40.6,17.7Z" />
                     <path d="M348,180.8c-.7,5.6-5.2,12.1-9.5,15.6l-14.5-5.1c3.8-6.3,5.9-13.8,4-21.1,5.1-.2,10.6-1.5,15.7-1.7s4.3-.2,4.3.9c-.3,3.6.4,7.9,0,11.4Z" />
                   </svg>
-                  <h1 className="text-xl font-semibold text-kanyo-text">
-                    {stream.name}
+                  <h1 className="text-xl font-semibold text-kanyo-text flex items-center gap-2">
+                    <span>{stream.name}</span>
+                    <span className="text-[10px] font-bold text-white bg-kanyo-orange px-2 py-0.5 rounded uppercase tracking-wide">Beta</span>
                   </h1>
                 </div>
                 <div className="flex items-center gap-4 mr-4">
@@ -317,12 +319,17 @@ export default function StreamView() {
                 />
               </div>
               {stream?.telegram_channel && (
-                <div className="flex-1 flex items-end pt-4 gap-2">
+                <div className="flex-1 flex flex-col items-stretch pt-4">
+                  <p className="text-center mb-2">
+                    <Link to="/help/telegram" className="text-white hover:text-kanyo-orange text-xs transition-colors">
+                      How do alerts work?
+                    </Link>
+                  </p>
                   <a
                     href={`https://t.me/${stream.telegram_channel.replace("@", "")}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-3 flex-[13] bg-kanyo-blue hover:bg-opacity-80 text-white font-medium py-3 px-4 rounded-lg transition-all h-14"
+                    className="flex items-center justify-center gap-3 w-full bg-kanyo-blue hover:bg-opacity-80 text-white font-medium py-3 px-4 rounded-lg transition-all h-14"
                   >
                     <svg
                       className="w-6 h-6"
@@ -333,12 +340,6 @@ export default function StreamView() {
                     </svg>
                     <span>Subscribe to Alerts</span>
                   </a>
-                  <Link
-                    to="/help/telegram"
-                    className="flex items-center justify-center flex-[7] bg-kanyo-orange hover:bg-opacity-80 text-white font-medium py-3 px-4 rounded-lg transition-all text-sm h-14"
-                  >
-                    How do alerts work?
-                  </Link>
                 </div>
               )}
             </div>

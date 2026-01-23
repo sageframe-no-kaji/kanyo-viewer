@@ -75,6 +75,11 @@ export default function StatsPanel({ stream, stats, statsRange, onRangeChange, c
       {/* Subscribe Button */}
       {stream && stream.telegram_channel && (
         <div className="mt-auto pt-3">
+          <p className="text-center mb-2">
+            <Link to="/help/telegram" className="text-white hover:text-kanyo-orange text-[10px] transition-colors">
+              How do alerts work?
+            </Link>
+          </p>
           <a
             href={`https://t.me/${stream.telegram_channel.replace('@', '')}`}
             target="_blank"
@@ -86,11 +91,6 @@ export default function StatsPanel({ stream, stats, statsRange, onRangeChange, c
             </svg>
             <span className="text-xs">Subscribe</span>
           </a>
-          <p className="text-center mt-0.5">
-            <Link to="/help/telegram" className="text-white hover:text-kanyo-orange text-[10px] transition-colors">
-              How do alerts work?
-            </Link>
-          </p>
         </div>
       )}
     </div>
