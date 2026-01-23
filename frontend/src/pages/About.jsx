@@ -158,18 +158,32 @@ export default function About() {
 
           <section>
             <h2 className="text-2xl font-semibold text-kanyo-text mb-3">Links</h2>
-            <ul className="space-y-2 leading-relaxed">
-              <li>
-                <a href="https://github.com/sageframe-no-kaji" target="_blank" rel="noopener noreferrer" className="text-kanyo-orange hover:text-white transition-colors">
-                  GitHub
-                </a>
-              </li>
-              <li>
-                <a href="https://linkedin.com/in/atmarcus" target="_blank" rel="noopener noreferrer" className="text-kanyo-orange hover:text-white transition-colors">
-                  LinkedIn
-                </a>
-              </li>
-            </ul>
+            <div className="flex items-center justify-between">
+              <ul className="space-y-2 leading-relaxed">
+                <li>
+                  <a href="https://github.com/sageframe-no-kaji/kanyo-contemplating-falcons-dev" target="_blank" rel="noopener noreferrer" className="text-kanyo-orange hover:text-white transition-colors">
+                    GitHub
+                  </a>
+                </li>
+                <li>
+                  <a href="https://linkedin.com/in/atmarcus" target="_blank" rel="noopener noreferrer" className="text-kanyo-orange hover:text-white transition-colors">
+                    LinkedIn
+                  </a>
+                </li>
+              </ul>
+              <a href="https://github.com/sageframe-no-kaji" target="_blank" rel="noopener noreferrer" className="hover:opacity-80 transition-opacity flex-shrink-0">
+                <svg viewBox="0 0 301 301" className="w-12 h-12 sm:w-16 sm:h-16">
+                  <circle cx="150.5" cy="150.5" r="142" fill="#ea993e"/>
+                  <g stroke="#ffffff" strokeWidth="23" strokeLinecap="square" fill="none">
+                    <line x1="150.2" y1="54.7" x2="150.2" y2="255"/>
+                    <line x1="88.6" y1="107.6" x2="181.3" y2="202.2"/>
+                    <line x1="88.6" y1="233.9" x2="150.2" y2="172.4"/>
+                    <line x1="150.2" y1="46" x2="212.4" y2="107.6"/>
+                    <line x1="88.6" y1="107.6" x2="150.2" y2="46"/>
+                  </g>
+                </svg>
+              </a>
+            </div>
           </section>
 
           <section>
