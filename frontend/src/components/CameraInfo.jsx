@@ -30,11 +30,11 @@ export default function CameraInfo({ stream, visitorTimezone, onTimezoneChange, 
   }, [display.description]);
 
   return (
-    <div className={`bg-kanyo-card rounded-lg p-4 h-full ${className}`}>
+    <div className={`bg-kanyo-card rounded-lg p-4 h-full flex flex-col ${className}`}>
       <h2 className="text-lg font-semibold text-kanyo-text mb-3">Stream Info</h2>
 
       {/* Content section */}
-      <div className="space-y-3">
+      <div className="space-y-3 flex-shrink-0">
 
       {/* Location */}
       <div>
