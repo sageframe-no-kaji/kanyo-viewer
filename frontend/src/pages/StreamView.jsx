@@ -317,12 +317,12 @@ export default function StreamView() {
                 />
               </div>
               {stream?.telegram_channel && (
-                <div className="flex-1 flex items-end pt-4">
+                <div className="flex-1 flex items-end pt-4 gap-2">
                   <a
                     href={`https://t.me/${stream.telegram_channel.replace("@", "")}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-3 w-full bg-kanyo-blue hover:bg-opacity-80 text-white font-medium py-3 px-4 rounded-lg transition-all"
+                    className="flex items-center justify-center gap-3 flex-1 bg-kanyo-blue hover:bg-opacity-80 text-white font-medium py-3 px-4 rounded-lg transition-all"
                   >
                     <svg
                       className="w-6 h-6"
@@ -333,11 +333,12 @@ export default function StreamView() {
                     </svg>
                     <span>Subscribe to Alerts</span>
                   </a>
-                  <p className="text-center mt-0.5">
-                    <Link to="/help/telegram" className="text-white hover:text-kanyo-orange text-[10px] transition-colors">
-                      How do alerts work?
-                    </Link>
-                  </p>
+                  <Link 
+                    to="/help/telegram"
+                    className="flex items-center justify-center flex-1 bg-kanyo-orange hover:bg-opacity-80 text-white font-medium py-3 px-4 rounded-lg transition-all text-sm"
+                  >
+                    How do alerts work?
+                  </Link>
                 </div>
               )}
             </div>
