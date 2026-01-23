@@ -86,8 +86,8 @@ export default function StatsPanel({ stream, stats, statsRange, onRangeChange, c
             </svg>
             <span className="text-xs">Subscribe</span>
           </a>
-          <p className="text-center mt-1">
-            <Link to="/help/telegram" className="text-kanyo-gray-400 hover:text-kanyo-orange text-[10px] transition-colors">
+          <p className="text-center mt-0.5">
+            <Link to="/help/telegram" className="text-white hover:text-kanyo-orange text-[10px] transition-colors">
               How do alerts work?
             </Link>
           </p>

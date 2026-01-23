@@ -333,6 +333,11 @@ export default function StreamView() {
                     </svg>
                     <span>Subscribe to Alerts</span>
                   </a>
+                  <p className="text-center mt-0.5">
+                    <Link to="/help/telegram" className="text-white hover:text-kanyo-orange text-[10px] transition-colors">
+                      How do alerts work?
+                    </Link>
+                  </p>
                 </div>
               )}
             </div>
