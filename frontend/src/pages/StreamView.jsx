@@ -322,7 +322,7 @@ export default function StreamView() {
                     href={`https://t.me/${stream.telegram_channel.replace("@", "")}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-3 flex-[13] bg-kanyo-blue hover:bg-opacity-80 text-white font-medium py-3 px-4 rounded-lg transition-all"
+                    className="flex items-center justify-center gap-3 flex-[13] bg-kanyo-blue hover:bg-opacity-80 text-white font-medium py-3 px-4 rounded-lg transition-all h-14"
                   >
                     <svg
                       className="w-6 h-6"
@@ -335,7 +335,7 @@ export default function StreamView() {
                   </a>
                   <Link
                     to="/help/telegram"
-                    className="flex items-center justify-center flex-[7] bg-kanyo-orange hover:bg-opacity-80 text-white font-medium py-3 px-4 rounded-lg transition-all text-sm"
+                    className="flex items-center justify-center flex-[7] bg-kanyo-orange hover:bg-opacity-80 text-white font-medium py-3 px-4 rounded-lg transition-all text-sm h-14"
                   >
                     How do alerts work?
                   </Link>
