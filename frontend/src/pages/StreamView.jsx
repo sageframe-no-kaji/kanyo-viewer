@@ -152,7 +152,7 @@ export default function StreamView() {
   }
 
   return (
-    <div className="min-h-screen bg-kanyo-bg">
+    <div className="min-h-screen lg:min-h-0 h-screen lg:h-auto overflow-hidden lg:overflow-visible bg-kanyo-bg">
       {/* Header */}
       <header>
         <div className="max-w-5xl mx-auto px-6">
@@ -210,8 +210,9 @@ export default function StreamView() {
       </header>
 
       {/* Mobile Tab Navigation - Only visible on mobile */}
-      <div className="lg:hidden bg-kanyo-card border-b border-kanyo-gray-500">
-        <div className="flex">
+      <div className="lg:hidden max-w-5xl mx-auto px-6">
+        <div className="bg-kanyo-card border-b border-kanyo-gray-500">
+          <div className="flex">
           <button
             onClick={() => setMobileTab('cam')}
             className={`flex-1 py-3 text-sm font-semibold transition-colors ${
@@ -242,15 +243,79 @@ export default function StreamView() {
           >
             Statistics
           </button>
+          </div>
         </div>
       </div>
 
-      {/* Main Layout */}
-      <div className="max-w-5xl mx-auto px-6 py-6">
-        {/* Unified Rectangle Layout - 3 Columns */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-6">
+      {/* Main Layout - Mobile: Fixed height viewport, Desktop: Normal flow */}
+      <div className="max-w-5xl mx-auto px-6 py-4 lg:py-6">
+        {/* Mobile: Fixed height container to prevent scrolling between tabs */}
+        <div className="lg:hidden" style={{ height: 'calc(100vh - 200px)', overflow: 'hidden' }}>
+          {/* Camera Info - Mobile */}
+          {mobileTab === 'info' && (
+            <div className="h-full overflow-y-auto">
+              <CameraInfo
+                stream={stream}
+                visitorTimezone={visitorTimezone}
+                onTimezoneChange={setVisitorTimezone}
+                className="h-full"
+              />
+            </div>
+          )}
+
+          {/* Video Section - Mobile */}
+          {mobileTab === 'cam' && (
+            <div className="flex flex-col h-full">
+              <div className="flex-shrink-0">
+                <WeekCalendar
+                  streamId={streamId}
+                  streamTimezone={stream.timezone}
+                  selectedDate={selectedDate}
+                  onDateChange={handleDateChange}
+                />
+              </div>
+              <div className="flex-shrink-0">
+                <VideoPlayer
+                  stream={stream}
+                  selectedEvent={selectedEvent}
+                  selectedDate={selectedDate}
+                  isLive={isLive}
+                />
+              </div>
+              <div className="flex-shrink-0 mt-3">
+                <Timeline
+                  events={events}
+                  selectedEvent={selectedEvent}
+                  onEventSelect={handleEventSelect}
+                  onLiveClick={handleLiveClick}
+                  isLive={isLive}
+                  streamId={streamId}
+                  selectedDate={selectedDate}
+                  onDateChange={handleDateChange}
+                  streamTimezone={stream.timezone}
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Stats Panel - Mobile */}
+          {mobileTab === 'stats' && (
+            <div className="h-full">
+              <StatsPanel
+                stream={stream}
+                stats={stats}
+                statsRange={statsRange}
+                onRangeChange={setStatsRange}
+                className="h-full"
+              />
+            </div>
+          )}
+        </div>
+
+        {/* Desktop: Original 3-column grid */}
+        <div className="hidden lg:grid lg:grid-cols-12 gap-6 mb-6">
           {/* Camera Info - Left */}
-          <div className={`lg:col-span-3 ${mobileTab === 'info' ? 'block' : 'hidden lg:block'}`}>
+          <div className="lg:col-span-3">
             <CameraInfo
               stream={stream}
               visitorTimezone={visitorTimezone}
@@ -259,8 +324,7 @@ export default function StreamView() {
           </div>
 
           {/* Video Section - Center */}
-          <div className={`lg:col-span-7 flex flex-col ${mobileTab === 'cam' ? 'block' : 'hidden lg:flex'}`}>
-            {/* Week Calendar */}
+          <div className="lg:col-span-7 flex flex-col">
             <div className="flex-shrink-0">
               <WeekCalendar
                 streamId={streamId}
@@ -269,7 +333,6 @@ export default function StreamView() {
                 onDateChange={handleDateChange}
               />
             </div>
-            {/* Video Player */}
             <div className="flex-shrink-0">
               <VideoPlayer
                 stream={stream}
@@ -278,7 +341,6 @@ export default function StreamView() {
                 isLive={isLive}
               />
             </div>
-            {/* Timeline */}
             <div className="flex-shrink-0 mt-3">
               <Timeline
                 events={events}
@@ -295,7 +357,7 @@ export default function StreamView() {
           </div>
 
           {/* Stats Panel - Right */}
-          <div className={`lg:col-span-2 ${mobileTab === 'stats' ? 'block' : 'hidden lg:block'}`}>
+          <div className="lg:col-span-2">
             <StatsPanel
               stream={stream}
               stats={stats}

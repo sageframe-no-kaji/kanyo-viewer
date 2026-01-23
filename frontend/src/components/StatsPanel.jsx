@@ -35,7 +35,7 @@ export default function StatsPanel({ stream, stats, statsRange, onRangeChange, c
           {stats.last_events && stats.last_events.length > 0 ? (
             <div className="border-t border-kanyo-gray-500 pt-3 mt-3 flex-1 flex flex-col min-h-0">
               <div className="text-kanyo-gray-100 text-xs mb-2">Latest Alerts</div>
-              <div className="space-y-2 overflow-y-auto min-h-0 scrollbar-thin max-h-32 lg:max-h-60">
+              <div className="space-y-2 overflow-y-auto min-h-0 scrollbar-thin max-h-64 lg:max-h-60">
                 {stats.last_events.map((event, idx) => (
                   <div key={idx} className="flex flex-col gap-0.5">
                     <span className={`text-[10px] font-medium flex items-center gap-1 ${
