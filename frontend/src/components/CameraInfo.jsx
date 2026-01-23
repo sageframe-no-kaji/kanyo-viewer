@@ -30,7 +30,7 @@ export default function CameraInfo({ stream, visitorTimezone, onTimezoneChange, 
   }, [display.description]);
 
   return (
-    <div className={`bg-kanyo-card rounded-lg p-4 overflow-y-auto ${className}`}>
+    <div className={`bg-kanyo-card rounded-lg p-4 h-full ${className}`}>
       <h2 className="text-lg font-semibold text-kanyo-text mb-3">Stream Info</h2>
 
       {/* Content section */}

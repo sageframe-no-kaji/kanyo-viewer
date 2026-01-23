@@ -353,9 +353,9 @@ export default function StreamView() {
         </div>
 
         {/* Desktop: Original 3-column grid */}
-        <div className="hidden lg:grid lg:grid-cols-12 gap-6 mb-6">
+        <div className="hidden lg:grid lg:grid-cols-12 gap-6 mb-6 items-stretch">
           {/* Camera Info - Left */}
-          <div className="lg:col-span-3">
+          <div className="lg:col-span-3 h-full">
             <CameraInfo
               stream={stream}
               visitorTimezone={visitorTimezone}
