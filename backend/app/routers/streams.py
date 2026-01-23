@@ -190,9 +190,7 @@ def get_stats_for_range(stream_id: str, range_str: str) -> Dict[str, Any]:
 
     # Pattern: falcon_HHMMSS_type.ext (completed files only)
     # Only count .mp4 files (not .tmp, .log, or thumbnails)
-    pattern = re.compile(
-        r"falcon_(\d{6})_(arrival|departure|visit)\.mp4$"
-    )
+    pattern = re.compile(r"falcon_(\d{6})_(arrival|departure|visit)\.mp4$")
 
     visits = 0
     events_by_time: dict = {}  # deduplicate by time
@@ -266,28 +264,28 @@ def get_stats_for_range(stream_id: str, range_str: str) -> Dict[str, Any]:
 
 @router.get("")
 async def list_streams():
-    """List all available streams with today's stats."""
+    """List all available streams with last 24h stats."""
     streams_list = []
 
     for stream_id, stream_config in settings.streams.items():
         try:
-            # Get today's stats
+            # Get last 24h stats
+            stats_24h = get_stats_for_range(stream_id, "24h")
+            visits = stats_24h.get("visits", 0)
+            last_events = stats_24h.get("last_events", [])
+
+            # Determine date to show (today or most recent with events)
             tz = get_stream_timezone(stream_id)
             today = datetime.now(tz).date()
             date_str = today.strftime("%Y-%m-%d")
 
-            # Try to load today's events, or find most recent
-            events = load_events_for_date(stream_id, date_str)
-            if not events:
-                # Auto-select most recent date with events
+            # If no events in last 24h, find most recent date
+            if not last_events:
                 recent_date = find_most_recent_date_with_events(
                     get_clips_dir(stream_id), datetime.now(tz), tz
                 )
                 if recent_date:
-                    events = load_events_for_date(stream_id, recent_date)
                     date_str = recent_date
-
-            visits = len(events)  # All returned events are visits
 
             streams_list.append(
                 {
@@ -299,7 +297,7 @@ async def list_streams():
                     "stats": {
                         "date": date_str,
                         "visits": visits,
-                        "last_event": events[-1] if events else None,
+                        "last_event": last_events[0] if last_events else None,
                     },
                 }
             )
