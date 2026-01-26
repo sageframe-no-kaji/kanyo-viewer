@@ -10,3 +10,7 @@ streams:
   kanyo-nsw:
     config_path: "/configs/nsw/config.yaml"
     data_path: "/data/nsw"
+
+  kanyo-humspot:
+    config_path: "/configs/humspot/config.yaml"
+    data_path: "/data/humspot"
