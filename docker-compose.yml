@@ -8,9 +8,11 @@ services:
       # Mount clip directories read-only from detection containers
       - /opt/services/kanyo-harvard:/data/harvard:ro
       - /opt/services/kanyo-nsw:/data/nsw:ro
+      - /opt/services/kanyo-humspot:/data/humspot:ro
       # Mount config files read-only so viewer can read display metadata
       - /opt/services/kanyo-harvard/config.yaml:/configs/harvard/config.yaml:ro
       - /opt/services/kanyo-nsw/config.yaml:/configs/nsw/config.yaml:ro
+      - /opt/services/kanyo-humspot/config.yaml:/configs/humspot/config.yaml:ro
     environment:
       - KANYO_ENV=production
       - ADMIN_API_URL=http://172.17.0.1:5000
