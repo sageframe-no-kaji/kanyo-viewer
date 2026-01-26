@@ -25,7 +25,7 @@ export default function About() {
                   </svg>
                 </div>
                 <div className="min-w-0">
-                  <h1 className="text-base font-bold text-kanyo-text truncate">The Kanyo Project</h1>
+                <h1 className="text-base font-bold text-kanyo-text truncate">The Kanyō Project</h1>
                   <p className="text-kanyo-orange italic text-xs">Contemplating Falcons</p>
                 </div>
               </div>
@@ -54,7 +54,7 @@ export default function About() {
                   </svg>
                 </div>
                 <div>
-                  <h1 className="text-3xl font-bold text-kanyo-text">The Kanyo Project</h1>
+                  <h1 className="text-3xl font-bold text-kanyo-text">The Kanyō Project</h1>
                   <p className="text-kanyo-orange italic text-lg">Contemplating Falcons</p>
                   <p className="text-kanyo-gray-100 text-sm">An open source peregrine falcon monitoring and event archive</p>
                 </div>
@@ -72,16 +72,16 @@ export default function About() {
 
       {/* Content */}
       <main className="max-w-5xl mx-auto px-6 py-12">
-        <h1 className="text-4xl font-bold text-kanyo-text mb-6">About Kanyo</h1>
+        <h1 className="text-4xl font-bold text-kanyo-text mb-6">About Kanyō</h1>
 
         <div className="space-y-6 text-kanyo-gray-100">
           <section>
             <h2 className="text-2xl font-semibold text-kanyo-text mb-3">The Origin</h2>
-            <p className="leading-relaxed mb-4">
-              On a flight to New York, I ended up seated next to a Harvard professor involved with the FAS falcon cam. She mentioned that she checks the stream regularly but wishes there was a way to know when the falcons are actually there—without scrubbing through hours of empty nest footage.
-            </p>
             <p className="leading-relaxed">
-              That conversation stuck with me. Three months later, Kanyo exists.
+              The project began when someone noticed Claudia Goldin (Nobel Prize
+              in Economics 2023) mentioned a live falcon cam on the Harvard
+              Faculty of Arts and Sciences building, watched a Red-tailed Hawk
+              land, and wondered if they could detect such arrivals automatically.
             </p>
           </section>
 
@@ -153,6 +153,33 @@ export default function About() {
             </ul>
             <p className="leading-relaxed">
               The detection pipeline needs modest GPU access. The viewer just needs reliable bandwidth. Even partial support would make a real difference.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-2xl font-semibold text-kanyo-text mb-3">About the Creator</h2>
+            <p className="leading-relaxed mb-4">
+              This project was developed as part of the{" "}
+              <span className="italic">Ho</span> process, a deliberate practice
+              of skill development through focused, project-based learning. The
+              creator is working toward mastery across multiple domains including
+              programming, machine learning, system administration, and web
+              development.
+            </p>
+            <p className="leading-relaxed">
+              Kanyō represents the synthesis of these skills: computer vision
+              (YOLOv8), real-time video processing, containerized deployment,
+              notification systems, and full-stack web development. This project
+              is maintained by{" "}
+              <a
+                href="https://sageframe.net"
+                className="text-blue-400 hover:text-blue-300 underline"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Sageframe
+              </a>
+              .
             </p>
           </section>
 
