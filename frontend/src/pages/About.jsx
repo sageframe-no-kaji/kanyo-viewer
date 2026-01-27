@@ -156,27 +156,13 @@ export default function About() {
           <section>
             <h2 className="text-2xl font-semibold text-kanyo-text mb-3">About the Creator</h2>
             <p className="leading-relaxed mb-4">
-              This project was developed as part of the{" "}
-              <span className="italic">Ho</span> process, a deliberate practice
-              of skill development through focused, project-based learning. The
-              creator is working toward mastery across multiple domains including
-              programming, machine learning, system administration, and web
-              development.
+              I design how people learn, work, and think together. Whether building education platforms, researching AI integration, or consulting with organizations, I create systems that amplify human capability without automating away judgment.
+            </p>
+            <p className="leading-relaxed mb-4">
+              Kanyo is part of that research. I built it using the "Ho" process—a methodology where AI functions as implementation partner while humans maintain architectural decisions. Three focused sessions yielded a production system processing thousands of detections daily.
             </p>
             <p className="leading-relaxed">
-              Kanyō represents the synthesis of these skills: computer vision
-              (YOLOv8), real-time video processing, containerized deployment,
-              notification systems, and full-stack web development. This project
-              is maintained by{" "}
-              <a
-                href="https://sageframe.net"
-                className="text-blue-400 hover:text-blue-300 underline"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Sageframe
-              </a>
-              .
+              I'm also building Sageframe—experimental infrastructure exploring how AI can function as thinking partner rather than replacement, helping humans see patterns, test assumptions, and build better questions without automating away judgment.
             </p>
           </section>
 
