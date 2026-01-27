@@ -63,7 +63,7 @@ export default function Landing() {
                   </svg>
                 </div>
                 <div className="min-w-0">
-                  <h1 className="text-base font-bold text-kanyo-text truncate">The Kanyo Project</h1>
+                  <h1 className="text-base font-bold text-kanyo-text truncate">The Kanyō Project</h1>
                   <p className="text-kanyo-orange italic text-xs">Contemplating Falcons</p>
                 </div>
               </div>
@@ -93,7 +93,7 @@ export default function Landing() {
                 </div>
                 <div>
                   <h1 className="text-3xl font-bold text-kanyo-text flex items-center gap-2">
-                    <span>The Kanyo Project</span>
+                    <span>The Kanyō Project</span>
                     <span className="text-xs font-bold text-white bg-kanyo-orange px-2 py-1 rounded uppercase tracking-wide">Beta</span>
                   </h1>
                   <p className="text-kanyo-orange italic text-lg">Contemplating Falcons</p>
