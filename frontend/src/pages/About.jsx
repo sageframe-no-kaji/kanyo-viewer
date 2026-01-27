@@ -78,10 +78,7 @@ export default function About() {
           <section>
             <h2 className="text-2xl font-semibold text-kanyo-text mb-3">The Origin</h2>
             <p className="leading-relaxed">
-              The project began when someone noticed Claudia Goldin (Nobel Prize
-              in Economics 2023) mentioned a live falcon cam on the Harvard
-              Faculty of Arts and Sciences building, watched a Red-tailed Hawk
-              land, and wondered if they could detect such arrivals automatically.
+              On a flight to New York, I ended up seated next to Claudia Goldin — Nobel laureate in Economics and, as it turns out, a dedicated falcon watcher. She mentioned that she checks the Harvard FAS cam regularly but wishes there was a way to know when the falcons are actually there, without scrubbing through hours of empty nest footage.
             </p>
           </section>
 
