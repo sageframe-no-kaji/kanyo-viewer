@@ -6,6 +6,8 @@
 
 ![Kanyo Viewer Screenshot](docs/viewer-screenshot.png)
 
+**Development Process:** This project was built using the [Ho System](https://atmarcus.net/work/ho-system), a structured methodology for human-AI collaborative development. The human makes every design decision. The AI implements under direction. There is verification at every step.
+
 ## What This Is
 
 This is the **viewer component** of the Kanyo project — a React + FastAPI application that displays:
