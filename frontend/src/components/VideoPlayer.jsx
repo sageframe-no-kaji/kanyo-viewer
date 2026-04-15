@@ -1,18 +1,113 @@
+import { useState, useEffect, useRef } from 'react';
+import Hls from 'hls.js';
 import { api } from '../utils/api';
 
 export default function VideoPlayer({ stream, selectedEvent, selectedDate, isLive }) {
+  const videoRef = useRef(null);
+  const hlsRef = useRef(null);
+  const refreshTimerRef = useRef(null);
+  const [liveStatus, setLiveStatus] = useState('loading');
+  const [liveError, setLiveError] = useState(null);
+
+  useEffect(() => {
+    if (!isLive) return;
+
+    let cancelled = false;
+
+    async function loadStream() {
+      setLiveStatus('loading');
+      setLiveError(null);
+
+      try {
+        const response = await fetch(`/api/streams/${stream.id}/live-url`);
+        if (!response.ok) {
+          throw new Error(`Failed to resolve stream URL (${response.status})`);
+        }
+        const data = await response.json();
+        if (cancelled) return;
+
+        const video = videoRef.current;
+        if (!video) return;
+
+        // Tear down any existing hls instance before attaching a new source
+        if (hlsRef.current) {
+          hlsRef.current.destroy();
+          hlsRef.current = null;
+        }
+
+        if (Hls.isSupported()) {
+          const hls = new Hls({ lowLatencyMode: true });
+          hlsRef.current = hls;
+          hls.loadSource(data.url);
+          hls.attachMedia(video);
+          hls.on(Hls.Events.MANIFEST_PARSED, () => {
+            if (!cancelled) {
+              video.play().catch(() => {}); // autoplay may be silently blocked
+              setLiveStatus('playing');
+            }
+          });
+          hls.on(Hls.Events.ERROR, (_, errData) => {
+            if (errData.fatal && !cancelled) {
+              setLiveStatus('error');
+              setLiveError('Stream playback error — retrying...');
+              setTimeout(() => { if (!cancelled) loadStream(); }, 10000);
+            }
+          });
+        } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+          // Safari handles HLS natively
+          video.src = data.url;
+          video.play().catch(() => {});
+          setLiveStatus('playing');
+        } else {
+          setLiveStatus('error');
+          setLiveError('HLS not supported in this browser');
+          return;
+        }
+
+        // Refresh the URL before it expires (expires_in is seconds; refresh 30 min early)
+        const refreshIn = Math.max((data.expires_in - 1800) * 1000, 30 * 60 * 1000);
+        refreshTimerRef.current = setTimeout(() => {
+          if (!cancelled) loadStream();
+        }, refreshIn);
+      } catch (err) {
+        if (!cancelled) {
+          setLiveStatus('error');
+          setLiveError(err.message || 'Failed to load stream');
+        }
+      }
+    }
+
+    loadStream();
+
+    return () => {
+      cancelled = true;
+      clearTimeout(refreshTimerRef.current);
+      if (hlsRef.current) {
+        hlsRef.current.destroy();
+        hlsRef.current = null;
+      }
+    };
+  }, [isLive, stream.id]);
+
   if (isLive) {
     return (
       <div className="bg-kanyo-card rounded-lg overflow-hidden">
-        <div className="relative" style={{ paddingBottom: '56.25%' }}>
-          <iframe
-            key={`live-${stream.id}`}
+        <div className="relative bg-black" style={{ paddingBottom: '56.25%' }}>
+          {liveStatus === 'loading' && (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <span className="text-kanyo-gray-100 text-sm">Loading stream...</span>
+            </div>
+          )}
+          {liveStatus === 'error' && (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <span className="text-kanyo-red text-sm">{liveError}</span>
+            </div>
+          )}
+          <video
+            ref={videoRef}
             className="absolute top-0 left-0 w-full h-full"
-            src={`https://www.youtube-nocookie.com/embed/${stream.youtube_id}?autoplay=1&mute=0&controls=1&rel=0&enablejsapi=1`}
-            title="Live Stream"
-            frameBorder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            allowFullScreen
+            controls
+            playsInline
           />
         </div>
         <div className="px-4 pt-3 pb-2 border-t border-kanyo-gray-500">

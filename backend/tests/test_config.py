@@ -10,9 +10,9 @@ def test_settings_initialization():
     assert settings.API_PREFIX == "/api"
 
 
-def test_streams_property_caching():
+def test_streams_property_caching(override_streams_config):
     """Test that streams property caches config."""
-    settings = Settings()
+    settings = override_streams_config
 
     # First access should load config
     streams1 = settings.streams

@@ -6,3 +6,5 @@ httpx==0.26.0
 python-multipart==0.0.6
 python-dateutil==2.8.2
 pytz==2024.1
+yt-dlp>=2026.3.0
+yt-dlp-ejs

@@ -34,6 +34,7 @@ class Settings:
     def __init__(self):
         """Load streams registry on init."""
         self._streams_registry = None
+        self._streams = None
 
     @property
     def streams_registry(self) -> Dict[str, Any]:
@@ -78,11 +79,13 @@ class Settings:
 
     @property
     def streams(self) -> Dict[str, Any]:
-        """Get all stream configs (loads fresh from config.yaml files)."""
-        return {
-            stream_id: self.get_stream_config(stream_id)
-            for stream_id in self.streams_registry.keys()
-        }
+        """Get all stream configs (cached after first load)."""
+        if self._streams is None:
+            self._streams = {
+                stream_id: self.get_stream_config(stream_id)
+                for stream_id in self.streams_registry.keys()
+            }
+        return self._streams
 
 
 settings = Settings()

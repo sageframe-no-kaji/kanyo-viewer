@@ -4,11 +4,17 @@ from pathlib import Path
 from datetime import datetime, timedelta, tzinfo
 from typing import List, Dict, Any, Optional
 import json
+import subprocess
+import time
 import pytz
 
 from app.config import settings
 
 router = APIRouter()
+
+# In-memory cache for resolved HLS URLs: {stream_id: {"url": str, "resolved_at": float}}
+_live_url_cache: Dict[str, Dict[str, Any]] = {}
+_LIVE_URL_TTL_SECONDS = 4 * 60 * 60  # 4 hours (YouTube URLs expire ~6h)
 
 
 def get_stream_timezone(stream_id: str) -> tzinfo:
@@ -427,3 +433,80 @@ async def get_stream_snapshot(stream_id: str):
 
     # If no snapshot found, return 404
     raise HTTPException(status_code=404, detail=f"No arrival snapshot found for {stream_id}")
+
+
+@router.get("/{stream_id}/live-url")
+async def get_live_url(stream_id: str):
+    """Resolve the HLS stream URL for a live YouTube stream.
+
+    Uses yt-dlp with authenticated cookies server-side to bypass YouTube bot detection.
+    Result is cached per stream for 4 hours to avoid per-visitor yt-dlp calls.
+    """
+    stream_config = settings.streams.get(stream_id)
+    if not stream_config:
+        raise HTTPException(status_code=404, detail=f"Stream {stream_id} not found")
+
+    youtube_id = stream_config.get("youtube_id")
+    if not youtube_id:
+        raise HTTPException(
+            status_code=422, detail=f"Stream {stream_id} has no YouTube video source"
+        )
+
+    # Return cached URL if still valid
+    cached = _live_url_cache.get(stream_id)
+    if cached and (time.time() - cached["resolved_at"]) < _LIVE_URL_TTL_SECONDS:
+        age_seconds = int(time.time() - cached["resolved_at"])
+        return {
+            "url": cached["url"],
+            "cached": True,
+            "age_seconds": age_seconds,
+            "expires_in": _LIVE_URL_TTL_SECONDS - age_seconds,
+        }
+
+    # Resolve fresh URL via yt-dlp
+    youtube_url = f"https://www.youtube.com/watch?v={youtube_id}"
+    cookies_path = "/app/cookies.txt"
+
+    cmd = [
+        "yt-dlp",
+        "--cookies", cookies_path,
+        "--js-runtimes", "node",
+        "-f", "best[height<=720]",
+        "-g",
+        youtube_url,
+    ]
+
+    # Add cookies flag only if the file exists
+    if not Path(cookies_path).exists():
+        cmd = ["yt-dlp", "--js-runtimes", "node", "-f", "best[height<=720]", "-g", youtube_url]
+
+    try:
+        result = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+    except subprocess.TimeoutExpired:
+        raise HTTPException(status_code=504, detail="yt-dlp timed out resolving stream URL")
+    except FileNotFoundError:
+        raise HTTPException(status_code=503, detail="yt-dlp not available in this environment")
+
+    if result.returncode != 0:
+        raise HTTPException(
+            status_code=502,
+            detail=f"yt-dlp failed to resolve stream URL: {result.stderr.strip()[:200]}",
+        )
+
+    resolved_url = result.stdout.strip().splitlines()[0]  # take first URL if multiple
+    if not resolved_url:
+        raise HTTPException(status_code=502, detail="yt-dlp returned empty URL")
+
+    _live_url_cache[stream_id] = {"url": resolved_url, "resolved_at": time.time()}
+
+    return {
+        "url": resolved_url,
+        "cached": False,
+        "age_seconds": 0,
+        "expires_in": _LIVE_URL_TTL_SECONDS,
+    }

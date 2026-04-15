@@ -23,7 +23,7 @@ def test_api_endpoints_registered():
     assert "/api/visitor/timezone" in routes
 
 
-def test_cors_middleware():
+def test_cors_middleware(override_streams_config):
     """Test CORS middleware is configured."""
     # Check that middleware exists
     assert len(app.user_middleware) > 0
@@ -32,3 +32,14 @@ def test_cors_middleware():
     response = client.get("/api/streams", headers={"Origin": "http://localhost:5173"})
     # CORS headers should be present
     assert "access-control-allow-origin" in response.headers or response.status_code == 200
+
+
+def test_health_check():
+    """Test /health endpoint returns ok status."""
+    response = client.get("/health")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "ok"
+    assert data["app"] == "Kanyo Viewer"
+    assert data["version"] == "1.0.0"
+    assert "env" in data

@@ -1,6 +1,8 @@
 """Tests for streams router."""
 from fastapi.testclient import TestClient
+from unittest.mock import patch, MagicMock
 from app.main import app
+import app.routers.streams as streams_router
 
 
 client = TestClient(app)
@@ -95,3 +97,98 @@ def test_get_stream_stats_different_ranges(override_streams_config):
         assert response.status_code == 200
         data = response.json()
         assert data["range"] == range_str
+
+
+def test_get_stream_snapshot(override_streams_config):
+    """Test GET /api/streams/{stream_id}/snapshot returns most recent arrival image."""
+    response = client.get("/api/streams/kanyo-harvard/snapshot")
+    assert response.status_code == 200
+    assert response.headers["content-type"].startswith("image/")
+
+
+def test_get_stream_snapshot_not_found(override_streams_config, test_data_dir):
+    """Test snapshot returns 404 when no arrival images exist."""
+    # NSW has no clips at all, so no snapshots
+    response = client.get("/api/streams/kanyo-nsw/snapshot")
+    assert response.status_code == 404
+
+
+def test_get_stream_dates_with_events_via_streams(override_streams_config):
+    """Test dates-with-events endpoint accessible via streams router."""
+    response = client.get(
+        "/api/streams/kanyo-harvard/dates-with-events?start_date=2026-01-14&end_date=2026-01-14"
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert "2026-01-14" in data["dates"]
+
+
+# --- live-url endpoint ---
+
+def test_get_live_url_success(override_streams_config):
+    """Test GET /api/streams/{stream_id}/live-url returns HLS URL from yt-dlp."""
+    streams_router._live_url_cache.clear()
+
+    fake_url = "https://manifest.googlevideo.com/fake/hls/manifest.m3u8"
+    mock_result = MagicMock()
+    mock_result.returncode = 0
+    mock_result.stdout = fake_url + "\n"
+
+    with patch("app.routers.streams.subprocess.run", return_value=mock_result):
+        response = client.get("/api/streams/kanyo-harvard/live-url")
+
+    assert response.status_code == 200
+    data = response.json()
+    assert data["url"] == fake_url
+    assert data["cached"] is False
+    assert data["expires_in"] == streams_router._LIVE_URL_TTL_SECONDS
+
+
+def test_get_live_url_cached(override_streams_config):
+    """Test that second call returns cached URL without calling yt-dlp again."""
+    streams_router._live_url_cache.clear()
+
+    fake_url = "https://manifest.googlevideo.com/fake/hls/manifest.m3u8"
+    mock_result = MagicMock()
+    mock_result.returncode = 0
+    mock_result.stdout = fake_url + "\n"
+
+    with patch("app.routers.streams.subprocess.run", return_value=mock_result):
+        client.get("/api/streams/kanyo-harvard/live-url")
+        response = client.get("/api/streams/kanyo-harvard/live-url")
+
+    assert response.status_code == 200
+    data = response.json()
+    assert data["url"] == fake_url
+    assert data["cached"] is True
+    assert data["age_seconds"] >= 0
+
+
+def test_get_live_url_not_found(override_streams_config):
+    """Test 404 for nonexistent stream."""
+    response = client.get("/api/streams/nonexistent/live-url")
+    assert response.status_code == 404
+
+
+def test_get_live_url_ytdlp_failure(override_streams_config):
+    """Test 502 when yt-dlp exits non-zero."""
+    streams_router._live_url_cache.clear()
+
+    mock_result = MagicMock()
+    mock_result.returncode = 1
+    mock_result.stderr = "ERROR: Sign in to confirm you're not a bot"
+
+    with patch("app.routers.streams.subprocess.run", return_value=mock_result):
+        response = client.get("/api/streams/kanyo-harvard/live-url")
+
+    assert response.status_code == 502
+
+
+def test_get_live_url_ytdlp_not_installed(override_streams_config):
+    """Test 503 when yt-dlp binary is not found."""
+    streams_router._live_url_cache.clear()
+
+    with patch("app.routers.streams.subprocess.run", side_effect=FileNotFoundError):
+        response = client.get("/api/streams/kanyo-harvard/live-url")
+
+    assert response.status_code == 503
