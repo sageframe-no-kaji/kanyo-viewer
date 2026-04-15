@@ -5,6 +5,8 @@ from datetime import datetime, timedelta, tzinfo
 from typing import List, Dict, Any, Optional
 import json
 import subprocess
+import tempfile
+import shutil
 import time
 import pytz
 
@@ -467,17 +469,23 @@ async def get_live_url(stream_id: str):
     youtube_url = f"https://www.youtube.com/watch?v={youtube_id}"
     cookies_path = "/app/cookies.txt"
 
-    cmd = [
-        "yt-dlp",
-        "--cookies", cookies_path,
-        "--js-runtimes", "node",
-        "-f", "best[height<=720]",
-        "-g",
-        youtube_url,
-    ]
-
-    # Add cookies flag only if the file exists
-    if not Path(cookies_path).exists():
+    # yt-dlp writes back to the cookies file after every call.
+    # Since cookies.txt is mounted read-only, copy it to a writable temp file.
+    tmp_cookies = None
+    if Path(cookies_path).exists():
+        tmp_fd, tmp_cookies = tempfile.mkstemp(suffix=".txt", prefix="yt-cookies-")
+        import os
+        os.close(tmp_fd)
+        shutil.copy2(cookies_path, tmp_cookies)
+        cmd = [
+            "yt-dlp",
+            "--cookies", tmp_cookies,
+            "--js-runtimes", "node",
+            "-f", "best[height<=720]",
+            "-g",
+            youtube_url,
+        ]
+    else:
         cmd = ["yt-dlp", "--js-runtimes", "node", "-f", "best[height<=720]", "-g", youtube_url]
 
     try:
@@ -491,6 +499,13 @@ async def get_live_url(stream_id: str):
         raise HTTPException(status_code=504, detail="yt-dlp timed out resolving stream URL")
     except FileNotFoundError:
         raise HTTPException(status_code=503, detail="yt-dlp not available in this environment")
+    finally:
+        if tmp_cookies:
+            import os
+            try:
+                os.unlink(tmp_cookies)
+            except OSError:
+                pass
 
     if result.returncode != 0:
         raise HTTPException(
