@@ -1,6 +1,6 @@
 """Tests for streams router."""
 from fastapi.testclient import TestClient
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch, MagicMock, AsyncMock
 from app.main import app
 import app.routers.streams as streams_router
 
@@ -192,3 +192,77 @@ def test_get_live_url_ytdlp_not_installed(override_streams_config):
         response = client.get("/api/streams/kanyo-harvard/live-url")
 
     assert response.status_code == 503
+
+
+# --- HLS proxy endpoints ---
+
+def test_get_hls_playlist_proxies_manifest(override_streams_config):
+    """Test GET /hls/playlist.m3u8 fetches manifest and rewrites segment URLs."""
+    streams_router._live_url_cache.clear()
+
+    fake_manifest_url = "https://manifest.googlevideo.com/fake/hls/manifest.m3u8"
+    mock_ytdlp = MagicMock()
+    mock_ytdlp.returncode = 0
+    mock_ytdlp.stdout = fake_manifest_url + "\n"
+
+    fake_manifest = (
+        "#EXTM3U\n"
+        "#EXT-X-VERSION:3\n"
+        "#EXTINF:6.006,\n"
+        "https://rr1.googlevideo.com/videoplayback?sq=1\n"
+        "#EXTINF:6.006,\n"
+        "https://rr1.googlevideo.com/videoplayback?sq=2\n"
+    )
+    mock_http = MagicMock()
+    mock_http.status_code = 200
+    mock_http.text = fake_manifest
+
+    with patch("app.routers.streams.subprocess.run", return_value=mock_ytdlp), \
+         patch("app.routers.streams.httpx.AsyncClient") as mock_client_cls:
+        mock_client_cls.return_value.__aenter__.return_value.get = AsyncMock(return_value=mock_http)
+        response = client.get("/api/streams/kanyo-harvard/hls/playlist.m3u8")
+
+    assert response.status_code == 200
+    assert "application/vnd.apple.mpegurl" in response.headers["content-type"]
+    body = response.text
+    # Segment URL lines should be rewritten to proxy paths (no bare http lines)
+    for line in body.splitlines():
+        assert not line.startswith("https://"), f"Unproxied URL line found: {line}"
+    assert "/api/streams/kanyo-harvard/hls/seg?u=" in body
+    # Non-segment lines should be unchanged
+    assert "#EXTM3U" in body
+    assert "#EXTINF:6.006," in body
+
+
+def test_get_hls_playlist_not_found(override_streams_config):
+    """Test 404 for nonexistent stream."""
+    response = client.get("/api/streams/nonexistent/hls/playlist.m3u8")
+    assert response.status_code == 404
+
+
+def test_proxy_hls_segment_success(override_streams_config):
+    """Test GET /hls/seg proxies a valid googlevideo.com segment."""
+    from urllib.parse import quote
+    seg_url = "https://rr1.googlevideo.com/videoplayback?expire=123&sq=1"
+    encoded = quote(seg_url, safe="")
+
+    mock_http = MagicMock()
+    mock_http.status_code = 200
+    mock_http.content = b"\x00\x01\x02\x03"
+    mock_http.headers = {"content-type": "video/MP2T"}
+
+    with patch("app.routers.streams.httpx.AsyncClient") as mock_client_cls:
+        mock_client_cls.return_value.__aenter__.return_value.get = AsyncMock(return_value=mock_http)
+        response = client.get(f"/api/streams/kanyo-harvard/hls/seg?u={encoded}")
+
+    assert response.status_code == 200
+    assert response.content == b"\x00\x01\x02\x03"
+
+
+def test_proxy_hls_segment_blocks_disallowed_domain(override_streams_config):
+    """Test that the segment proxy rejects URLs not from allowed domains."""
+    from urllib.parse import quote
+    bad_url = "https://evil.example.com/steal-data"
+    encoded = quote(bad_url, safe="")
+    response = client.get(f"/api/streams/kanyo-harvard/hls/seg?u={encoded}")
+    assert response.status_code == 403

@@ -1,13 +1,17 @@
 """Stream information endpoints."""
 from fastapi import APIRouter, HTTPException
+from fastapi.responses import Response
 from pathlib import Path
 from datetime import datetime, timedelta, tzinfo
 from typing import List, Dict, Any, Optional
 import json
+import os
 import subprocess
 import tempfile
 import shutil
 import time
+from urllib.parse import urlparse, quote, unquote
+import httpx
 import pytz
 
 from app.config import settings
@@ -17,6 +21,68 @@ router = APIRouter()
 # In-memory cache for resolved HLS URLs: {stream_id: {"url": str, "resolved_at": float}}
 _live_url_cache: Dict[str, Dict[str, Any]] = {}
 _LIVE_URL_TTL_SECONDS = 4 * 60 * 60  # 4 hours (YouTube URLs expire ~6h)
+
+
+async def _resolve_or_get_live_url(stream_id: str) -> str:
+    """Return the cached HLS manifest URL for a stream, resolving via yt-dlp if needed."""
+    stream_config = settings.streams.get(stream_id)
+    if not stream_config:
+        raise HTTPException(status_code=404, detail=f"Stream {stream_id} not found")
+
+    youtube_id = stream_config.get("youtube_id")
+    if not youtube_id:
+        raise HTTPException(
+            status_code=422, detail=f"Stream {stream_id} has no YouTube video source"
+        )
+
+    # Return cached URL if still valid
+    cached = _live_url_cache.get(stream_id)
+    if cached and (time.time() - cached["resolved_at"]) < _LIVE_URL_TTL_SECONDS:
+        return cached["url"]
+
+    # Resolve fresh URL via yt-dlp
+    youtube_url = f"https://www.youtube.com/watch?v={youtube_id}"
+    cookies_path = "/app/cookies.txt"
+
+    # yt-dlp writes back to the cookies file after every call.
+    # Since cookies.txt is mounted read-only, copy it to a writable temp file.
+    tmp_cookies = None
+    if Path(cookies_path).exists():
+        tmp_fd, tmp_cookies = tempfile.mkstemp(suffix=".txt", prefix="yt-cookies-")
+        os.close(tmp_fd)
+        shutil.copy2(cookies_path, tmp_cookies)
+        cmd = [
+            "yt-dlp", "--cookies", tmp_cookies,
+            "--js-runtimes", "node", "-f", "best[height<=720]", "-g", youtube_url,
+        ]
+    else:
+        cmd = ["yt-dlp", "--js-runtimes", "node", "-f", "best[height<=720]", "-g", youtube_url]
+
+    try:
+        result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
+    except subprocess.TimeoutExpired:
+        raise HTTPException(status_code=504, detail="yt-dlp timed out resolving stream URL")
+    except FileNotFoundError:
+        raise HTTPException(status_code=503, detail="yt-dlp not available in this environment")
+    finally:
+        if tmp_cookies:
+            try:
+                os.unlink(tmp_cookies)
+            except OSError:
+                pass
+
+    if result.returncode != 0:
+        raise HTTPException(
+            status_code=502,
+            detail=f"yt-dlp failed to resolve stream URL: {result.stderr.strip()[:200]}",
+        )
+
+    resolved_url = result.stdout.strip().splitlines()[0]
+    if not resolved_url:
+        raise HTTPException(status_code=502, detail="yt-dlp returned empty URL")
+
+    _live_url_cache[stream_id] = {"url": resolved_url, "resolved_at": time.time()}
+    return resolved_url
 
 
 def get_stream_timezone(stream_id: str) -> tzinfo:
@@ -439,89 +505,96 @@ async def get_stream_snapshot(stream_id: str):
 
 @router.get("/{stream_id}/live-url")
 async def get_live_url(stream_id: str):
-    """Resolve the HLS stream URL for a live YouTube stream.
+    """Resolve and return the HLS manifest URL (useful for debugging).
 
-    Uses yt-dlp with authenticated cookies server-side to bypass YouTube bot detection.
-    Result is cached per stream for 4 hours to avoid per-visitor yt-dlp calls.
+    The frontend should use /{stream_id}/hls/playlist.m3u8 instead, which
+    proxies the stream through the backend to avoid browser CORS restrictions.
     """
-    stream_config = settings.streams.get(stream_id)
-    if not stream_config:
-        raise HTTPException(status_code=404, detail=f"Stream {stream_id} not found")
+    # Check cache state before resolving so we can report whether a cache hit occurred
+    existing = _live_url_cache.get(stream_id)
+    was_cached = bool(
+        existing and (time.time() - existing["resolved_at"]) < _LIVE_URL_TTL_SECONDS
+    )
+    url = await _resolve_or_get_live_url(stream_id)
+    entry = _live_url_cache.get(stream_id)
+    age_seconds = int(time.time() - entry["resolved_at"]) if entry else 0
+    return {
+        "url": url,
+        "cached": was_cached,
+        "age_seconds": age_seconds,
+        "expires_in": _LIVE_URL_TTL_SECONDS - age_seconds,
+    }
 
-    youtube_id = stream_config.get("youtube_id")
-    if not youtube_id:
-        raise HTTPException(
-            status_code=422, detail=f"Stream {stream_id} has no YouTube video source"
-        )
 
-    # Return cached URL if still valid
-    cached = _live_url_cache.get(stream_id)
-    if cached and (time.time() - cached["resolved_at"]) < _LIVE_URL_TTL_SECONDS:
-        age_seconds = int(time.time() - cached["resolved_at"])
-        return {
-            "url": cached["url"],
-            "cached": True,
-            "age_seconds": age_seconds,
-            "expires_in": _LIVE_URL_TTL_SECONDS - age_seconds,
-        }
+@router.get("/{stream_id}/hls/playlist.m3u8")
+async def get_hls_playlist(stream_id: str):
+    """Proxy the HLS manifest through the backend to avoid browser CORS restrictions.
 
-    # Resolve fresh URL via yt-dlp
-    youtube_url = f"https://www.youtube.com/watch?v={youtube_id}"
-    cookies_path = "/app/cookies.txt"
-
-    # yt-dlp writes back to the cookies file after every call.
-    # Since cookies.txt is mounted read-only, copy it to a writable temp file.
-    tmp_cookies = None
-    if Path(cookies_path).exists():
-        tmp_fd, tmp_cookies = tempfile.mkstemp(suffix=".txt", prefix="yt-cookies-")
-        import os
-        os.close(tmp_fd)
-        shutil.copy2(cookies_path, tmp_cookies)
-        cmd = [
-            "yt-dlp",
-            "--cookies", tmp_cookies,
-            "--js-runtimes", "node",
-            "-f", "best[height<=720]",
-            "-g",
-            youtube_url,
-        ]
-    else:
-        cmd = ["yt-dlp", "--js-runtimes", "node", "-f", "best[height<=720]", "-g", youtube_url]
+    Fetches the yt-dlp-resolved manifest URL server-side and rewrites all segment
+    URLs to point through /hls/seg so every browser request stays same-origin.
+    """
+    manifest_url = await _resolve_or_get_live_url(stream_id)
 
     try:
-        result = subprocess.run(
-            cmd,
-            capture_output=True,
-            text=True,
-            timeout=30,
-        )
-    except subprocess.TimeoutExpired:
-        raise HTTPException(status_code=504, detail="yt-dlp timed out resolving stream URL")
-    except FileNotFoundError:
-        raise HTTPException(status_code=503, detail="yt-dlp not available in this environment")
-    finally:
-        if tmp_cookies:
-            import os
-            try:
-                os.unlink(tmp_cookies)
-            except OSError:
-                pass
+        async with httpx.AsyncClient(follow_redirects=True, timeout=15) as client:
+            resp = await client.get(manifest_url)
+    except httpx.RequestError as exc:
+        raise HTTPException(status_code=502, detail=f"Failed to fetch HLS manifest: {exc}")
 
-    if result.returncode != 0:
+    if resp.status_code != 200:
+        # Manifest URL expired early — evict cache so next request re-resolves
+        _live_url_cache.pop(stream_id, None)
         raise HTTPException(
-            status_code=502,
-            detail=f"yt-dlp failed to resolve stream URL: {result.stderr.strip()[:200]}",
+            status_code=502, detail=f"HLS manifest fetch returned {resp.status_code}"
         )
 
-    resolved_url = result.stdout.strip().splitlines()[0]  # take first URL if multiple
-    if not resolved_url:
-        raise HTTPException(status_code=502, detail="yt-dlp returned empty URL")
+    # Rewrite absolute segment/sub-manifest URLs to route through the proxy
+    lines = []
+    for line in resp.text.splitlines():
+        stripped = line.strip()
+        if stripped.startswith("https://") or stripped.startswith("http://"):
+            encoded = quote(stripped, safe="")
+            lines.append(f"/api/streams/{stream_id}/hls/seg?u={encoded}")
+        else:
+            lines.append(line)
 
-    _live_url_cache[stream_id] = {"url": resolved_url, "resolved_at": time.time()}
+    return Response(
+        content="\n".join(lines),
+        media_type="application/vnd.apple.mpegurl",
+        headers={"Cache-Control": "no-cache, no-store"},
+    )
 
-    return {
-        "url": resolved_url,
-        "cached": False,
-        "age_seconds": 0,
-        "expires_in": _LIVE_URL_TTL_SECONDS,
-    }
+
+@router.get("/{stream_id}/hls/seg")
+async def proxy_hls_segment(stream_id: str, u: str):
+    """Proxy a single HLS segment or sub-manifest from YouTube CDN.
+
+    Only proxies URLs from *.googlevideo.com or *.youtube.com to prevent open-proxy abuse.
+    """
+    try:
+        url = unquote(u)
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid segment URL encoding")
+
+    parsed = urlparse(url)
+    if not parsed.hostname or not (
+        parsed.hostname.endswith(".googlevideo.com")
+        or parsed.hostname.endswith(".youtube.com")
+    ):
+        raise HTTPException(status_code=403, detail="Segment URL not from allowed domain")
+
+    try:
+        async with httpx.AsyncClient(follow_redirects=True, timeout=30) as client:
+            resp = await client.get(url)
+    except httpx.RequestError as exc:
+        raise HTTPException(status_code=502, detail=f"Failed to fetch segment: {exc}")
+
+    if resp.status_code != 200:
+        raise HTTPException(status_code=502, detail=f"Segment fetch returned {resp.status_code}")
+
+    content_type = resp.headers.get("content-type", "video/MP2T")
+    return Response(
+        content=resp.content,
+        media_type=content_type,
+        headers={"Cache-Control": "max-age=3600"},
+    )

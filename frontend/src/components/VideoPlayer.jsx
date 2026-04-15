@@ -5,89 +5,62 @@ import { api } from '../utils/api';
 export default function VideoPlayer({ stream, selectedEvent, selectedDate, isLive }) {
   const videoRef = useRef(null);
   const hlsRef = useRef(null);
-  const refreshTimerRef = useRef(null);
   const [liveStatus, setLiveStatus] = useState('loading');
   const [liveError, setLiveError] = useState(null);
+  const [retryKey, setRetryKey] = useState(0);
 
   useEffect(() => {
     if (!isLive) return;
 
-    let cancelled = false;
+    const video = videoRef.current;
+    if (!video) return;
 
-    async function loadStream() {
-      setLiveStatus('loading');
-      setLiveError(null);
+    setLiveStatus('loading');
+    setLiveError(null);
 
-      try {
-        const response = await fetch(`/api/streams/${stream.id}/live-url`);
-        if (!response.ok) {
-          throw new Error(`Failed to resolve stream URL (${response.status})`);
-        }
-        const data = await response.json();
-        if (cancelled) return;
-
-        const video = videoRef.current;
-        if (!video) return;
-
-        // Tear down any existing hls instance before attaching a new source
-        if (hlsRef.current) {
-          hlsRef.current.destroy();
-          hlsRef.current = null;
-        }
-
-        if (Hls.isSupported()) {
-          const hls = new Hls({ lowLatencyMode: true });
-          hlsRef.current = hls;
-          hls.loadSource(data.url);
-          hls.attachMedia(video);
-          hls.on(Hls.Events.MANIFEST_PARSED, () => {
-            if (!cancelled) {
-              video.play().catch(() => {}); // autoplay may be silently blocked
-              setLiveStatus('playing');
-            }
-          });
-          hls.on(Hls.Events.ERROR, (_, errData) => {
-            if (errData.fatal && !cancelled) {
-              setLiveStatus('error');
-              setLiveError('Stream playback error — retrying...');
-              setTimeout(() => { if (!cancelled) loadStream(); }, 10000);
-            }
-          });
-        } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-          // Safari handles HLS natively
-          video.src = data.url;
-          video.play().catch(() => {});
-          setLiveStatus('playing');
-        } else {
-          setLiveStatus('error');
-          setLiveError('HLS not supported in this browser');
-          return;
-        }
-
-        // Refresh the URL before it expires (expires_in is seconds; refresh 30 min early)
-        const refreshIn = Math.max((data.expires_in - 1800) * 1000, 30 * 60 * 1000);
-        refreshTimerRef.current = setTimeout(() => {
-          if (!cancelled) loadStream();
-        }, refreshIn);
-      } catch (err) {
-        if (!cancelled) {
-          setLiveStatus('error');
-          setLiveError(err.message || 'Failed to load stream');
-        }
-      }
+    // Tear down any existing hls instance before attaching a new one
+    if (hlsRef.current) {
+      hlsRef.current.destroy();
+      hlsRef.current = null;
     }
 
-    loadStream();
+    // The backend proxies the HLS manifest and all segments through /hls/* to avoid
+    // CORS restrictions — YouTube CDN does not set Access-Control-Allow-Origin headers.
+    const playlistUrl = `/api/streams/${stream.id}/hls/playlist.m3u8`;
+
+    if (Hls.isSupported()) {
+      const hls = new Hls({ lowLatencyMode: true });
+      hlsRef.current = hls;
+      hls.loadSource(playlistUrl);
+      hls.attachMedia(video);
+      hls.on(Hls.Events.MANIFEST_PARSED, () => {
+        video.play().catch(() => {}); // autoplay may be silently blocked by browser policy
+        setLiveStatus('playing');
+      });
+      hls.on(Hls.Events.ERROR, (_, errData) => {
+        if (errData.fatal) {
+          setLiveStatus('error');
+          setLiveError('Stream playback error — retrying...');
+          setTimeout(() => setRetryKey(k => k + 1), 10000);
+        }
+      });
+    } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+      // Safari handles HLS natively — also works since /hls/* is same-origin
+      video.src = playlistUrl;
+      video.play().catch(() => {});
+      setLiveStatus('playing');
+    } else {
+      setLiveStatus('error');
+      setLiveError('HLS not supported in this browser');
+    }
 
     return () => {
-      cancelled = true;
-      clearTimeout(refreshTimerRef.current);
       if (hlsRef.current) {
         hlsRef.current.destroy();
         hlsRef.current = null;
       }
     };
-  }, [isLive, stream.id]);
+  }, [isLive, stream.id, retryKey]);
 
   if (isLive) {
     return (
