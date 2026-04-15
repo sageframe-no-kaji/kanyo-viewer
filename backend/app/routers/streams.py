@@ -10,7 +10,7 @@ import subprocess
 import tempfile
 import shutil
 import time
-from urllib.parse import urlparse, quote, unquote
+from urllib.parse import urlparse, quote
 import httpx
 import pytz
 
@@ -571,10 +571,10 @@ async def proxy_hls_segment(stream_id: str, u: str):
 
     Only proxies URLs from *.googlevideo.com or *.youtube.com to prevent open-proxy abuse.
     """
-    try:
-        url = unquote(u)
-    except Exception:
-        raise HTTPException(status_code=400, detail="Invalid segment URL encoding")
+    # FastAPI URL-decodes query params once on arrival; u is already the original
+    # segment URL with its percent-encoding intact. A second unquote() would
+    # corrupt YouTube's signed path params (e.g. %3D → = → 403 from CDN).
+    url = u
 
     parsed = urlparse(url)
     if not parsed.hostname or not (
