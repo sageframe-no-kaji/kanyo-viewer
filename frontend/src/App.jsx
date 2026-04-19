@@ -9,30 +9,30 @@ function OutageBanner() {
     <div style={{
       backgroundColor: '#dc2626',
       color: 'white',
-      padding: '1.5rem 2rem',
+      padding: '1rem 2rem',
       textAlign: 'center',
-      fontSize: '0.95rem',
-      lineHeight: '1.6',
+      fontSize: '0.875rem',
+      lineHeight: '1.5',
     }}>
-      <p style={{ fontSize: '1.25rem', fontWeight: 'bold', marginBottom: '0.75rem' }}>
+      <p style={{ fontSize: '1.1rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>
         🦅 Kanyō is temporarily offline
       </p>
-      <p style={{ maxWidth: '640px', margin: '0 auto 0.75rem' }}>
+      <p style={{ maxWidth: '960px', margin: '0 auto 0.5rem' }}>
         YouTube recently changed how third-party tools can access live streams,
         and my home IP got rate-limited in the process. I'm relocating the detection
         system to a new home with an enterprise-grade IP.
       </p>
-      <p style={{ fontWeight: '600', marginBottom: '0.75rem' }}>
+      <p style={{ fontWeight: '600', marginBottom: '0.5rem' }}>
         New stream monitoring and recording are expected back: Monday evening
       </p>
-      <p style={{ maxWidth: '640px', margin: '0 auto 0.75rem' }}>
+      <p style={{ maxWidth: '960px', margin: '0 auto 0.5rem' }}>
         In the meantime: enjoy archive clips, read about the project at{' '}
         <a href="/about" style={{ color: 'white', textDecoration: 'underline' }}>kanyo.sageframe.net/about</a>,
         or watch the falcons directly on the{' '}
         <a href="https://www.youtube.com/live/glczTFRRAK4" target="_blank" rel="noopener noreferrer"
            style={{ color: 'white', textDecoration: 'underline' }}>Memorial Hall Cam</a>.
       </p>
-      <p style={{ maxWidth: '640px', margin: '0 auto 0.75rem', fontSize: '0.875rem' }}>
+      <p style={{ maxWidth: '960px', margin: '0 auto 0.5rem', fontSize: '0.8125rem' }}>
         Follow progress on{' '}
         <a href="https://github.com/sageframe-no-kaji/kanyo-contemplating-falcons-dev/issues"
            target="_blank" rel="noopener noreferrer"
