@@ -33,6 +33,10 @@ function OutageBanner() {
            style={{ color: 'white', textDecoration: 'underline' }}>Memorial Hall Cam</a>.
       </p>
       <p style={{ maxWidth: '640px', margin: '0 auto 0.75rem', fontSize: '0.875rem' }}>
+        Follow progress on{' '}
+        <a href="https://github.com/sageframe-no-kaji/kanyo-contemplating-falcons-dev/issues"
+           target="_blank" rel="noopener noreferrer"
+           style={{ color: 'white', textDecoration: 'underline' }}>GitHub Issues</a>.
         If you happen to have GPU-enabled cloud compute to donate to this project,
         I'd love to hear from you — <a href="mailto:tyro@sageframe.net"
           style={{ color: 'white', textDecoration: 'underline' }}>tyro@sageframe.net</a>.
