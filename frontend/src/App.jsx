@@ -13,9 +13,9 @@ function OutageBanner() {
       padding: '0.75rem 2rem',
       textAlign: 'center',
       fontSize: '0.8125rem',
-      lineHeight: '1.7',
+      lineHeight: '1.4',
     }}>
-      <p style={{ margin: '0 auto 0.25rem', maxWidth: '1100px' }}>
+      <p style={{ margin: '0 auto 0.5rem', maxWidth: '1100px', lineHeight: '1.4' }}>
         <strong>🦅 Kanyō is temporarily offline</strong> (2026-04-19)
         {' — '}
         YouTube recently changed how third-party tools can access live streams,
@@ -24,7 +24,7 @@ function OutageBanner() {
         {' '}
         <strong>New stream monitoring and recording are expected back Monday evening.</strong>
       </p>
-      <p style={{ margin: '0 auto', maxWidth: '1100px' }}>
+      <p style={{ margin: '0 auto', maxWidth: '1100px', lineHeight: '1.4' }}>
         In the meantime: enjoy the archive clips, read about the project on the{' '}
         <a href="/about" style={link}>About</a> page,
         or watch the falcons directly on the{' '}
