@@ -13,24 +13,31 @@ function OutageBanner() {
       padding: '0.75rem 2rem',
       textAlign: 'center',
       fontSize: '0.8125rem',
-      lineHeight: '1.6',
+      lineHeight: '1.7',
     }}>
-      <p style={{ margin: '0 auto', maxWidth: '1100px' }}>
+      <p style={{ margin: '0 auto 0.25rem', maxWidth: '1100px' }}>
         <strong>🦅 Kanyō is temporarily offline</strong> (2026-04-19)
         {' — '}
-        YouTube rate-limited our home IP. Relocating detection to an enterprise-grade network.
+        YouTube recently changed how third-party tools can access live streams,
+        and my home IP got rate-limited in the process.
+        I'm relocating the detection system to a new network with an enterprise-grade IP.
         {' '}
-        <strong>Expected back: Monday evening.</strong>
-        {' '}
-        Archive clips still available. Watch live on the{' '}
+        <strong>New stream monitoring and recording are expected back Monday evening.</strong>
+      </p>
+      <p style={{ margin: '0 auto', maxWidth: '1100px' }}>
+        In the meantime: enjoy the archive clips, read about the project on the{' '}
+        <a href="/about" style={link}>About</a> page,
+        or watch the falcons directly on the{' '}
         <a href="https://www.youtube.com/live/glczTFRRAK4" target="_blank" rel="noopener noreferrer" style={link}>Memorial Hall Cam</a>.
         {' '}
-        <a href="https://github.com/sageframe-no-kaji/kanyo-contemplating-falcons-dev/issues" target="_blank" rel="noopener noreferrer" style={link}>GitHub Issues</a>
-        {' · '}
-        <a href="/about" style={link}>About</a>
-        {' · '}
-        <a href="mailto:tyro@sageframe.net" style={link}>tyro@sageframe.net</a>
-        {' — Andrew'}
+        Follow progress on{' '}
+        <a href="https://github.com/sageframe-no-kaji/kanyo-contemplating-falcons-dev/issues" target="_blank" rel="noopener noreferrer" style={link}>GitHub Issues</a>.
+        {' '}
+        If you have GPU-enabled cloud compute to spare, I'd love to hear from you
+        {' — '}
+        <a href="mailto:tyro@sageframe.net" style={link}>tyro@sageframe.net</a>.
+        {' '}
+        Otherwise: see you Monday. 🦅 — Andrew
       </p>
     </div>
   )
