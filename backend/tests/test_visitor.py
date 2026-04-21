@@ -2,7 +2,7 @@
 from unittest.mock import Mock, patch
 from fastapi.testclient import TestClient
 from app.main import app
-from app.routers.visitor import get_client_ip, detect_timezone_from_ip
+from app.routers.visitor import detect_timezone_from_ip
 
 
 client = TestClient(app)
