@@ -149,18 +149,21 @@ function StreamCard({ stream }) {
     >
       {/* Thumbnail */}
       <div className="aspect-video bg-kanyo-gray-600 flex items-center justify-center relative overflow-hidden">
-        {/* Try static image first, then display.thumbnail_url, then snapshot from most recent arrival */}
+        {/* Fallback chain:
+            1. /thumbnails/<id>.jpg  — static override (manually placed)
+            2. display.thumbnail_url — URL from config.yaml
+            3. YouTube hqdefault     — always available, no auth required
+            4. /api/streams/.../snapshot — most recent arrival frame */}
         <img
           src={`/thumbnails/${stream.id}.jpg`}
           alt={display.short_name || stream.name}
           className="w-full h-full object-cover"
           onError={(e) => {
-            // Try display.thumbnail_url
             if (display.thumbnail_url && e.target.src !== display.thumbnail_url) {
               e.target.src = display.thumbnail_url;
-            }
-            // Final fallback: snapshot from API (most recent arrival)
-            else if (!e.target.src.includes('/api/')) {
+            } else if (stream.youtube_id && !e.target.src.includes('img.youtube.com')) {
+              e.target.src = `https://img.youtube.com/vi/${stream.youtube_id}/hqdefault.jpg`;
+            } else if (!e.target.src.includes('/api/')) {
               e.target.src = `/api/streams/${stream.id}/snapshot`;
             }
           }}
