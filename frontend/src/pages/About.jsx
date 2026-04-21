@@ -34,6 +34,9 @@ export default function About() {
                 <Link to="/" className="text-kanyo-gray-100 hover:text-kanyo-orange transition-colors text-sm">
                   Streams
                 </Link>
+                <Link to="/how-it-works" className="text-kanyo-gray-100 hover:text-kanyo-orange transition-colors text-sm">
+                  How It Works
+                </Link>
               </div>
             </div>
 
@@ -63,6 +66,9 @@ export default function About() {
                 <ThemeToggle />
                 <Link to="/" className="text-kanyo-gray-100 hover:text-kanyo-orange transition-colors text-base font-medium whitespace-nowrap">
                   Streams
+                </Link>
+                <Link to="/how-it-works" className="text-kanyo-gray-100 hover:text-kanyo-orange transition-colors text-base font-medium whitespace-nowrap">
+                  How It Works
                 </Link>
               </div>
             </div>

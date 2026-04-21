@@ -72,6 +72,9 @@ export default function Landing() {
                 <Link to="/about" className="text-kanyo-gray-100 hover:text-kanyo-orange transition-colors text-sm">
                   About
                 </Link>
+                <Link to="/how-it-works" className="text-kanyo-gray-100 hover:text-kanyo-orange transition-colors text-sm">
+                  How It Works
+                </Link>
               </div>
             </div>
 
@@ -105,6 +108,9 @@ export default function Landing() {
                 <Link to="/about" className="text-kanyo-gray-100 hover:text-kanyo-orange transition-colors text-base font-medium whitespace-nowrap">
                   About
                 </Link>
+                <Link to="/how-it-works" className="text-kanyo-gray-100 hover:text-kanyo-orange transition-colors text-base font-medium whitespace-nowrap">
+                  How It Works
+                </Link>
               </div>
             </div>
           </div>
@@ -128,9 +134,12 @@ export default function Landing() {
 
       {/* Footer */}
       <footer className="max-w-5xl mx-auto px-6 pb-8">
-        <div className="py-6 bg-kanyo-card rounded-lg text-center border border-kanyo-gray-500">
+        <div className="py-6 bg-kanyo-card rounded-lg text-center border border-kanyo-gray-500 flex justify-center gap-8">
           <Link to="/about" className="text-kanyo-text hover:text-kanyo-orange transition-colors">
             About Kanyo
+          </Link>
+          <Link to="/how-it-works" className="text-kanyo-text hover:text-kanyo-orange transition-colors">
+            How It Works
           </Link>
         </div>
       </footer>
