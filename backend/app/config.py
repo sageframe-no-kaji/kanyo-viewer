@@ -59,20 +59,28 @@ class Settings:
         }
 
     def _discover_streams(self) -> Dict[str, Any]:
-        """Scan DATA_DIR for subdirectories containing config.yaml."""
-        streams: Dict[str, Any] = {}
+        """Scan DATA_DIR for subdirectories containing config.yaml.
+
+        Streams are ordered by display.order (integer) when present, then
+        alphabetically by directory name. This lets operators control card
+        order on the landing page via config.yaml without touching the viewer.
+        """
+        candidates = []
         if not self.DATA_DIR.exists():
-            return streams
+            return {}
         for subdir in sorted(self.DATA_DIR.iterdir()):
             if not subdir.is_dir():
                 continue
             if not (subdir / "config.yaml").exists():
                 continue
             try:
-                streams[subdir.name] = self._load_stream_from_dir(subdir)
+                stream = self._load_stream_from_dir(subdir)
+                order = stream.get("display", {}).get("order", 999)
+                candidates.append((order, subdir.name, stream))
             except Exception:
                 continue
-        return streams
+        candidates.sort(key=lambda x: (x[0], x[1]))
+        return {name: stream for _, name, stream in candidates}
 
     @property
     def streams(self) -> Dict[str, Any]:
