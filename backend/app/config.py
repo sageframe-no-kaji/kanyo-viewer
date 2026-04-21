@@ -1,7 +1,7 @@
 """Configuration for Kanyo Viewer backend."""
 import os
 from pathlib import Path
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 import yaml
 
 
@@ -18,7 +18,6 @@ class Settings:
 
     # Paths
     BASE_DIR: Path = Path(__file__).parent.parent
-    STREAMS_CONFIG: Path = BASE_DIR / "streams.yaml"
 
     # API
     API_PREFIX: str = "/api"
@@ -32,33 +31,16 @@ class Settings:
     ]
 
     def __init__(self):
-        """Load streams registry on init."""
-        self._streams_registry = None
-        self._streams = None
+        # Root directory scanned for stream subdirectories.
+        # Each subdir containing config.yaml is treated as a stream.
+        self.DATA_DIR: Path = Path(os.getenv("KANYO_DATA_DIR", "/data"))
+        self._streams: Optional[Dict[str, Any]] = None
 
-    @property
-    def streams_registry(self) -> Dict[str, Any]:
-        """Load and cache streams registry (just paths)."""
-        if self._streams_registry is None:
-            with open(self.STREAMS_CONFIG, "r") as f:
-                config = yaml.safe_load(f)
-                self._streams_registry = config.get("streams", {})
-        return self._streams_registry
-
-    def get_stream_config(self, stream_id: str) -> Dict[str, Any]:
-        """Load full config from stream's config.yaml (not cached - reads fresh each time)."""
-        registry = self.streams_registry.get(stream_id)
-        if not registry:
-            raise ValueError(f"Stream {stream_id} not found in registry")
-
-        config_path = Path(registry["config_path"])
-        if not config_path.exists():
-            raise FileNotFoundError(f"Config file not found: {config_path}")
-
-        with open(config_path, "r") as f:
+    def _load_stream_from_dir(self, stream_dir: Path) -> Dict[str, Any]:
+        """Parse config.yaml from a stream directory into a stream config dict."""
+        with open(stream_dir / "config.yaml") as f:
             config = yaml.safe_load(f)
 
-        # Extract YouTube ID from video_source URL
         youtube_id = None
         video_source = config.get("video_source", "")
         if "youtube.com/watch?v=" in video_source:
@@ -66,25 +48,37 @@ class Settings:
         elif "youtu.be/" in video_source:
             youtube_id = video_source.split("youtu.be/")[1].split("?")[0]
 
-        # Merge registry data with config data
         return {
-            "id": stream_id,
+            "id": stream_dir.name,
             "name": config.get("stream_name", "Unknown Stream"),
             "timezone": config.get("timezone", "UTC"),
-            "data_path": registry["data_path"],
+            "data_path": str(stream_dir),
             "display": config.get("display", {}),
             "telegram_channel": config.get("telegram_channel"),
             "youtube_id": youtube_id,
         }
 
+    def _discover_streams(self) -> Dict[str, Any]:
+        """Scan DATA_DIR for subdirectories containing config.yaml."""
+        streams: Dict[str, Any] = {}
+        if not self.DATA_DIR.exists():
+            return streams
+        for subdir in sorted(self.DATA_DIR.iterdir()):
+            if not subdir.is_dir():
+                continue
+            if not (subdir / "config.yaml").exists():
+                continue
+            try:
+                streams[subdir.name] = self._load_stream_from_dir(subdir)
+            except Exception:
+                continue
+        return streams
+
     @property
     def streams(self) -> Dict[str, Any]:
-        """Get all stream configs (cached after first load)."""
+        """All stream configs, discovered from DATA_DIR on first access."""
         if self._streams is None:
-            self._streams = {
-                stream_id: self.get_stream_config(stream_id)
-                for stream_id in self.streams_registry.keys()
-            }
+            self._streams = self._discover_streams()
         return self._streams
 
 

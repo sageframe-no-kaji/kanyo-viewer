@@ -15,10 +15,15 @@ def test_data_dir():
 
 @pytest.fixture
 def mock_stream_config(test_data_dir):
-    """Create mock stream configuration with proper file structure."""
-    # Create Harvard config.yaml
-    harvard_config_dir = test_data_dir / "configs" / "harvard"
-    harvard_config_dir.mkdir(parents=True)
+    """Create mock stream configuration with proper file structure.
+
+    Each stream lives in its own subdirectory under test_data_dir, mirroring
+    the production layout at /data/<stream-id>/. The backend discovers streams
+    by scanning for config.yaml files in immediate subdirectories.
+    """
+    # Create Harvard stream directory with config.yaml inside it
+    harvard_dir = test_data_dir / "kanyo-harvard"
+    harvard_dir.mkdir(parents=True)
     harvard_config = {
         "stream_name": "Harvard Falcon Cam",
         "timezone": "America/New_York",
@@ -31,12 +36,12 @@ def mock_stream_config(test_data_dir):
         },
         "telegram_channel": "kanyo_harvard_falcon",
     }
-    with open(harvard_config_dir / "config.yaml", "w") as f:
+    with open(harvard_dir / "config.yaml", "w") as f:
         yaml.dump(harvard_config, f)
 
-    # Create NSW config.yaml
-    nsw_config_dir = test_data_dir / "configs" / "nsw"
-    nsw_config_dir.mkdir(parents=True)
+    # Create NSW stream directory with config.yaml inside it
+    nsw_dir = test_data_dir / "kanyo-nsw"
+    nsw_dir.mkdir(parents=True)
     nsw_config = {
         "stream_name": "NSW Falcon Cam",
         "timezone": "Australia/Sydney",
@@ -49,19 +54,18 @@ def mock_stream_config(test_data_dir):
         },
         "telegram_channel": "kanyo_nsw_falcon",
     }
-    with open(nsw_config_dir / "config.yaml", "w") as f:
+    with open(nsw_dir / "config.yaml", "w") as f:
         yaml.dump(nsw_config, f)
 
-    # Create clips directory structure
-    harvard_dir = test_data_dir / "harvard" / "clips"
-    harvard_dir.mkdir(parents=True)
+    # Create clips directories inside stream directories
+    harvard_clips = harvard_dir / "clips"
+    harvard_clips.mkdir()
 
-    nsw_dir = test_data_dir / "nsw" / "clips"
-    nsw_dir.mkdir(parents=True)
+    (nsw_dir / "clips").mkdir()
 
     # Create sample event data for 2026-01-14
     date_str = "2026-01-14"
-    harvard_date_dir = harvard_dir / date_str
+    harvard_date_dir = harvard_clips / date_str
     harvard_date_dir.mkdir()
 
     events = [
@@ -109,7 +113,7 @@ def mock_stream_config(test_data_dir):
     from datetime import datetime, timedelta
 
     recent_date_str = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
-    recent_date_dir = harvard_dir / recent_date_str
+    recent_date_dir = harvard_clips / recent_date_str
     recent_date_dir.mkdir(parents=True, exist_ok=True)
     recent_events = [
         {
@@ -130,26 +134,14 @@ def mock_stream_config(test_data_dir):
     (recent_date_dir / "falcon_103000_departure.mp4").write_bytes(b"dummy video")
     (recent_date_dir / "falcon_100000_visit.mp4").write_bytes(b"dummy video")
 
-    # Registry format matching streams.yaml structure (config_path + data_path)
-    streams_registry = {
-        "kanyo-harvard": {
-            "config_path": str(harvard_config_dir / "config.yaml"),
-            "data_path": str(test_data_dir / "harvard"),
-        },
-        "kanyo-nsw": {
-            "config_path": str(nsw_config_dir / "config.yaml"),
-            "data_path": str(test_data_dir / "nsw"),
-        },
-    }
-
-    return {"streams": streams_registry, "data_dir": test_data_dir}
+    return {"data_dir": test_data_dir}
 
 
 @pytest.fixture
 def override_streams_config(mock_stream_config, monkeypatch):
-    """Override settings with mock stream registry and clear caches."""
+    """Point DATA_DIR at the mock data directory and clear the stream cache."""
     from app.config import settings
 
-    monkeypatch.setattr(settings, "_streams_registry", mock_stream_config["streams"])
-    monkeypatch.setattr(settings, "_streams", None)  # clear cached streams
+    monkeypatch.setattr(settings, "DATA_DIR", mock_stream_config["data_dir"])
+    monkeypatch.setattr(settings, "_streams", None)
     return settings

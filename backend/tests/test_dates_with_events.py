@@ -32,7 +32,7 @@ def test_get_dates_with_events_no_clips(override_streams_config):
 def test_get_dates_with_events_multiple_days(override_streams_config, test_data_dir):
     """Test getting dates across multiple days with clips."""
     # Create additional visit clips for another date
-    harvard_clips = test_data_dir / "harvard" / "clips"
+    harvard_clips = test_data_dir / "kanyo-harvard" / "clips"
     other_date_dir = harvard_clips / "2026-01-15"
     other_date_dir.mkdir()
 

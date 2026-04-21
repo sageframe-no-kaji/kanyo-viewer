@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kanyō — Temporarily Offline</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #000;
+      color: #fff;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Banner ── */
+    .banner {
+      background: #dc2626;
+      color: #fff;
+      padding: 0.75rem 2rem;
+      text-align: center;
+      font-size: 0.8125rem;
+      line-height: 1.4;
+    }
+    .banner p {
+      max-width: 1100px;
+      margin: 0 auto;
+      line-height: 1.4;
+    }
+    .banner p + p { margin-top: 0.5rem; }
+    .banner a { color: #fff; text-decoration: underline; }
+
+    /* ── Header ── */
+    header {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 1.5rem 1.5rem 0;
+      width: 100%;
+    }
+    .header-inner {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .logo-circle {
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: 50%;
+      background: #ff9500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .logo-circle svg {
+      width: 1.75rem;
+      height: 1.75rem;
+      fill: #fff;
+    }
+    .site-name {
+      font-size: 1.25rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+    }
+    .site-name span {
+      color: #8e8e93;
+      font-weight: 400;
+      font-size: 0.875rem;
+      margin-left: 0.5rem;
+    }
+
+    /* ── Main ── */
+    main {
+      flex: 1;
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 3rem 1.5rem;
+      width: 100%;
+    }
+
+    .card {
+      background: #1c1c1e;
+      border-radius: 1rem;
+      padding: 2.5rem 2rem;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #ff453a;
+      background: rgba(255, 69, 58, 0.12);
+      border: 1px solid rgba(255, 69, 58, 0.3);
+      border-radius: 999px;
+      padding: 0.3rem 0.75rem;
+      margin-bottom: 1.25rem;
+    }
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #ff453a;
+    }
+
+    h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+      margin-bottom: 1rem;
+    }
+
+    .eta {
+      display: inline-block;
+      background: rgba(48, 209, 88, 0.12);
+      border: 1px solid rgba(48, 209, 88, 0.3);
+      color: #30d158;
+      border-radius: 0.5rem;
+      padding: 0.4rem 0.9rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      margin-bottom: 1.75rem;
+    }
+
+    .description {
+      color: #ebebf5cc;
+      font-size: 0.9375rem;
+      line-height: 1.65;
+      max-width: 640px;
+    }
+    .description p + p { margin-top: 1rem; }
+    .description a { color: #0a84ff; text-decoration: none; }
+    .description a:hover { text-decoration: underline; }
+
+    /* ── Link tiles ── */
+    .links {
+      margin-top: 2.5rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 0.75rem;
+    }
+    .link-tile {
+      background: #2c2c2e;
+      border: 1px solid #3a3a3c;
+      border-radius: 0.75rem;
+      padding: 1rem 1.125rem;
+      text-decoration: none;
+      color: inherit;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .link-tile:hover { background: #3a3a3c; border-color: #48484a; }
+    .link-tile .tile-label {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 0.2rem;
+    }
+    .link-tile .tile-desc {
+      font-size: 0.75rem;
+      color: #8e8e93;
+    }
+
+    /* ── Footer ── */
+    footer {
+      text-align: center;
+      font-size: 0.75rem;
+      color: #636366;
+      padding: 1.5rem;
+    }
+    footer a { color: #636366; text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+  <!-- Banner (mirrors the in-app banner) -->
+  <div class="banner">
+    <p>
+      <strong>🦅 Kanyō is temporarily offline</strong> (2026-04-19)
+      — YouTube recently changed how third-party tools can access live streams,
+      and my home IP got rate-limited in the process.
+      I'm relocating the detection system to a new network with an enterprise-grade IP.
+      <strong>New stream monitoring and recording are expected back Monday evening.</strong>
+    </p>
+    <p>
+      In the meantime: enjoy the archive clips, or watch the falcons directly on the
+      <a href="https://www.youtube.com/live/glczTFRRAK4" target="_blank" rel="noopener noreferrer">Memorial Hall Cam</a>.
+      Follow progress on
+      <a href="https://github.com/sageframe-no-kaji/kanyo-contemplating-falcons-dev/issues" target="_blank" rel="noopener noreferrer">GitHub Issues</a>.
+      If you have GPU-enabled cloud compute to spare —
+      <a href="mailto:tyro@sageframe.net">tyro@sageframe.net</a>.
+      See you Monday. 🦅 — Andrew
+    </p>
+  </div>
+
+  <!-- Header -->
+  <header>
+    <div class="header-inner">
+      <div class="logo-circle">
+        <!-- Kanyō bird mark (simplified from app) -->
+        <svg viewBox="0 0 500 548.5" xmlns="http://www.w3.org/2000/svg">
+          <path d="M106.6,305.8c-.7-.2-1.9-1.5-.5-2.3,12.8-9.3,24.3-20.3,35.5-31.4l-39.4,26.6c-10.3,5.7-20.3,2.1-30.7-1.6s-2.1-.1-1.8-1.3c13.6-4.6,26.5-13.1,38.1-21.5,4.3-3.1,14.6-13.3,18.8-14,6-1,14.4-.3,20.8-1.1,52.9-6.5,136.4-44.4,171.2-85.4.9-1.1,3.7-3.9,2.7-5.5-33.9,31.1-77.6,54.2-121,69.2-30.4,10.5-65.8,17.8-97.9,12.7,8.9-6.2,18.6-11.3,27.8-17.3,11.6-7.5,30.5-23.7,41.5-28.6s12.5-2.4,18.4-4.4c6.5-2.2,14-7.3,18.9-12.1-1.1-1.3-3,1.1-4.5,1.9-10.4,5-23.2,6.1-34.6,5.4,32.1-24.5,61.1-56,98.9-72.2,21.3-9.2,56.7-12.7,75.4,3.5,26.7,23-8.8,58.9-27.8,73.7,19-7.6,37.7-20,47.8-38.2,4,6.9,1.7,15.3,1.8,22.7,12.1-12,19-28.2,17.8-45.5l5.9,11.8,1.8,15.5c5.6-10.1,5.7-20.8,3.7-31.9-.9-4.9-3.5-10.3-4-15.1-1.3-10.8,0-25,10.8-30.4-1,5.8-2.2,11.8-1.8,17.7.8,13.2,8.1,26.7,9.1,40.1,3,40.5-34.4,66.5-64.1,86-8.8,5.7-19,9.6-26,17.7.7,1.4,2.2-.3,3-.6,4.9-2.1,9.3-5.3,14.3-7.1-4.7,12.2-15.2,21.5-5.9,34.5,6.1,8.5,14.1,3.2,22.7,3.7,21.8,1.2,16.8,25.5-.4,30,4-6.9,4.3-17.8-4.6-20,4.9,7.1.3,14.3-7.8,15.4-3.2.4-18.5-.3-20-2.7s.8-11.1.4-14c-1.9-14-19.2-25.8-28.9-34.8l10.8-25.8c-11.1,9.2-24.6,28-16.7,42.7s16.7-3.6,26.3,7.4,4.3,29.4-10.5,31.9c4.8-10.2,1.5-19.9-10.5-20.9-3,.2-2,0,0,1,7.1,3.8,11,13.3,1,15.3l-104.2-.9c12.8-12.8,30.3-10.6,46.8-12.8,13.6-1.8,27.1-4.1,40.6-6.3l-10-19.6c-9.7-2.3-19.4-1.1-29.1-.5l8.6-11.8,16.4-17.3-68.7,34.6c-.2,1.7,1.8.6,2.8.5,8.5-1.3,18.2-6.3,26.6-9,.9-.3,2.9-1.3,3.5-.2-11,12.1-22.6,25-37.4,32.6s-32.7,10.5-48.1,8.8c-.4-1.7.6-1.8,1.5-2.6,7-6.3,14.1-12.7,19.8-20.2s2.5-1.7.9-2.7c-5.7,5.5-27.7,26.4-34.6,26.4s-17.1.9-20.9,0Z"/>
+        </svg>
+      </div>
+      <div class="site-name">Kanyō <span>Peregrine Falcon Monitor</span></div>
+    </div>
+  </header>
+
+  <!-- Main -->
+  <main>
+    <div class="card">
+      <div class="status-badge">
+        <div class="status-dot"></div>
+        Offline
+      </div>
+
+      <h1>Back in a few hours</h1>
+      <div class="eta">⏱ Expected online: Monday evening, April 21</div>
+
+      <div class="description">
+        <p>
+          Kanyō monitors peregrine falcons nesting on Memorial Hall at Harvard University —
+          detecting arrivals, departures, and behaviors using computer vision. The system is
+          offline while the detection hardware moves to a new location with a clean IP address.
+        </p>
+        <p>
+          The archive of recorded clips is still available once the site comes back.
+          In the meantime, watch the falcons live on the
+          <a href="https://www.youtube.com/live/glczTFRRAK4" target="_blank" rel="noopener noreferrer">Memorial Hall YouTube stream</a>,
+          or follow the incident on
+          <a href="https://github.com/sageframe-no-kaji/kanyo-contemplating-falcons-dev/issues" target="_blank" rel="noopener noreferrer">GitHub Issues</a>.
+        </p>
+      </div>
+
+      <div class="links">
+        <a class="link-tile" href="https://www.youtube.com/live/glczTFRRAK4" target="_blank" rel="noopener noreferrer">
+          <div class="tile-label">📺 Watch Live</div>
+          <div class="tile-desc">Memorial Hall Cam on YouTube</div>
+        </a>
+        <a class="link-tile" href="https://github.com/sageframe-no-kaji/kanyo-contemplating-falcons-dev/issues" target="_blank" rel="noopener noreferrer">
+          <div class="tile-label">🐛 GitHub Issues</div>
+          <div class="tile-desc">Progress and incident tracking</div>
+        </a>
+        <a class="link-tile" href="mailto:tyro@sageframe.net">
+          <div class="tile-label">✉ Contact</div>
+          <div class="tile-desc">tyro@sageframe.net</div>
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    Kanyō &mdash; <a href="https://sageframe.net" target="_blank" rel="noopener noreferrer">sageframe.net</a>
+  </footer>
+
+</body>
+</html>
