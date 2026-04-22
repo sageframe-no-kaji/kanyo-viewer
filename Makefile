@@ -1,4 +1,4 @@
-.PHONY: help dev-backend dev-frontend build deploy update clean test
+.PHONY: help dev-backend dev-frontend build update clean test
 
 help:
 	@echo "Kanyo Viewer - Available Commands"
@@ -6,7 +6,6 @@ help:
 	@echo "Development:"
 	@echo "  make dev-backend    - Run backend dev server (port 5000)"
 	@echo "  make dev-frontend   - Run frontend dev server (port 5173)"
-	@echo "  make dev            - Run both backend and frontend"
 	@echo ""
 	@echo "Docker:"
 	@echo "  make build          - Build Docker image"
@@ -15,8 +14,7 @@ help:
 	@echo "  make logs           - View container logs"
 	@echo ""
 	@echo "Deployment:"
-	@echo "  make deploy         - Deploy to kanyo.lan"
-	@echo "  make update         - Quick update on kanyo.lan"
+	@echo "  make update         - Pull latest code and rebuild viewer on kanyo"
 	@echo ""
 	@echo "Maintenance:"
 	@echo "  make clean          - Clean build artifacts"
@@ -40,11 +38,8 @@ down:
 logs:
 	docker compose logs -f viewer
 
-deploy:
-	./scripts/deploy-viewer.sh
-
 update:
-	./scripts/update-viewer.sh
+	./ops/update-viewer.sh
 
 clean:
 	rm -rf frontend/dist
