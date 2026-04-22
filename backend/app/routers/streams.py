@@ -219,8 +219,13 @@ def load_events_for_date(stream_id: str, date_str: str) -> List[Dict[str, Any]]:
                 file_size_mb = clip_file.stat().st_size / (1024 * 1024)
                 duration = file_size_mb * 10  # Rough estimate: ~10s per MB
 
-            # Check for thumbnail
+            # Check for thumbnail: try _visit.jpg first, then _arrival.jpg
+            # (recording system saves arrival captures as _arrival.jpg)
             thumb_file = clip_file.with_suffix(".jpg")
+            if not thumb_file.exists():
+                thumb_file = clip_file.with_name(
+                    clip_file.stem.replace("_visit", "_arrival") + ".jpg"
+                )
             thumbnail = thumb_file.name if thumb_file.exists() else ""
 
             filtered_events.append(
