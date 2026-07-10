@@ -36,3 +36,6 @@ logs/
 # Docker
 .docker/
 .coverage
+
+# Ho System process docs (private nested repo)
+ho-process/
