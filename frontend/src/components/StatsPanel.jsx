@@ -41,12 +41,24 @@ export default function StatsPanel({ stream, stats, statsRange, onRangeChange, c
                 {stats.last_events.map((event, idx) => (
                   <div key={idx} className="flex flex-col gap-0.5">
                     <span className={`text-[10px] font-medium flex items-center gap-1 ${
-                      event.type === 'arrival' ? 'text-kanyo-blue' : 'text-kanyo-red'
+                      event.type === 'arrival'
+                        ? 'text-kanyo-blue'
+                        : event.type === 'departure'
+                        ? 'text-kanyo-red'
+                        : 'text-kanyo-orange'
                     }`}>
-                      <span className="inline-block w-1.5 h-1.5 rounded-full ${
-                        event.type === 'arrival' ? 'bg-kanyo-blue' : 'bg-kanyo-red'
-                      }"></span>
-                      {event.type === 'arrival' ? 'Arrival' : 'Departure'}
+                      <span className={`inline-block w-1.5 h-1.5 rounded-full ${
+                        event.type === 'arrival'
+                          ? 'bg-kanyo-blue'
+                          : event.type === 'departure'
+                          ? 'bg-kanyo-red'
+                          : 'bg-kanyo-orange'
+                      }`}></span>
+                      {event.type === 'arrival'
+                        ? 'Arrival'
+                        : event.type === 'departure'
+                        ? 'Departure'
+                        : 'Visit'}
                     </span>
                     <span className="text-kanyo-secondary-text text-[10px]">
                       {formatTimestamp(event.timestamp)}

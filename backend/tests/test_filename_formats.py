@@ -117,18 +117,20 @@ def test_snapshot_prefers_newest_including_new_format(override_streams_config):
 
 
 def test_stats_counts_new_format_visits(override_streams_config, test_data_dir):
-    """Stats file scan counts new-format visit clips."""
+    """Stats file-scan fallback (dates without events JSON) counts new-format
+    visit clips."""
     from datetime import datetime, timedelta
 
-    recent_date_str = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
-    recent_dir = test_data_dir / "kanyo-harvard" / "clips" / recent_date_str
-    (recent_dir / "falcon_120000_111111_visit.mp4").write_bytes(b"dummy video")
+    no_json_date = (datetime.now() - timedelta(days=2)).strftime("%Y-%m-%d")
+    no_json_dir = test_data_dir / "kanyo-harvard" / "clips" / no_json_date
+    no_json_dir.mkdir(parents=True, exist_ok=True)
+    (no_json_dir / "falcon_120000_111111_visit.mp4").write_bytes(b"dummy video")
 
     response = client.get("/api/streams/kanyo-harvard/stats?range=7d")
     assert response.status_code == 200
 
     data = response.json()
-    # Legacy falcon_100000_visit.mp4 + new-format falcon_120000_111111_visit.mp4
+    # One JSON row on the recent fixture date + one new-format file two days ago
     assert data["visits"] == 2
     times = {e["time"] for e in data["last_events"]}
     assert "12:00:00" in times

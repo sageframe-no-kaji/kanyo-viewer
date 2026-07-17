@@ -3,10 +3,11 @@ from fastapi import APIRouter, HTTPException
 from fastapi.responses import Response
 from pathlib import Path
 from datetime import datetime, timedelta, tzinfo
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, Tuple
 import json
 import logging
 import os
+import re
 import subprocess
 import tempfile
 import shutil
@@ -24,6 +25,13 @@ logger = logging.getLogger(__name__)
 # In-memory cache for resolved HLS URLs: {stream_id: {"url": str, "resolved_at": float}}
 _live_url_cache: Dict[str, Dict[str, Any]] = {}
 _LIVE_URL_TTL_SECONDS = 4 * 60 * 60  # 4 hours (YouTube URLs expire ~6h)
+
+# Visit clip filenames: falcon_HHMMSS_visit.ext or falcon_HHMMSS_MICROSECONDS_visit.ext
+# (detector adds microseconds to filenames as of commit a014025)
+_VISIT_FILE_RE = re.compile(r"falcon_(\d{6})(?:_\d{6})?_visit\.(mp4|avi|mov|mkv)$")
+
+# In-memory cache for ffprobe durations: {(path, mtime): duration_seconds}
+_ffprobe_cache: Dict[tuple, float] = {}
 
 
 async def _resolve_or_get_live_url(stream_id: str) -> str:
@@ -115,6 +123,88 @@ def get_clips_dir(stream_id: str) -> Path:
     return clips_dir
 
 
+def _localize(tz: tzinfo, naive: datetime) -> datetime:
+    """Attach a timezone to a naive datetime (pytz needs localize, zoneinfo doesn't)."""
+    if hasattr(tz, "localize"):
+        return tz.localize(naive)
+    return naive.replace(tzinfo=tz)
+
+
+def _timestamp_for(tz: tzinfo, date_str: str, time_str: str) -> datetime:
+    """Build an aware datetime from a YYYY-MM-DD date and HHMMSS filename time."""
+    date_obj = datetime.strptime(date_str, "%Y-%m-%d")
+    naive = date_obj.replace(
+        hour=int(time_str[:2]), minute=int(time_str[2:4]), second=int(time_str[4:6])
+    )
+    return _localize(tz, naive)
+
+
+def _parse_row_time(value: Any, tz: tzinfo) -> Optional[datetime]:
+    """Parse an ISO timestamp from an events-JSON row into an aware datetime."""
+    if not isinstance(value, str):
+        return None
+    try:
+        parsed = datetime.fromisoformat(value)
+    except ValueError:
+        return None
+    if parsed.tzinfo is None:
+        parsed = _localize(tz, parsed)
+    return parsed
+
+
+def load_events_json(date_dir: Path, date_str: str) -> List[Dict[str, Any]]:
+    """Load event rows from events_{date}.json.
+
+    A row is any dict bearing a start_time; unknown extra fields are tolerated.
+    Missing or unreadable files yield an empty list (logged, not raised).
+    """
+    events_file = date_dir / f"events_{date_str}.json"
+    if not events_file.exists():
+        return []
+
+    try:
+        with open(events_file, "r") as f:
+            data = json.load(f)
+    except (OSError, json.JSONDecodeError):
+        logger.warning("Unreadable events JSON: %s", events_file, exc_info=True)
+        return []
+
+    if not isinstance(data, list):
+        logger.warning("Events JSON is not a list: %s", events_file)
+        return []
+
+    return [row for row in data if isinstance(row, dict) and row.get("start_time")]
+
+
+def _scan_visit_files(date_dir: Path) -> List[Tuple[str, Path]]:
+    """Return sorted (HHMMSS, Path) pairs for visit clip files in a date directory."""
+    visit_files: List[Tuple[str, Path]] = []
+    for clip_file in sorted(date_dir.iterdir()):
+        if not clip_file.is_file():
+            continue
+        match = _VISIT_FILE_RE.match(clip_file.name)
+        if match:
+            visit_files.append((match.group(1), clip_file))
+    return visit_files
+
+
+def date_has_events(date_dir: Path, date_str: str) -> bool:
+    """Unified 'has events' predicate: JSON rows OR visit clip files.
+
+    Must stay consistent with load_events_for_date, which serves events from
+    the same two sources.
+    """
+    if not date_dir.exists():
+        return False
+    if load_events_json(date_dir, date_str):
+        return True
+    try:
+        return bool(_scan_visit_files(date_dir))
+    except OSError:
+        logger.warning("Could not scan date directory: %s", date_dir, exc_info=True)
+        return False
+
+
 def find_most_recent_date_with_events(
     clips_dir: Path, start_date: datetime, tz: tzinfo
 ) -> Optional[str]:
@@ -124,31 +214,55 @@ def find_most_recent_date_with_events(
     # Search up to 30 days back
     for _ in range(30):
         date_str = current_date.strftime("%Y-%m-%d")
-        date_dir = clips_dir / date_str
-
-        if date_dir.exists():
-            events_file = date_dir / f"events_{date_str}.json"
-            if events_file.exists():
-                # Check if it has any arrival/departure events
-                try:
-                    with open(events_file, "r") as f:
-                        events = json.load(f)
-                        # Filter for arrivals/departures
-                        filtered = [
-                            e
-                            for e in events
-                            if "_arrival" in e.get("thumbnail_path", "")
-                            or "_departure" in e.get("departure_clip_path", "")
-                        ]
-                        if filtered:
-                            return date_str
-                except Exception:
-                    pass
-
-        # Move to previous day
+        if date_has_events(clips_dir / date_str, date_str):
+            return date_str
         current_date = current_date - timedelta(days=1)
 
     return None
+
+
+def probe_clip_duration(clip_file: Path) -> float:
+    """Get a clip's duration in seconds via ffprobe, cached on (path, mtime).
+
+    Fallback-only path: dates covered by events JSON never reach this. Errors
+    degrade to a rough file-size estimate (~10s per MB).
+    """
+    try:
+        mtime = clip_file.stat().st_mtime
+    except OSError:
+        return 0.0
+
+    cache_key = (str(clip_file), mtime)
+    cached = _ffprobe_cache.get(cache_key)
+    if cached is not None:
+        return cached
+
+    duration = 0.0
+    try:
+        result = subprocess.run(
+            [
+                "ffprobe",
+                "-v",
+                "error",
+                "-show_entries",
+                "format=duration",
+                "-of",
+                "default=noprint_wrappers=1:nokey=1",
+                str(clip_file),
+            ],
+            capture_output=True,
+            text=True,
+            timeout=5,
+        )
+        if result.returncode == 0:
+            duration = float(result.stdout.strip())
+    except Exception:
+        # Fallback: estimate from file size (very rough)
+        file_size_mb = clip_file.stat().st_size / (1024 * 1024)
+        duration = file_size_mb * 10  # Rough estimate: ~10s per MB
+
+    _ffprobe_cache[cache_key] = duration
+    return duration
 
 
 def find_thumbnail(date_dir: Path, time_str: str, clip_file: Optional[Path] = None) -> str:
@@ -177,7 +291,15 @@ def find_thumbnail(date_dir: Path, time_str: str, clip_file: Optional[Path] = No
 
 
 def load_events_for_date(stream_id: str, date_str: str) -> List[Dict[str, Any]]:
-    """Load visit clips with duration for HKSV-style timeline."""
+    """Load visit events for the HKSV-style timeline.
+
+    events_{date}.json written by the detector is the authority for durations
+    and event boundaries. Each JSON row becomes one event; visit clip files are
+    associated to a row by HHMMSS containment in [start_time, end_time], with
+    the earliest matching file as the playable clip. Visit files not covered by
+    any row (an ongoing visit with no closing row yet, or a date with no JSON)
+    fall back to the directory/ffprobe path.
+    """
     clips_dir = get_clips_dir(stream_id)
     date_dir = clips_dir / date_str
 
@@ -185,93 +307,108 @@ def load_events_for_date(stream_id: str, date_str: str) -> List[Dict[str, Any]]:
         return []
 
     try:
-        import re
-        import subprocess
+        tz = get_stream_timezone(stream_id)
+        visit_files = _scan_visit_files(date_dir)
+        rows = load_events_json(date_dir, date_str)
 
-        # Pattern: falcon_HHMMSS_visit.mp4 or falcon_HHMMSS_MICROSECONDS_visit.mp4
-        # (detector adds microseconds to filenames as of commit a014025)
-        pattern = re.compile(r"falcon_(\d{6})(?:_\d{6})?_visit\.(mp4|avi|mov|mkv)$")
+        events: List[Dict[str, Any]] = []
+        used_files: set = set()
 
-        filtered_events = []
-
-        # Scan all visit video files in the directory
-        for clip_file in sorted(date_dir.iterdir()):
-            if not clip_file.is_file():
+        for row in rows:
+            # Read only named keys; tolerate unknown extra fields.
+            start_dt = _parse_row_time(row.get("start_time"), tz)
+            if start_dt is None:
+                logger.warning(
+                    "Skipping events row with unparseable start_time in %s: %r",
+                    date_dir,
+                    row.get("start_time"),
+                )
                 continue
+            end_dt = _parse_row_time(row.get("end_time"), tz)
 
-            match = pattern.match(clip_file.name)
-            if not match:
-                continue
+            # Associate visit files by HHMMSS containment in [start, end].
+            # Filenames truncate sub-second precision, so compare against the
+            # start floored to the whole second.
+            start_floor = start_dt.replace(microsecond=0)
+            matched = [
+                clip_file
+                for time_str, clip_file in visit_files
+                if start_floor <= _timestamp_for(tz, date_str, time_str)
+                and (end_dt is None or _timestamp_for(tz, date_str, time_str) <= end_dt)
+            ]
 
-            time_str, ext = match.groups()
+            clip_name = ""
+            clip_for_thumb: Optional[Path] = None
+            if matched:
+                clip_for_thumb = matched[0]  # earliest file = playable clip
+                clip_name = clip_for_thumb.name
+                used_files.update(f.name for f in matched)
+            elif isinstance(row.get("arrival_clip_path"), str):
+                clip_name = Path(row["arrival_clip_path"]).name
 
-            # Parse time to create timestamp
-            hour = time_str[:2]
-            minute = time_str[2:4]
-            second = time_str[4:6]
+            duration = row.get("duration_seconds")
+            if not isinstance(duration, (int, float)) or isinstance(duration, bool):
+                duration = 0
 
-            # Get stream timezone for proper timestamp
-            tz = get_stream_timezone(stream_id)
-            date_obj = datetime.strptime(date_str, "%Y-%m-%d")
-            timestamp_dt = (
-                tz.localize(
-                    date_obj.replace(hour=int(hour), minute=int(minute), second=int(second))
-                )
-                if hasattr(tz, "localize")
-                else date_obj.replace(
-                    hour=int(hour), minute=int(minute), second=int(second), tzinfo=tz
-                )
-            )
+            start_hhmmss = start_dt.strftime("%H%M%S")
+            thumbnail = ""
+            thumbnail_path = row.get("thumbnail_path")
+            if isinstance(thumbnail_path, str) and thumbnail_path:
+                candidate = Path(thumbnail_path).name
+                if (date_dir / candidate).exists():
+                    thumbnail = candidate
+            if not thumbnail:
+                thumbnail = find_thumbnail(date_dir, start_hhmmss, clip_for_thumb)
 
-            # Get video duration using ffprobe
-            duration = 0.0
-            try:
-                result = subprocess.run(
-                    [
-                        "ffprobe",
-                        "-v",
-                        "error",
-                        "-show_entries",
-                        "format=duration",
-                        "-of",
-                        "default=noprint_wrappers=1:nokey=1",
-                        str(clip_file),
-                    ],
-                    capture_output=True,
-                    text=True,
-                    timeout=5,
-                )
-                if result.returncode == 0:
-                    duration = float(result.stdout.strip())
-            except Exception:
-                # Fallback: estimate from file size (very rough)
-                file_size_mb = clip_file.stat().st_size / (1024 * 1024)
-                duration = file_size_mb * 10  # Rough estimate: ~10s per MB
-
-            # Check for thumbnail: same-stem .jpg first, then arrival snapshot
-            # (recording system saves arrival captures as _arrival.jpg)
-            thumbnail = find_thumbnail(date_dir, time_str, clip_file)
-
-            filtered_events.append(
+            events.append(
                 {
                     "type": "visit",
-                    "timestamp": timestamp_dt.isoformat(),
+                    "timestamp": start_dt.isoformat(),
+                    "end_time": end_dt.isoformat() if end_dt else None,
                     "thumbnail": thumbnail,
-                    "clip": clip_file.name,
+                    "clip": clip_name,
                     "duration": duration,
-                    "event_id": f"{date_str.replace('-', '')}_{time_str}",
+                    "event_id": row.get("id") or f"{date_str.replace('-', '')}_{start_hhmmss}",
+                    "insignificant": bool(row.get("insignificant", False)),
+                    "merged_segments": row.get("merged_segments", 1),
                 }
             )
 
-        return filtered_events
+        # Supplement: visit files no JSON row covers (ongoing visit, or no JSON).
+        for time_str, clip_file in visit_files:
+            if clip_file.name in used_files:
+                continue
+
+            timestamp_dt = _timestamp_for(tz, date_str, time_str)
+            events.append(
+                {
+                    "type": "visit",
+                    "timestamp": timestamp_dt.isoformat(),
+                    "end_time": None,
+                    "thumbnail": find_thumbnail(date_dir, time_str, clip_file),
+                    "clip": clip_file.name,
+                    "duration": probe_clip_duration(clip_file),
+                    "event_id": f"{date_str.replace('-', '')}_{time_str}",
+                    "insignificant": False,
+                    "merged_segments": 1,
+                }
+            )
+
+        events.sort(key=lambda e: e["timestamp"])
+        return events
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error loading events: {str(e)}")
 
 
 def get_stats_for_range(stream_id: str, range_str: str) -> Dict[str, Any]:
-    """Get stats by scanning clips directory directly."""
-    import re
+    """Get stats for a time range.
 
+    For each date, events_{date}.json is the authority when present: JSON rows
+    are counted, with insignificant:true rows excluded from the headline visits
+    count. Dates without JSON fall back to scanning clip files directly.
+    last_events are deduplicated keyed by (date, time), so identical times on
+    different days no longer collide.
+    """
     # Parse range (e.g., "24h", "7d")
     hours = 24  # default
     if range_str.endswith("h"):
@@ -291,18 +428,40 @@ def get_stats_for_range(stream_id: str, range_str: str) -> Dict[str, Any]:
         dates_to_check.add(current.strftime("%Y-%m-%d"))
         current += timedelta(days=1)
 
-    # Pattern: falcon_HHMMSS_type.ext with optional microseconds (completed files only)
-    # Only count .mp4 files (not .tmp, .log, or thumbnails)
+    # Fallback pattern: falcon_HHMMSS_type.mp4 with optional microseconds
+    # (completed files only; not .tmp, .log, or thumbnails)
     pattern = re.compile(r"falcon_(\d{6})(?:_\d{6})?_(arrival|departure|visit)\.mp4$")
 
     visits = 0
-    events_by_time: dict = {}  # deduplicate by time
+    events_by_key: Dict[tuple, Dict[str, Any]] = {}  # deduplicate by (date, time)
 
     for date_str in sorted(dates_to_check):
         date_path = clips_dir / date_str
         if not date_path.exists():
             continue
 
+        rows = load_events_json(date_path, date_str)
+        if rows:
+            for row in rows:
+                start_dt = _parse_row_time(row.get("start_time"), tz)
+                if start_dt is None or start_dt < cutoff:
+                    continue
+
+                # Insignificant visits are recorded log-only by the detector;
+                # exclude them from the headline count.
+                if not row.get("insignificant", False):
+                    visits += 1
+
+                time_key = start_dt.strftime("%H:%M:%S")
+                events_by_key[(date_str, time_key)] = {
+                    "time": time_key,
+                    "type": "visit",
+                    "timestamp": start_dt.isoformat(),
+                    "datetime": start_dt,
+                }
+            continue
+
+        # Fallback: no events JSON for this date — scan clip files.
         for clip_file in date_path.iterdir():
             if not clip_file.is_file():
                 continue
@@ -313,19 +472,9 @@ def get_stats_for_range(stream_id: str, range_str: str) -> Dict[str, Any]:
 
             time_str, clip_type = match.groups()
 
-            # Parse clip datetime
-            hour = int(time_str[:2])
-            minute = int(time_str[2:4])
-            second = int(time_str[4:6])
-
             try:
-                clip_date = datetime.strptime(date_str, "%Y-%m-%d")
-                clip_dt = (
-                    tz.localize(clip_date.replace(hour=hour, minute=minute, second=second))
-                    if hasattr(tz, "localize")
-                    else clip_date.replace(hour=hour, minute=minute, second=second, tzinfo=tz)
-                )
-            except Exception:
+                clip_dt = _timestamp_for(tz, date_str, time_str)
+            except ValueError:
                 continue
 
             # Filter by cutoff time
@@ -336,15 +485,13 @@ def get_stats_for_range(stream_id: str, range_str: str) -> Dict[str, Any]:
             if clip_type == "visit":
                 visits += 1
 
-            # Track events (deduplicate by time, prefer arrival/departure over visit)
+            # Track events (deduplicate by (date, time), prefer arrival/departure)
             time_key = f"{time_str[:2]}:{time_str[2:4]}:{time_str[4:6]}"
-            if time_key in events_by_time:
-                existing = events_by_time[time_key]
-                # Prefer arrival/departure over visit
-                if existing["type"] in ["arrival", "departure"]:
-                    continue
+            existing = events_by_key.get((date_str, time_key))
+            if existing and existing["type"] in ["arrival", "departure"]:
+                continue
 
-            events_by_time[time_key] = {
+            events_by_key[(date_str, time_key)] = {
                 "time": time_key,
                 "type": clip_type,
                 "timestamp": clip_dt.isoformat(),
@@ -352,21 +499,21 @@ def get_stats_for_range(stream_id: str, range_str: str) -> Dict[str, Any]:
             }
 
     # Sort events by datetime (most recent first)
-    last_events = sorted(events_by_time.values(), key=lambda x: x["datetime"], reverse=True)
+    last_events = sorted(events_by_key.values(), key=lambda x: x["datetime"], reverse=True)
 
     # Remove datetime object before returning (not JSON serializable)
     for event in last_events:
         event.pop("datetime", None)
 
     return {
-        "visits": visits,  # Only completed visit.mp4 files
+        "visits": visits,
         "last_events": last_events,  # All events in the time range
         "range": range_str,
     }
 
 
 @router.get("")
-async def list_streams():
+def list_streams():
     """List all available streams with last 24h stats."""
     streams_list = []
 
@@ -413,7 +560,7 @@ async def list_streams():
 
 
 @router.get("/{stream_id}")
-async def get_stream_detail(stream_id: str):
+def get_stream_detail(stream_id: str):
     """Get detailed information about a stream."""
     stream_config = settings.streams.get(stream_id)
     if not stream_config:
@@ -434,10 +581,8 @@ async def get_stream_detail(stream_id: str):
 
 
 @router.get("/{stream_id}/dates-with-events")
-async def get_dates_with_events(stream_id: str, start_date: str, end_date: str):
+def get_dates_with_events(stream_id: str, start_date: str, end_date: str):
     """Get list of dates that have visit clips in a date range."""
-    import re
-
     clips_dir = get_clips_dir(stream_id)
 
     dates_with_events = []
@@ -463,7 +608,7 @@ async def get_dates_with_events(stream_id: str, start_date: str, end_date: str):
 
 
 @router.get("/{stream_id}/events")
-async def get_stream_events(stream_id: str, date: Optional[str] = None):
+def get_stream_events(stream_id: str, date: Optional[str] = None):
     """
     Get events for a specific date.
     If date is not provided or has no events, returns most recent date with events.
@@ -489,17 +634,16 @@ async def get_stream_events(stream_id: str, date: Optional[str] = None):
 
 
 @router.get("/{stream_id}/stats")
-async def get_stream_stats(stream_id: str, range: str = "24h"):
+def get_stream_stats(stream_id: str, range: str = "24h"):
     """Get stats for a time range (24h, 2d, 3d, 4d, 5d)."""
     stats = get_stats_for_range(stream_id, range)
     return {"stream_id": stream_id, **stats}
 
 
 @router.get("/{stream_id}/snapshot")
-async def get_stream_snapshot(stream_id: str):
+def get_stream_snapshot(stream_id: str):
     """Get the most recent arrival snapshot for a stream."""
     from fastapi.responses import FileResponse
-    import re
 
     clips_dir = get_clips_dir(stream_id)
     tz = get_stream_timezone(stream_id)

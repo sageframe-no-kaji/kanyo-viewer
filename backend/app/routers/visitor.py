@@ -60,7 +60,7 @@ def detect_timezone_from_ip(ip: str) -> Optional[str]:
 
 
 @router.get("/timezone")
-async def get_visitor_timezone(request: Request):
+def get_visitor_timezone(request: Request):
     """
     Detect visitor's timezone from IP address.
 
