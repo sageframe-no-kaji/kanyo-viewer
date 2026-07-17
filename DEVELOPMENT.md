@@ -70,19 +70,30 @@
    - API calls proxy to backend at :5000
 
 3. **Configuration changes**
-   - Edit `backend/streams.yaml` for stream configs
+   - Streams are auto-discovered from `KANYO_DATA_DIR` (default `/data`):
+     every subdirectory containing a `config.yaml` becomes a stream
    - Edit `frontend/tailwind.config.js` for styling
    - Edit `.env` for environment variables
 
 ### Testing Without Real Data
 
-Create mock data for development:
+Create mock data for development (mirrors the current detector contract —
+see the Data Contract section in `README.md`):
 
 ```bash
-mkdir -p test-data/harvard/clips/2026-01-14
+mkdir -p test-data/kanyo-harvard/clips/2026-01-14
 ```
 
-Create `test-data/harvard/clips/2026-01-14/events_2026-01-14.json`:
+Create `test-data/kanyo-harvard/config.yaml` (this is what makes the
+directory discoverable as a stream):
+```yaml
+stream_name: "Harvard Falcon Cam"
+timezone: "America/New_York"
+display:
+  short_name: "Harvard"
+```
+
+Create `test-data/kanyo-harvard/clips/2026-01-14/events_2026-01-14.json`:
 ```json
 [
   {
@@ -90,21 +101,23 @@ Create `test-data/harvard/clips/2026-01-14/events_2026-01-14.json`:
     "start_time": "2026-01-14T07:23:15-05:00",
     "end_time": "2026-01-14T07:45:30-05:00",
     "duration_seconds": 1335,
+    "duration_str": "22m 15s",
     "peak_confidence": 0.847,
-    "thumbnail_path": "falcon_072315_arrival.jpg",
-    "arrival_clip_path": "falcon_072315_arrival.mp4",
-    "departure_clip_path": "falcon_074530_departure.mp4"
+    "thumbnail_path": "falcon_072315_123456_arrival.jpg",
+    "arrival_clip_path": "falcon_072315_123456_arrival.mp4",
+    "departure_clip_path": "falcon_074530_654321_departure.mp4",
+    "insignificant": false,
+    "merged_segments": 1
   }
 ]
 ```
 
-Add sample clip files (can be any MP4/JPG for testing).
+Add sample clip files matching those names, plus a
+`falcon_072315_123456_visit.mp4` (can be any MP4/JPG for testing).
 
-Then update `backend/streams.yaml` to point to `test-data`:
-```yaml
-streams:
-  harvard:
-    data_path: "./test-data/harvard"  # Relative path for dev
+Then point the backend at the test data:
+```bash
+KANYO_DATA_DIR=./test-data uvicorn app.main:app --reload --port 5000
 ```
 
 ## Docker Development
@@ -200,13 +213,13 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-**Can't find streams.yaml**
-- Check `backend/streams.yaml` exists
-- Verify paths in `backend/app/config.py`
+**No streams found**
+- Check `KANYO_DATA_DIR` (default `/data`) points at a directory whose
+  subdirectories each contain a `config.yaml`
+- Verify discovery logic in `backend/app/config.py`
 
 **No clips found**
-- Check `data_path` in `streams.yaml`
-- Verify directory structure: `/data/{stream}/clips/YYYY-MM-DD/`
+- Verify directory structure: `{KANYO_DATA_DIR}/{stream}/clips/YYYY-MM-DD/`
 - Check file permissions (read access)
 
 ### Frontend issues
@@ -260,8 +273,7 @@ kanyo-viewer/
 │   │       ├── streams.py    # Stream endpoints
 │   │       ├── clips.py      # File serving
 │   │       └── visitor.py    # Timezone detection
-│   ├── requirements.txt
-│   └── streams.yaml          # Stream configuration
+│   └── requirements.txt
 ├── frontend/
 │   ├── src/
 │   │   ├── App.jsx           # Router setup
@@ -284,26 +296,24 @@ kanyo-viewer/
 
 ### Adding a new stream
 
-1. Add entry to `backend/streams.yaml`:
+1. Create the stream's directory under the mounted data root (in production,
+   `/opt/services/kanyo-new-stream/`) with the detection pipeline's
+   `config.yaml` in it. The viewer discovers it automatically — the directory
+   name becomes the stream ID:
    ```yaml
-   streams:
-     new_stream:
-       name: "New Stream Name"
-       youtube_id: "YouTube_Video_ID"
-       data_path: "/data/new_stream"
-       timezone: "America/Los_Angeles"
-       display:
-         short_name: "New"
-         location: "Location"
-         species: "Species Name"
-         telegram_channel: "channel_name"
+   # /opt/services/kanyo-new-stream/config.yaml
+   stream_name: "New Stream Name"
+   timezone: "America/Los_Angeles"
+   video_source: "https://www.youtube.com/watch?v=YouTube_Video_ID"
+   display:
+     short_name: "New"
+     location: "Location"
+     species: "Species Name"
+   telegram_channel: "channel_name"
    ```
 
-2. Add volume mount in `docker-compose.yml`:
-   ```yaml
-   volumes:
-     - /opt/services/kanyo-new-stream:/data/new_stream:ro
-   ```
+2. Ensure the data root is mounted in `docker-compose.yml` (the whole
+   `/opt/services` tree is mounted read-only as `/data` by default)
 
 3. Deploy changes
 
@@ -348,6 +358,7 @@ make clean
 
 ### Backend (.env)
 - `KANYO_ENV` - development or production
+- `KANYO_DATA_DIR` - root directory scanned for stream subdirectories (default: `/data`)
 
 ### Frontend (.env)
 - `VITE_API_BASE` - API base URL (default: /api)

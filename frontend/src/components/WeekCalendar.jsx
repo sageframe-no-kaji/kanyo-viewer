@@ -29,10 +29,14 @@ export default function WeekCalendar({ streamId, streamTimezone, selectedDate, o
     for (let i = 0; i < 7; i++) {
       const date = new Date(weekStartDate);
       date.setDate(date.getDate() + i);
+      const streamDate = getDateInTimezone(date, streamTimezone);
       dates.push({
-        date: getDateInTimezone(date, streamTimezone),
+        date: streamDate,
         dayOfWeek: date.toLocaleDateString('en-US', { weekday: 'short', timeZone: streamTimezone }),
-        dayOfMonth: date.getDate()
+        // Day number must come from the stream-timezone date (YYYY-MM-DD), not
+        // browser-local getDate(), or it can disagree with date/dayOfWeek by a
+        // day when the visitor's timezone is on a different calendar date.
+        dayOfMonth: parseInt(streamDate.slice(8, 10), 10)
       });
     }
     setWeekDates(dates);

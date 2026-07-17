@@ -63,7 +63,11 @@ def mock_stream_config(test_data_dir):
 
     (nsw_dir / "clips").mkdir()
 
-    # Create sample event data for 2026-01-14
+    # Create sample event data for 2026-01-14.
+    # These rows are deliberately LEGACY-shaped (pre-microsecond filenames, no
+    # duration_str/insignificant/merged_segments keys): archived dates written
+    # by older detector versions still look like this, and the viewer must
+    # tolerate them. Current-contract rows live on 2026-01-16 and 2026-01-17.
     date_str = "2026-01-14"
     harvard_date_dir = harvard_clips / date_str
     harvard_date_dir.mkdir()
@@ -136,6 +140,57 @@ def mock_stream_config(test_data_dir):
     (new_format_dir / "falcon_084000_654321_departure.mp4").write_bytes(b"dummy video")
     (new_format_dir / "falcon_081500_999999_visit.mp4").write_bytes(b"dummy video")
 
+    # Create a date exercising the full current detector contract
+    # (FalconVisit.to_dict() in the detector's src/kanyo/detection/events.py):
+    # - a merged visit (merged_segments >= 2) spanning MULTIPLE _visit.mp4
+    #   files, each much shorter than the visit's dwell (roosting stops)
+    # - an insignificant visit (insignificant: true, recorded log-only, so no
+    #   clip files exist for it)
+    # - an in-progress .mp4.tmp file and .ffmpeg.log sidecar, which the
+    #   detector writes next to clips and the viewer must ignore
+    contract_date = "2026-01-17"
+    contract_dir = harvard_clips / contract_date
+    contract_dir.mkdir()
+    contract_events = [
+        {
+            "id": "20260117_090000",
+            "start_time": "2026-01-17T09:00:00-05:00",
+            "end_time": "2026-01-17T09:50:00-05:00",
+            "duration_seconds": 3000,
+            "duration_str": "50m",
+            "peak_confidence": 0.93,
+            "thumbnail_path": "falcon_090000_111111_arrival.jpg",
+            "arrival_clip_path": "falcon_090000_111111_arrival.mp4",
+            "departure_clip_path": "falcon_095000_444444_departure.mp4",
+            "insignificant": False,
+            "merged_segments": 2,
+        },
+        {
+            "id": "20260117_120000",
+            "start_time": "2026-01-17T12:00:00-05:00",
+            "end_time": "2026-01-17T12:00:20-05:00",
+            "duration_seconds": 20,
+            "duration_str": "20s",
+            "peak_confidence": 0.61,
+            "thumbnail_path": None,
+            "arrival_clip_path": None,
+            "departure_clip_path": None,
+            "insignificant": True,
+            "merged_segments": 1,
+        },
+    ]
+    with open(contract_dir / f"events_{contract_date}.json", "w") as f:
+        json.dump(contract_events, f)
+    (contract_dir / "falcon_090000_111111_arrival.jpg").write_bytes(b"dummy jpeg")
+    (contract_dir / "falcon_090000_111111_arrival.mp4").write_bytes(b"dummy video")
+    (contract_dir / "falcon_095000_444444_departure.mp4").write_bytes(b"dummy video")
+    # Two visit segments inside one merged visit's [start, end] window
+    (contract_dir / "falcon_090000_111111_visit.mp4").write_bytes(b"dummy video")
+    (contract_dir / "falcon_092500_222222_visit.mp4").write_bytes(b"dummy video")
+    # In-progress recording + ffmpeg stderr sidecar: must never surface as events
+    (contract_dir / "falcon_130000_555555_visit.mp4.tmp").write_bytes(b"partial video")
+    (contract_dir / "falcon_130000_555555_visit.mp4.ffmpeg.log").write_bytes(b"ffmpeg noise")
+
     # Create a recent date with events so auto-select tests can find data
     # (find_most_recent_date_with_events only searches 30 days back)
     from datetime import datetime, timedelta
@@ -149,10 +204,13 @@ def mock_stream_config(test_data_dir):
             "start_time": f"{recent_date_str}T10:00:00-05:00",
             "end_time": f"{recent_date_str}T10:30:00-05:00",
             "duration_seconds": 1800,
+            "duration_str": "30m",
             "peak_confidence": 0.9,
             "thumbnail_path": "falcon_100000_arrival.jpg",
             "arrival_clip_path": "falcon_100000_arrival.mp4",
             "departure_clip_path": "falcon_103000_departure.mp4",
+            "insignificant": False,
+            "merged_segments": 1,
         }
     ]
     with open(recent_date_dir / f"events_{recent_date_str}.json", "w") as f:

@@ -199,7 +199,7 @@ function StreamCard({ stream }) {
           <div className="flex justify-between">
             <span>Last event:</span>
             <span className="text-kanyo-text font-medium">
-              {stats.last_event ? formatTimestamp(stats.last_event.timestamp) : 'None'}
+              {stats.last_event ? formatTimestamp(stats.last_event.timestamp, stream.timezone) : 'None'}
             </span>
           </div>
         </div>
@@ -208,10 +208,13 @@ function StreamCard({ stream }) {
   );
 }
 
-function formatTimestamp(isoString) {
+function formatTimestamp(isoString, timezone) {
   if (!isoString) return 'Unknown';
   const date = new Date(isoString);
   return date.toLocaleTimeString('en-US', {
+    // Event times are always shown in the stream's timezone, matching what
+    // the camera saw (falls back to browser timezone if none is configured).
+    ...(timezone ? { timeZone: timezone } : {}),
     hour: 'numeric',
     minute: '2-digit',
     hour12: true
