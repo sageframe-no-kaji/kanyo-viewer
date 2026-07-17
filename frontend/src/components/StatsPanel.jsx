@@ -61,7 +61,7 @@ export default function StatsPanel({ stream, stats, statsRange, onRangeChange, c
                         : 'Visit'}
                     </span>
                     <span className="text-kanyo-secondary-text text-[10px]">
-                      {formatTimestamp(event.timestamp)}
+                      {formatTimestamp(event.timestamp, stream?.timezone)}
                     </span>
                   </div>
                 ))}
@@ -118,10 +118,11 @@ function StatItem({ label, value, color = 'text-kanyo-text' }) {
   );
 }
 
-function formatTimestamp(isoString) {
+function formatTimestamp(isoString, timezone) {
   if (!isoString) return 'Unknown';
   const date = new Date(isoString);
   return date.toLocaleString('en-US', {
+    timeZone: timezone,
     month: 'short',
     day: 'numeric',
     hour: 'numeric',

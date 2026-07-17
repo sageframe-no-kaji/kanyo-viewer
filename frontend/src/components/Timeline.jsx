@@ -1,5 +1,6 @@
 import { useRef, useEffect, useState } from 'react';
 import { api } from '../utils/api';
+import { getDateInTimezone, getTimePartsInTimezone } from '../utils/timezone';
 
 export default function Timeline({
   events,
@@ -58,11 +59,10 @@ export default function Timeline({
 
     if (!nextDate) return false;
 
-    // Get current time in stream timezone
+    // Get current date and hour in stream timezone
     const now = new Date();
-    const streamNow = new Date(now.toLocaleString('en-US', { timeZone: streamTimezone }));
-    const currentDateStr = streamNow.toISOString().split('T')[0];
-    const currentHour = streamNow.getHours();
+    const currentDateStr = getDateInTimezone(now, streamTimezone);
+    const currentHour = getTimePartsInTimezone(now, streamTimezone).hour;
 
     // If next window is in the past, allow navigation
     if (nextDate < currentDateStr) {
@@ -135,11 +135,10 @@ export default function Timeline({
     return `${dateText} (${timeRange})`;
   };
 
-  // Get filtered events for current 12-hour window
+  // Get filtered events for current 12-hour window (hours in stream timezone)
   const getVisibleEvents = () => {
     return events.filter(event => {
-      const date = new Date(event.timestamp);
-      const hour = date.getHours();
+      const { hour } = getTimePartsInTimezone(new Date(event.timestamp), streamTimezone);
       if (startHour === 0) {
         return hour >= 0 && hour < 12;
       } else {
@@ -277,7 +276,7 @@ export default function Timeline({
             )}
 
             {getVisibleEvents().map((event, index, allEvents) => {
-              const { left, width } = calculateEventPosition(event, startHour);
+              const { left, width } = calculateEventPosition(event, startHour, streamTimezone);
 
               // Check for overlap with previous event and adjust position if needed
               let adjustedLeft = left;
@@ -285,7 +284,7 @@ export default function Timeline({
 
               if (index > 0) {
                 const prevEvent = allEvents[index - 1];
-                const prevPos = calculateEventPosition(prevEvent, startHour);
+                const prevPos = calculateEventPosition(prevEvent, startHour, streamTimezone);
                 const prevEnd = prevPos.left + prevPos.width;
 
                 // If current clip would overlap with previous, shift it to start after previous
@@ -365,14 +364,16 @@ export default function Timeline({
 
 /**
  * Calculate event position and width on 12-hour timeline
+ * (hours/minutes taken in the stream's timezone)
  */
-function calculateEventPosition(event, startHour) {
+function calculateEventPosition(event, startHour, streamTimezone) {
   if (!event.timestamp || !event.duration) return { left: 0, width: 0 };
 
-  const date = new Date(event.timestamp);
-  const hour = date.getHours();
-  const minutes = date.getMinutes();
-  const seconds = date.getSeconds();
+  const {
+    hour,
+    minute: minutes,
+    second: seconds
+  } = getTimePartsInTimezone(new Date(event.timestamp), streamTimezone);
 
   // Calculate minutes from start of current 12-hour window
   const eventMinutesFromDayStart = hour * 60 + minutes + seconds / 60;
