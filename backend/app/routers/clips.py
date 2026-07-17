@@ -12,10 +12,8 @@ router = APIRouter()
 def is_safe_path(base_path: Path, requested_path: Path) -> bool:
     """Check if requested path is within base path (prevent path traversal)."""
     try:
-        base_resolved = base_path.resolve()
-        requested_resolved = requested_path.resolve()
-        return str(requested_resolved).startswith(str(base_resolved))
-    except Exception:
+        return requested_path.resolve().is_relative_to(base_path.resolve())
+    except OSError:
         return False
 
 
@@ -40,8 +38,9 @@ async def serve_clip(stream_id: str, date: str, filename: str):
     if not re.match(r"^\d{4}-\d{2}-\d{2}$", date):
         raise HTTPException(status_code=400, detail="Invalid date format")
 
-    # Validate filename (only allow falcon_HHMMSS_type.ext)
-    if not re.match(r"^falcon_\d{6}_(arrival|departure|visit)\.(mp4|jpg)$", filename):
+    # Validate filename: falcon_HHMMSS_type.ext or falcon_HHMMSS_MICROSECONDS_type.ext
+    # (detector adds microseconds to filenames as of commit a014025)
+    if not re.match(r"^falcon_\d{6}(?:_\d{6})?_(arrival|departure|visit)\.(mp4|jpg)$", filename):
         raise HTTPException(status_code=400, detail="Invalid filename")
 
     # Construct file path

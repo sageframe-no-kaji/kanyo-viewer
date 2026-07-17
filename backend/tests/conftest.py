@@ -108,6 +108,34 @@ def mock_stream_config(test_data_dir):
     (harvard_date_dir / "falcon_072315_visit.jpg").write_bytes(b"dummy jpeg")
     (harvard_date_dir / "falcon_093000_visit.jpg").write_bytes(b"dummy jpeg")
 
+    # Create a date with NEW-format filenames (falcon_HHMMSS_MICROSECONDS_type.ext,
+    # produced by detector commit a014025). The visit clip's microseconds differ
+    # from the arrival snapshot's, as they do in production.
+    new_format_date = "2026-01-16"
+    new_format_dir = harvard_clips / new_format_date
+    new_format_dir.mkdir()
+    new_format_events = [
+        {
+            "id": "20260116_081500",
+            "start_time": "2026-01-16T08:15:00-05:00",
+            "end_time": "2026-01-16T08:40:00-05:00",
+            "duration_seconds": 1500,
+            "duration_str": "25m 0s",
+            "peak_confidence": 0.88,
+            "thumbnail_path": "falcon_081500_123456_arrival.jpg",
+            "arrival_clip_path": "falcon_081500_123456_arrival.mp4",
+            "departure_clip_path": "falcon_084000_654321_departure.mp4",
+            "insignificant": False,
+            "merged_segments": 1,
+        }
+    ]
+    with open(new_format_dir / f"events_{new_format_date}.json", "w") as f:
+        json.dump(new_format_events, f)
+    (new_format_dir / "falcon_081500_123456_arrival.jpg").write_bytes(b"dummy jpeg")
+    (new_format_dir / "falcon_081500_123456_arrival.mp4").write_bytes(b"dummy video")
+    (new_format_dir / "falcon_084000_654321_departure.mp4").write_bytes(b"dummy video")
+    (new_format_dir / "falcon_081500_999999_visit.mp4").write_bytes(b"dummy video")
+
     # Create a recent date with events so auto-select tests can find data
     # (find_most_recent_date_with_events only searches 30 days back)
     from datetime import datetime, timedelta
@@ -133,6 +161,9 @@ def mock_stream_config(test_data_dir):
     (recent_date_dir / "falcon_100000_arrival.mp4").write_bytes(b"dummy video")
     (recent_date_dir / "falcon_103000_departure.mp4").write_bytes(b"dummy video")
     (recent_date_dir / "falcon_100000_visit.mp4").write_bytes(b"dummy video")
+    # New-format arrival snapshot with a later time than the legacy one, so the
+    # snapshot endpoint should pick it (distinct content lets tests verify).
+    (recent_date_dir / "falcon_110000_123456_arrival.jpg").write_bytes(b"new format jpeg")
 
     return {"data_dir": test_data_dir}
 
