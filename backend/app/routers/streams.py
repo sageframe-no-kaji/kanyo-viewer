@@ -5,6 +5,7 @@ from pathlib import Path
 from datetime import datetime, timedelta, tzinfo
 from typing import List, Dict, Any, Optional
 import json
+import logging
 import os
 import subprocess
 import tempfile
@@ -17,6 +18,8 @@ import pytz
 from app.config import settings
 
 router = APIRouter()
+
+logger = logging.getLogger(__name__)
 
 # In-memory cache for resolved HLS URLs: {stream_id: {"url": str, "resolved_at": float}}
 _live_url_cache: Dict[str, Dict[str, Any]] = {}
@@ -148,6 +151,31 @@ def find_most_recent_date_with_events(
     return None
 
 
+def find_thumbnail(date_dir: Path, time_str: str, clip_file: Optional[Path] = None) -> str:
+    """Locate a thumbnail for a visit starting at HHMMSS ``time_str``.
+
+    Prefers a same-stem .jpg next to the clip, then an arrival snapshot for the
+    same HHMMSS in the new microsecond format (falcon_HHMMSS_MICROSECONDS_arrival.jpg,
+    whose microseconds can differ from the clip's), then the legacy exact name.
+    """
+    if clip_file is not None:
+        same_stem = clip_file.with_suffix(".jpg")
+        if same_stem.exists():
+            return same_stem.name
+
+    # New format: falcon_HHMMSS_MICROSECONDS_arrival.jpg
+    matches = sorted(date_dir.glob(f"falcon_{time_str}_*_arrival.jpg"))
+    if matches:
+        return matches[0].name
+
+    # Legacy format: falcon_HHMMSS_arrival.jpg
+    legacy = date_dir / f"falcon_{time_str}_arrival.jpg"
+    if legacy.exists():
+        return legacy.name
+
+    return ""
+
+
 def load_events_for_date(stream_id: str, date_str: str) -> List[Dict[str, Any]]:
     """Load visit clips with duration for HKSV-style timeline."""
     clips_dir = get_clips_dir(stream_id)
@@ -160,8 +188,9 @@ def load_events_for_date(stream_id: str, date_str: str) -> List[Dict[str, Any]]:
         import re
         import subprocess
 
-        # Pattern: falcon_HHMMSS_visit.mp4 (only visit clips)
-        pattern = re.compile(r"falcon_(\d{6})_visit\.(mp4|avi|mov|mkv)$")
+        # Pattern: falcon_HHMMSS_visit.mp4 or falcon_HHMMSS_MICROSECONDS_visit.mp4
+        # (detector adds microseconds to filenames as of commit a014025)
+        pattern = re.compile(r"falcon_(\d{6})(?:_\d{6})?_visit\.(mp4|avi|mov|mkv)$")
 
         filtered_events = []
 
@@ -219,14 +248,9 @@ def load_events_for_date(stream_id: str, date_str: str) -> List[Dict[str, Any]]:
                 file_size_mb = clip_file.stat().st_size / (1024 * 1024)
                 duration = file_size_mb * 10  # Rough estimate: ~10s per MB
 
-            # Check for thumbnail: try _visit.jpg first, then _arrival.jpg
+            # Check for thumbnail: same-stem .jpg first, then arrival snapshot
             # (recording system saves arrival captures as _arrival.jpg)
-            thumb_file = clip_file.with_suffix(".jpg")
-            if not thumb_file.exists():
-                thumb_file = clip_file.with_name(
-                    clip_file.stem.replace("_visit", "_arrival") + ".jpg"
-                )
-            thumbnail = thumb_file.name if thumb_file.exists() else ""
+            thumbnail = find_thumbnail(date_dir, time_str, clip_file)
 
             filtered_events.append(
                 {
@@ -267,9 +291,9 @@ def get_stats_for_range(stream_id: str, range_str: str) -> Dict[str, Any]:
         dates_to_check.add(current.strftime("%Y-%m-%d"))
         current += timedelta(days=1)
 
-    # Pattern: falcon_HHMMSS_type.ext (completed files only)
+    # Pattern: falcon_HHMMSS_type.ext with optional microseconds (completed files only)
     # Only count .mp4 files (not .tmp, .log, or thumbnails)
-    pattern = re.compile(r"falcon_(\d{6})_(arrival|departure|visit)\.mp4$")
+    pattern = re.compile(r"falcon_(\d{6})(?:_\d{6})?_(arrival|departure|visit)\.mp4$")
 
     visits = 0
     events_by_time: dict = {}  # deduplicate by time
@@ -381,7 +405,8 @@ async def list_streams():
                 }
             )
         except Exception:
-            # Skip streams that error out
+            # Skip streams that error out, but leave a trace for diagnosis
+            logger.exception("Skipping stream %s: failed to build stats", stream_id)
             continue
 
     return {"streams": streams_list}
@@ -420,7 +445,7 @@ async def get_dates_with_events(stream_id: str, start_date: str, end_date: str):
     end = datetime.strptime(end_date, "%Y-%m-%d")
 
     current = start
-    pattern = re.compile(r"falcon_(\d{6})_visit\.(mp4|avi|mov|mkv)$")
+    pattern = re.compile(r"falcon_(\d{6})(?:_\d{6})?_visit\.(mp4|avi|mov|mkv)$")
 
     while current <= end:
         date_str = current.strftime("%Y-%m-%d")
@@ -481,7 +506,7 @@ async def get_stream_snapshot(stream_id: str):
 
     # Search back up to 30 days for the most recent arrival snapshot
     current_date = datetime.now(tz)
-    pattern = re.compile(r"falcon_(\d{6})_arrival\.(jpg|jpeg|png)$")
+    pattern = re.compile(r"falcon_(\d{6})(?:_\d{6})?_arrival\.(jpg|jpeg|png)$")
 
     for _ in range(30):
         date_str = current_date.strftime("%Y-%m-%d")
