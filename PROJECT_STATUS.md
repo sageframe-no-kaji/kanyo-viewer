@@ -14,7 +14,7 @@ All planned features have been implemented and committed. The project is ready f
 - ✅ Visitor timezone detection via IP geolocation
 - ✅ Auto-selection of most recent date with events
 - ✅ Timezone-aware date handling
-- ✅ Stream registry configuration (streams.yaml)
+- ✅ Stream auto-discovery from the data directory (config.yaml per stream)
 
 ### Frontend (React + Vite + Tailwind)
 - ✅ Landing page with stream cards
@@ -79,33 +79,23 @@ All planned features have been implemented and committed. The project is ready f
 ## 📋 Configuration
 
 ### Streams
-Edit `backend/streams.yaml` to add/modify streams:
-
-```yaml
-streams:
-  harvard:
-    name: "Harvard Falcon Cam"
-    youtube_id: "glczTFRRAK4"
-    data_path: "/data/harvard"
-    timezone: "America/New_York"
-    display:
-      short_name: "Harvard"
-      location: "Memorial Hall, Harvard University, Cambridge MA"
-      species: "Peregrine Falcon (Falco peregrinus)"
-      maintainer: "Harvard Faculty of Arts & Sciences"
-      telegram_channel: "kanyo_harvard_falcon"
-```
+Streams are auto-discovered: the backend scans `KANYO_DATA_DIR` (default
+`/data`) and every subdirectory containing a `config.yaml` (the detection
+pipeline's config) becomes a stream. The directory name is the stream ID.
 
 ### Data Structure Expected
 ```
 /data/{stream_id}/clips/
   ├── YYYY-MM-DD/
-  │   ├── events_YYYY-MM-DD.json
-  │   ├── falcon_HHMMSS_arrival.mp4
-  │   ├── falcon_HHMMSS_arrival.jpg
-  │   ├── falcon_HHMMSS_departure.mp4
-  │   └── falcon_HHMMSS_departure.jpg
+  │   ├── events_YYYY-MM-DD.json                      # visit rows (authoritative)
+  │   ├── falcon_HHMMSS_MICROSECONDS_arrival.mp4/.jpg
+  │   ├── falcon_HHMMSS_MICROSECONDS_visit.mp4
+  │   └── falcon_HHMMSS_MICROSECONDS_departure.mp4/.jpg
 ```
+
+See the Data Contract section in `README.md` for the full detector contract
+(filename formats, events-JSON row schema, `.mp4.tmp`/`.ffmpeg.log` sidecars,
+merged visits, timezone semantics).
 
 ## 🎯 Features Implemented
 
@@ -176,7 +166,6 @@ streams:
 - **README.md** - Overview and quick start
 - **DEVELOPMENT.md** - Development guide with troubleshooting
 - **PROJECT_STATUS.md** - This file (project status)
-- **backend/streams.yaml** - Stream configuration reference
 - **scripts/** - Deployment automation
 
 ## 🎉 Summary
@@ -184,7 +173,7 @@ streams:
 The Kanyo Viewer is **complete and ready for production deployment**. All core features have been implemented, tested locally, and documented. The project follows best practices for:
 
 - Code organization (backend/frontend separation)
-- Configuration management (streams.yaml, .env)
+- Configuration management (stream auto-discovery, .env)
 - Deployment automation (scripts, Docker)
 - Developer experience (Make, development guide)
 - Security (path traversal protection, CORS)
