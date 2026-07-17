@@ -54,20 +54,6 @@ export const api = {
   },
 
   /**
-   * Detect visitor timezone from IP
-   */
-  async getVisitorTimezone() {
-    try {
-      const response = await fetch(`${API_BASE}/visitor/timezone`);
-      if (!response.ok) return null;
-      const data = await response.json();
-      return data.timezone;
-    } catch {
-      return null;
-    }
-  },
-
-  /**
    * Get clip URL
    */
   getClipUrl(streamId, date, filename) {

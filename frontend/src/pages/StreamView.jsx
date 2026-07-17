@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useSearchParams, Link } from "react-router-dom";
 import { api } from "../utils/api";
-import { detectVisitorTimezone, getDateInTimezone } from "../utils/timezone";
+import { getDateInTimezone } from "../utils/timezone";
 import VideoPlayer from "../components/VideoPlayer";
 import WeekCalendar from "../components/WeekCalendar";
 import Timeline from "../components/Timeline";
@@ -20,15 +20,9 @@ export default function StreamView() {
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [statsRange, setStatsRange] = useState("24h");
   const [isLive, setIsLive] = useState(true);
-  const [visitorTimezone, setVisitorTimezone] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [mobileTab, setMobileTab] = useState("cam"); // 'cam', 'info', 'stats'
-
-  // Initialize timezone
-  useEffect(() => {
-    detectVisitorTimezone().then(setVisitorTimezone);
-  }, []);
 
   // Load stream detail
   useEffect(() => {
@@ -277,12 +271,7 @@ export default function StreamView() {
           {/* Camera Info - Mobile */}
           {mobileTab === "info" && (
             <div className="h-full overflow-y-auto">
-              <CameraInfo
-                stream={stream}
-                visitorTimezone={visitorTimezone}
-                onTimezoneChange={setVisitorTimezone}
-                className="h-full"
-              />
+              <CameraInfo stream={stream} className="h-full" />
             </div>
           )}
 
@@ -363,11 +352,7 @@ export default function StreamView() {
         <div className="hidden lg:grid lg:grid-cols-12 gap-6 mb-6 items-stretch">
           {/* Camera Info - Left */}
           <div className="lg:col-span-3 h-full">
-            <CameraInfo
-              stream={stream}
-              visitorTimezone={visitorTimezone}
-              onTimezoneChange={setVisitorTimezone}
-            />
+            <CameraInfo stream={stream} />
           </div>
 
           {/* Video Section - Center */}

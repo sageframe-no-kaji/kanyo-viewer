@@ -1,8 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
-import { formatTimeInTimezone, setVisitorTimezone as saveVisitorTimezone } from '../utils/timezone';
-import TimezoneSelector from './TimezoneSelector';
+import { formatTimeInTimezone } from '../utils/timezone';
 
-export default function CameraInfo({ stream, visitorTimezone, onTimezoneChange, className = '' }) {
+export default function CameraInfo({ stream, className = '' }) {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [showLocalTime, setShowLocalTime] = useState(false);
   const [isDescriptionTruncated, setIsDescriptionTruncated] = useState(false);

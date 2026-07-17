@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Hls from 'hls.js';
 import { api } from '../utils/api';
+import { formatTimeInTimezone } from '../utils/timezone';
 
 export default function VideoPlayer({ stream, selectedEvent, selectedDate, isLive }) {
   const videoRef = useRef(null);
@@ -119,9 +120,9 @@ export default function VideoPlayer({ stream, selectedEvent, selectedDate, isLiv
                 <span className="w-2 h-2 bg-kanyo-red rounded-full"></span>
                 Visit
               </span>
-              <span className="text-kanyo-gray-100 text-xs">Arrived: {formatTimestamp(selectedEvent.timestamp)}</span>
+              <span className="text-kanyo-gray-100 text-xs">Arrived: {formatTimestamp(selectedEvent.timestamp, stream.timezone)}</span>
               <span className="text-kanyo-gray-300 text-xs">•</span>
-              <span className="text-kanyo-gray-100 text-xs">Departed: {formatDepartureTime(selectedEvent)}</span>
+              <span className="text-kanyo-gray-100 text-xs">Departed: {formatDepartureTime(selectedEvent, stream.timezone)}</span>
               <span className="text-kanyo-gray-300 text-xs">•</span>
               <span className="text-kanyo-gray-100 text-xs">Duration: {formatDuration(selectedEvent.duration)}</span>
             </div>
@@ -160,25 +161,20 @@ export default function VideoPlayer({ stream, selectedEvent, selectedDate, isLiv
   );
 }
 
-function formatTimestamp(isoString) {
+function formatTimestamp(isoString, timezone) {
   if (!isoString) return 'Unknown';
-  const date = new Date(isoString);
-  return date.toLocaleTimeString('en-US', {
-    hour: 'numeric',
-    minute: '2-digit',
-    hour12: true
-  });
+  return formatTimeInTimezone(new Date(isoString), timezone, { second: undefined });
 }
 
-function formatDepartureTime(event) {
+function formatDepartureTime(event, timezone) {
+  // Prefer the recorded end_time; fall back to arrival + duration
+  if (event.end_time) {
+    return formatTimestamp(event.end_time, timezone);
+  }
   if (!event.timestamp || !event.duration) return 'Unknown';
   const arrival = new Date(event.timestamp);
   const departure = new Date(arrival.getTime() + event.duration * 1000);
-  return departure.toLocaleTimeString('en-US', {
-    hour: 'numeric',
-    minute: '2-digit',
-    hour12: true
-  });
+  return formatTimeInTimezone(departure, timezone, { second: undefined });
 }
 
 function formatDuration(seconds) {
