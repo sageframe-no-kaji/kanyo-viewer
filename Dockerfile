@@ -27,6 +27,18 @@ RUN apt-get update && apt-get install -y curl \
     && apt-get install -y nodejs \
     && rm -rf /var/lib/apt/lists/*
 
+# Install deno (pinned) — required for yt-dlp's PO-token / BotGuard challenge on
+# pure-live YouTube streams. node (above) only solves the nsig challenge; without
+# deno the backend cannot resolve the live HLS manifest and the player shows
+# "Stream playback error — retrying...".
+RUN apt-get update && apt-get install -y unzip \
+    && curl -fsSL -o /tmp/deno.zip https://github.com/denoland/deno/releases/download/v2.9.3/deno-x86_64-unknown-linux-gnu.zip \
+    && unzip -q /tmp/deno.zip -d /usr/local/bin \
+    && rm /tmp/deno.zip \
+    && chmod 755 /usr/local/bin/deno \
+    && deno --version \
+    && rm -rf /var/lib/apt/lists/*
+
 # Copy backend requirements and install
 COPY backend/requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
