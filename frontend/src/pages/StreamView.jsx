@@ -159,7 +159,6 @@ export default function StreamView() {
               <div className="py-3 px-4 border-b border-kanyo-gray-500">
                 <h1 className="text-base font-semibold text-kanyo-text text-center truncate flex items-center justify-center gap-2">
                   <span>{stream.display?.short_name || stream.name}</span>
-                  <span className="text-[9px] font-bold text-white bg-kanyo-orange px-1.5 py-0.5 rounded uppercase tracking-wide">Beta</span>
                 </h1>
               </div>
               <div className="flex items-center justify-between py-2 px-4">
@@ -205,7 +204,6 @@ export default function StreamView() {
                   </svg>
                   <h1 className="text-xl font-semibold text-kanyo-text flex items-center gap-2">
                     <span>{stream.name}</span>
-                    <span className="text-[10px] font-bold text-white bg-kanyo-orange px-2 py-0.5 rounded uppercase tracking-wide">Beta</span>
                   </h1>
                 </div>
                 <div className="flex items-center gap-4 mr-4">
