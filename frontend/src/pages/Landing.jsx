@@ -118,6 +118,64 @@ export default function Landing() {
 
       {/* Main Content */}
       <main className="max-w-5xl mx-auto px-6 py-8">
+        {/* What's New — platform update callout (orange-bound) */}
+        <div className="mb-8 rounded-xl border-2 border-kanyo-orange bg-kanyo-card p-5 sm:p-6">
+          <div className="flex flex-wrap items-center gap-3 mb-3">
+            <span className="text-[11px] font-bold uppercase tracking-widest text-white bg-kanyo-orange px-2.5 py-1 rounded">
+              Update
+            </span>
+            <h2 className="text-lg sm:text-xl font-bold text-kanyo-text">
+              Kanyō can now count the nest — and we&rsquo;re watching eggs
+            </h2>
+          </div>
+
+          <p className="text-kanyo-gray-100 text-sm sm:text-base leading-relaxed mb-4">
+            Kanyō just grew from spotting <em>a</em> falcon to understanding what&rsquo;s
+            happening in the nest. It now reasons in three layers: a{' '}
+            <strong className="text-kanyo-text">presence layer</strong> that knows a bird
+            is still settled even when it holds perfectly still, a{' '}
+            <strong className="text-kanyo-text">significance filter</strong> that hides the
+            flicker and surfaces only the real comings and goings, and brand-new{' '}
+            <strong className="text-kanyo-text">multi-bird counting</strong> that tracks how
+            many birds share the nest at once.
+          </p>
+
+          <ul className="space-y-2.5 text-sm sm:text-base text-kanyo-gray-100 mb-4">
+            <li className="flex gap-2.5">
+              <span aria-hidden="true">🥚</span>
+              <span>
+                <strong className="text-kanyo-text">Egg watch is live on the I&amp;M FalconCam (Fort Wayne).</strong>{' '}
+                There are eggs in the nest right now. In chick-season mode a quiet, occupied
+                nest stays quiet — and when a parent arrives or leaves, the{' '}
+                <em>count</em> changes even though the nest never empties. That&rsquo;s how
+                you&rsquo;ll catch the pair trading incubation shifts.
+              </span>
+            </li>
+            <li className="flex gap-2.5">
+              <span aria-hidden="true">🔢</span>
+              <span>
+                <strong className="text-kanyo-text">See the whole family.</strong> As chicks
+                grow and fledglings start to move, the count rises and falls — a running read
+                on nest life, not just &ldquo;something moved.&rdquo;
+              </span>
+            </li>
+            <li className="flex gap-2.5">
+              <span aria-hidden="true">✨</span>
+              <span>
+                <strong className="text-kanyo-text">Cleaner timeline, steadier streams.</strong>{' '}
+                Merged visits, damped noise, and reconnection that rides out YouTube&rsquo;s
+                newest live-stream protections keep the archive honest and the cameras online.
+              </span>
+            </li>
+          </ul>
+
+          <p className="text-kanyo-gray-100 text-sm sm:text-base leading-relaxed">
+            The vision: an open-source record that doesn&rsquo;t just catch a falcon on camera —
+            it <span className="text-kanyo-orange italic">contemplates</span> the nest, season
+            after season. Keep an eye on Fort Wayne. 🦅
+          </p>
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {streams.map((stream) => (
             <StreamCard key={stream.id} stream={stream} />
