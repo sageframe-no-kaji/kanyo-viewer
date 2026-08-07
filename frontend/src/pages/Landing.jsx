@@ -125,7 +125,7 @@ export default function Landing() {
               Update
             </span>
             <h2 className="text-lg sm:text-xl font-bold text-kanyo-text">
-              Kanyō can now count the nest — and we&rsquo;re watching eggs
+              Kanyō can now count the nest
             </h2>
           </div>
 
@@ -142,21 +142,12 @@ export default function Landing() {
 
           <ul className="space-y-2.5 text-sm sm:text-base text-kanyo-gray-100 mb-4">
             <li className="flex gap-2.5">
-              <span aria-hidden="true">🥚</span>
-              <span>
-                <strong className="text-kanyo-text">Egg watch is live on the I&amp;M FalconCam (Fort Wayne).</strong>{' '}
-                There are eggs in the nest right now. In chick-season mode a quiet, occupied
-                nest stays quiet — and when a parent arrives or leaves, the{' '}
-                <em>count</em> changes even though the nest never empties. That&rsquo;s how
-                you&rsquo;ll catch the pair trading incubation shifts.
-              </span>
-            </li>
-            <li className="flex gap-2.5">
               <span aria-hidden="true">🔢</span>
               <span>
-                <strong className="text-kanyo-text">See the whole family.</strong> As chicks
-                grow and fledglings start to move, the count rises and falls — a running read
-                on nest life, not just &ldquo;something moved.&rdquo;
+                <strong className="text-kanyo-text">See more than one bird.</strong> When
+                several birds share a nest, the count rises and falls with them — a running
+                read on nest life, not just &ldquo;something moved.&rdquo; Counting is enabled
+                per camera, as each nest&rsquo;s season warrants it.
               </span>
             </li>
             <li className="flex gap-2.5">
@@ -172,7 +163,7 @@ export default function Landing() {
           <p className="text-kanyo-gray-100 text-sm sm:text-base leading-relaxed">
             The vision: an open-source record that doesn&rsquo;t just catch a falcon on camera —
             it <span className="text-kanyo-orange italic">contemplates</span> the nest, season
-            after season. Keep an eye on Fort Wayne. 🦅
+            after season. 🦅
           </p>
         </div>
 
